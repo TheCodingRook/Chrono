@@ -18,6 +18,7 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	
+	UFUNCTION(BlueprintPure, Category = "Pickup")
 	UStaticMeshComponent* GetMesh() const;
 	
 	UFUNCTION(BlueprintPure, Category = "Pickup")
