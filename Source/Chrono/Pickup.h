@@ -28,7 +28,7 @@ public:
 	void SetActive(bool NewPickupState);
 	
 	// Called when the pickup is collected
-	UFUNCTION(BlueprintNativeEvent, Category = "Pickup")
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Pickup")
 	void WasCollected();
 	
 protected:

@@ -17,11 +17,13 @@ class CHRONO_API ABatteryPickup : public APickup
 public:
 	ABatteryPickup();
 	
-	// Override WasCollected function - use Implementation because it's a Bluepring Native Event
+	// Override WasCollected function - use Implementation because it's a Blueprint Native Event
+	UFUNCTION(BlueprintCallable, Category = "Pickup")
 	void WasCollected_Implementation() override;
 	
 	/** Public accessor function for the BatteryPower float */
-	float GetPower();
+	UFUNCTION(BlueprintCallable, Category = "Pickup")
+	float GetPower() const;
 		
 protected:
 		/** Set the amount of power the battery gives to the character */

@@ -13,14 +13,15 @@ ABatteryPickup::ABatteryPickup()
 
 void ABatteryPickup::WasCollected_Implementation()
 {
-	// Uae the base pickup behavior
+	
+	
+	// Use the base pickup behavior
 	Super::WasCollected_Implementation();
-	// Destroy the battery
-	Destroy();
+	
 }
 
 // Report the battery power level
-float ABatteryPickup::GetPower()
+float ABatteryPickup::GetPower() const
 {
 	return BatteryPower;
 }
