@@ -5,6 +5,7 @@
 #include "Components/WidgetComponent.h"
 #include "Projectile.h"
 #include "Engine/World.h"
+#include "Math/UnrealMathUtility.h"
 
 // Sets default values
 ATimeWeapon::ATimeWeapon()
@@ -56,14 +57,19 @@ float ATimeWeapon::GetEnergyBlast() const
 /** Base implementation of Fire, but can be overriden/extended in Blueprint*/
 void ATimeWeapon::Fire_Implementation()
 {
-	EnergyCharge -= EnergyBlast;
-	
-	FVector SpawnLocation = GunMesh->GetSocketLocation("Muzzle");
-	FRotator SpawnRotation = GunMesh->GetSocketRotation("Muzzle");
-	
-	/** Make sure  there is a Projectile class selected and if so fire weapon*/
-	if (ProjectileClass != nullptr)
+	if (EnergyCharge >= EnergyBlast)
 	{
-		auto NewProjectile = GetWorld()->SpawnActor<AProjectile>(ProjectileClass, SpawnLocation, SpawnRotation);
+		EnergyCharge = FMath::Clamp<float>(EnergyCharge - EnergyBlast, 0 , EnergyCharge);
+
+		FVector SpawnLocation = GunMesh->GetSocketLocation("Muzzle");
+		FRotator SpawnRotation = GunMesh->GetSocketRotation("Muzzle");
+
+		/** Make sure  there is a Projectile class selected and if so fire weapon*/
+		if (ProjectileClass != nullptr)
+		{
+			auto NewProjectile = GetWorld()->SpawnActor<AProjectile>(ProjectileClass, SpawnLocation, SpawnRotation);
+		}
+		
+		
 	}
 }
