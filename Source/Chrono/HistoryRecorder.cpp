@@ -5,5 +5,5 @@
 
 UHistoryRecorder::UHistoryRecorder()
 {
-	SaveSlotName = TEXT("historySaveSlot");
+	SaveSlotName = TEXT("HistorySaveSlot");
 }

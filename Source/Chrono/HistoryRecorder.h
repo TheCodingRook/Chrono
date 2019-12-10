@@ -6,8 +6,17 @@
 #include "GameFramework/SaveGame.h"
 #include "HistoryRecorder.generated.h"
 
+USTRUCT(BlueprintType)
+struct FRecordedHistory
+{
+	GENERATED_BODY()
+
+		UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Recording")
+		TArray<float> InputControlInfo;
+};
+
 /**
- * 
+ * Customized class to record gameplay and simulate a "travel back in time" operation
  */
 UCLASS()
 class CHRONO_API UHistoryRecorder : public USaveGame
@@ -19,5 +28,8 @@ public:
 	FString SaveSlotName;
 
 	UHistoryRecorder();
+
+	UPROPERTY(VisibleAnywhere, Category = "Recording")
+	FRecordedHistory RecordedHistory;
 	
 };
