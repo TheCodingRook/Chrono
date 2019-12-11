@@ -3,33 +3,69 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/SaveGame.h"
+#include "Components/ActorComponent.h"
 #include "HistoryRecorder.generated.h"
 
+/*
+*	Simple struct to store a specific input action and the exact time it was received
+*/
 USTRUCT(BlueprintType)
-struct FRecordedHistory
+struct FRecordedInputAction
 {
 	GENERATED_BODY()
 
-		UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Recording")
-		TArray<float> InputControlInfo;
+	float TimeStamp;
+	FName ActionName;
 };
 
-/**
- * Customized class to record gameplay and simulate a "travel back in time" operation
- */
-UCLASS()
-class CHRONO_API UHistoryRecorder : public USaveGame
+
+/*	A class that allows the actor (in this case most likely the controlled pawn) to
+* 	store its controller's input so it can be re-played at a later time. Intended to
+*	be used to simulate a Player travelling back in time and encountering "past self".
+*/	
+UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+class CHRONO_API UHistoryRecorder : public UActorComponent
 {
 	GENERATED_BODY()
 
-public:
-	UPROPERTY(VisibleAnywhere, Category = "Basic")
-	FString SaveSlotName;
-
+public:	
+	// Sets default values for this component's properties
 	UHistoryRecorder();
 
-	UPROPERTY(VisibleAnywhere, Category = "Recording")
-	FRecordedHistory RecordedHistory;
+	// Called every frame
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+
+	/* Public getter functions */
+	UFUNCTION(BlueprintPure, Category = "Time Travel")
+	TArray<FRecordedInputAction> GetRecordedInputActions() const;
+
+	UFUNCTION(BlueprintPure, Category = "Time Travel")
+	float GetMaxRecordingTime() const;
+
+	UFUNCTION(BlueprintPure, Category = "Time Travel")
+	int GetMaxStructArraySize() const;
+
+	UFUNCTION(BlueprintPure, Category = "Time Travel")
+	bool ShouldRecord() const;
+
+protected:
+	// Called when the game starts
+	virtual void BeginPlay() override;
 	
+private:
+	// Array of structs to record a continuous stream of input actions
+	UPROPERTY(EditDefaultsOnly, Category = "Time Travel")
+	TArray<FRecordedInputAction> PastActions;
+
+	// Maximum "history recording" time
+	UPROPERTY(EditDefaultsOnly, Category = "Time Travel")
+	float MaxRecordingTime; // in seconds
+	
+	// Maximum size that the struct of recorded input actions can grow to
+	UPROPERTY(EditDefaultsOnly, Category = "Time Travel")
+	int MaxStructArraySize;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Time Travel")
+	bool bShouldRecord;
 };
