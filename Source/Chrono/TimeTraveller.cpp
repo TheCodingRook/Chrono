@@ -8,12 +8,12 @@ ATimeTraveller::ATimeTraveller()
 {
 	//Super(); TODO: Do I need to call Super?
 
-	TimeTravelComponent = CreateDefaultSubobject<UHistoryRecorder>(FName("Time Travel Component"));
+	TimeTravel = CreateDefaultSubobject<UHistoryRecorder>(FName("Time Travel Component"));
 }
 
 UHistoryRecorder* ATimeTraveller::GetTimeTravelComponent() const
 {
-	return TimeTravelComponent;
+	return TimeTravel;
 }
 
 

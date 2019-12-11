@@ -20,11 +20,11 @@ class CHRONO_API ATimeTraveller : public AChronoCharacter
 	ATimeTraveller();
 
 public:
-	UFUNCTION(BlueprintPure, Category = "Time Travel")
 	UHistoryRecorder* GetTimeTravelComponent() const;
 
 private:
-	UPROPERTY(EditDefaultsOnly, Category = "Time Travel")
-	UHistoryRecorder* TimeTravelComponent;
+	/** Component to implement character's time-travelling ability	*/
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Time Travel", meta = (AllowPrivateAccess = "true"))
+	UHistoryRecorder* TimeTravel;
 	
 };
