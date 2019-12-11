@@ -12,7 +12,7 @@
 USTRUCT(BlueprintType)
 struct FRecordedInputAction
 {
-	GENERATED_BODY()
+	GENERATED_USTRUCT_BODY()
 
 	float TimeStamp;
 	FName ActionName;
