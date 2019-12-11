@@ -7,7 +7,7 @@
 #include "TimeTraveller.generated.h"
 
 // Forward declerations
-class UHistoryRecorder;
+class UTimeTravelComponent;
 
 /**
  * 
@@ -20,11 +20,11 @@ class CHRONO_API ATimeTraveller : public AChronoCharacter
 	ATimeTraveller();
 
 public:
-	UHistoryRecorder* GetTimeTravelComponent() const;
+	UTimeTravelComponent* GetTimeTravelComponent() const;
 
 private:
 	/** Component to implement character's time-travelling ability	*/
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Time Travel", meta = (AllowPrivateAccess = "true"))
-	UHistoryRecorder* TimeTravel;
+	UTimeTravelComponent* TimeTravel;
 	
 };

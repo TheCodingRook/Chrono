@@ -1,10 +1,10 @@
 // A prototype by Evangelos ("Vaggelis") Tsesmelidakis. All rights reserved. 2019
 
 
-#include "HistoryRecorder.h"
+#include "TimeTravelComponent.h"
 
 // Sets default values for this component's properties
-UHistoryRecorder::UHistoryRecorder()
+UTimeTravelComponent::UTimeTravelComponent()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
@@ -17,35 +17,35 @@ UHistoryRecorder::UHistoryRecorder()
 }
 
 // Called every frame
-void UHistoryRecorder::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UTimeTravelComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// ...
 }
 
-TArray<FRecordedInputAction> UHistoryRecorder::GetRecordedInputActions() const
+TArray<FRecordedInputAction> UTimeTravelComponent::GetRecordedInputActions() const
 {
 	return PastActions;
 }
 
-float UHistoryRecorder::GetMaxRecordingTime() const
+float UTimeTravelComponent::GetMaxRecordingTime() const
 {
 	return MaxRecordingTime;
 }
 
-int UHistoryRecorder::GetMaxStructArraySize() const
+int UTimeTravelComponent::GetMaxStructArraySize() const
 {
 	return MaxStructArraySize;
 }
 
-bool UHistoryRecorder::ShouldRecord() const
+bool UTimeTravelComponent::ShouldRecord() const
 {
 	return bShouldRecord;
 }
 
 // Called when the game starts
-void UHistoryRecorder::BeginPlay()
+void UTimeTravelComponent::BeginPlay()
 {
 	Super::BeginPlay();
 

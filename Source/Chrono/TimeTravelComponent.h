@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "HistoryRecorder.generated.h"
+#include "TimeTravelComponent.generated.h"
 
 /*
 *	Simple struct to store a specific input action and the exact time it was received
@@ -24,13 +24,13 @@ struct FRecordedInputAction
 *	be used to simulate a Player travelling back in time and encountering "past self".
 */	
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class CHRONO_API UHistoryRecorder : public UActorComponent
+class CHRONO_API UTimeTravelComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:	
 	// Sets default values for this component's properties
-	UHistoryRecorder();
+	UTimeTravelComponent();
 
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
