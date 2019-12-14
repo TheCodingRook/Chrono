@@ -9,13 +9,35 @@
 /*
 *	Simple struct to store a specific input action and the exact time it was received
 */
+
+UENUM(BlueprintType)
+enum class EInputActionEnum : uint8
+{
+	Move_Forward UMETA(DisplayName = "Move Forward"),
+	Move_Right UMETA(DisplayName = "Move Right"),
+	Turn UMETA(DisplayName = "Turn"),
+	Turn_At_Rate UMETA(DisplayName = "Turn At Rate"),
+	Look_Up UMETA(DisplayName = "Look Up"),
+	Look_Up_At_Rate UMETA(DisplayName = "Look Up At Rate"),
+	Jump UMETA(DisplayName = "Jump"),
+	Stop_Jumping UMETA(DisplayName = "Stop Jumping"),
+	Fire UMETA(DisplayName = "Fire")
+};
+
 USTRUCT(BlueprintType)
 struct FRecordedInputAction
 {
 	GENERATED_USTRUCT_BODY()
-
+	
+	UPROPERTY(VisibleAnywhere, Category = "Struct Contents")
 	float TimeStamp;
-	FName ActionName;
+	
+	UPROPERTY(VisibleAnywhere, Category = "Struct Contents")
+	EInputActionEnum ActionName;
+
+	// Stores the value for axis-related actions, can be set to zero for button actions
+	UPROPERTY(VisibleAnywhere, Category = "Struct Contents")
+	float Value;
 };
 
 
@@ -38,7 +60,7 @@ public:
 
 	/* Public getter functions */
 	UFUNCTION(BlueprintPure, Category = "Time Travel")
-	TArray<FRecordedInputAction> GetRecordedInputActions() const;
+	TArray<FRecordedInputAction> GetPastActions() const;
 
 	UFUNCTION(BlueprintPure, Category = "Time Travel")
 	float GetMaxRecordingTime() const;
@@ -49,13 +71,20 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Time Travel")
 	bool ShouldRecord() const;
 
+	/*Add to the array*/
+	UFUNCTION(BlueprintCallable, Category = "Time Travel")
+	void AddRecordedAction(float TimeStamp, EInputActionEnum RecordedActionName, float RecordedValue);
+
+	UFUNCTION(BlueprintCallable, Category = "Time Travel")
+	void AllowRecording(bool bInCanRecord);
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 	
 private:
 	// Array of structs to record a continuous stream of input actions
-	UPROPERTY(EditDefaultsOnly, Category = "Time Travel")
+	UPROPERTY(EditAnywhere, Category = "Time Travel")
 	TArray<FRecordedInputAction> PastActions;
 
 	// Maximum "history recording" time
@@ -66,6 +95,11 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Time Travel")
 	int MaxStructArraySize;
 
+	// Flat to determine whether input actions should be recorded
 	UPROPERTY(EditDefaultsOnly, Category = "Time Travel")
 	bool bShouldRecord;
+
+	// Keeps track of whether the character is a past version of itself or not
+	UPROPERTY(EditDefaultsOnly, Category = "Time Travel")
+	bool bIsPastSelf;
 };

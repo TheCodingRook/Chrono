@@ -2,6 +2,7 @@
 
 
 #include "TimeTravelComponent.h"
+#include "TimeTraveller.h"
 
 // Sets default values for this component's properties
 UTimeTravelComponent::UTimeTravelComponent()
@@ -24,7 +25,7 @@ void UTimeTravelComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 	// ...
 }
 
-TArray<FRecordedInputAction> UTimeTravelComponent::GetRecordedInputActions() const
+TArray<FRecordedInputAction> UTimeTravelComponent::GetPastActions() const
 {
 	return PastActions;
 }
@@ -42,6 +43,22 @@ int UTimeTravelComponent::GetMaxStructArraySize() const
 bool UTimeTravelComponent::ShouldRecord() const
 {
 	return bShouldRecord;
+}
+
+void UTimeTravelComponent::AddRecordedAction(float RecordedTimeStamp, EInputActionEnum RecordedActionName, float RecordedValue)
+{
+	// Createa  new struct object with the inputs
+	FRecordedInputAction NewAction;
+	NewAction.TimeStamp = RecordedTimeStamp;
+	NewAction.ActionName = RecordedActionName;
+	NewAction.Value = RecordedValue;
+	// Add to array
+	PastActions.Add(NewAction);
+}
+
+void UTimeTravelComponent::AllowRecording(bool bInCanRecord)
+{
+	bShouldRecord = bInCanRecord;
 }
 
 // Called when the game starts
