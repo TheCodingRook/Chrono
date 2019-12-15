@@ -229,44 +229,6 @@ void AChronoCharacter::OnResetVR()
 	UHeadMountedDisplayFunctionLibrary::ResetOrientationAndPosition();
 }
 
-void AChronoCharacter::ReplayHistory()
-{
-	// Stop recording input actions because "time travel" has been initiated
-	TimeTravel->AllowRecording(false);
-
-	// To be used for calculating time elapsed between recorded actions.
-	float PreviousTimeStamp = 0;
-
-	FTimerHandle Delay;
-
-	// manual for loop to go through the array of structs with delays.
-	int i = 0;
-
-	while (i < TimeTravel->GetPastActions().Num())
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Array index: %i"), i)
-			TempActionName = TimeTravel->GetPastActions()[i].ActionName;
-			TempActionValue = TimeTravel->GetPastActions()[i].Value;
-
-		const UEnum* InputActionEnum = FindObject<UEnum>(ANY_PACKAGE, TEXT("EInputActionEnum"));
-
-		UE_LOG(LogTemp, Warning, TEXT("Action is: %s"), *InputActionEnum->GetEnumName((int32)TempActionName))
-			UE_LOG(LogTemp, Warning, TEXT("TimeStamp is: %f"), TempActionValue)
-
-			// Deal with the first element in the array when time travel begins.
-			if (i == 0)
-			{
-				// Execute immediately; this is the first index in the array
-				GetWorldTimerManager().SetTimer(Delay, this, &AChronoCharacter::ReplayAction, 0.001f, false);
-			}
-			else
-			{
-				GetWorldTimerManager().SetTimer(Delay, this, &AChronoCharacter::ReplayAction, TimeTravel->GetPastActions()[i].TimeStamp - TimeTravel->GetPastActions()[i - 1].TimeStamp, false);
-			}
-		i++;
-	}
-}
-
 void AChronoCharacter::ReplayAction()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Entered ReplayAction()"))

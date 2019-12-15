@@ -80,7 +80,7 @@ protected:
 	// End of APawn interface
 
 	// Replay history
-	UFUNCTION(BlueprintCallable, Category = "Time Travel", meta = (AllowPrivateAccess = "true"))
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "Time Travel", meta = (AllowPrivateAccess = "true"))
 	void ReplayHistory();
 
 	void ReplayAction();
