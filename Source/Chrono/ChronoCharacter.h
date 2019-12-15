@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "TimeTravelComponent.h"
 #include "ChronoCharacter.generated.h"
 
 UCLASS(config=Game)
@@ -18,6 +19,10 @@ class AChronoCharacter : public ACharacter
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
+
+	EInputActionEnum TempActionName;
+	float TempActionValue;
+
 public:
 	AChronoCharacter();
 
@@ -29,44 +34,68 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
 	float BaseLookUpRate;
 
-protected: // Vaggelis: Added "virtual for all of these so that I can override them in my defined class if necessary
+protected:
 
-	/** Resets HMD orientation in VR. */
-	virtual void OnResetVR();
+	/**	Called for jumping */
+	void JumpAndRecord();
+
+	/**	Called to stop jumping */
+	void StopJumpingAndRecord();
 
 	/** Called for forwards/backward input */
-	virtual void MoveForward(float Value);
+	void MoveForward(float Value);
 
 	/** Called for side to side input */
-	virtual void MoveRight(float Value);
+	void MoveRight(float Value);
 
+	/** Called via pawn interface to turn (after recording input first) */
+	void Turn(float Value);
+	
 	/** 
 	 * Called via input to turn at a given rate. 
 	 * @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
 	 */
-	virtual void TurnAtRate(float Rate);
+	void TurnAtRate(float Rate);
+
+	/** Called via pawn interface to turn (after recording input first) */
+	void LookUp(float Value);
 
 	/**
 	 * Called via input to turn look up/down at a given rate. 
 	 * @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
 	 */
-	virtual void LookUpAtRate(float Rate);
+	void LookUpAtRate(float Rate);
 
 	/** Handler for when a touch input begins. */
-	virtual void TouchStarted(ETouchIndex::Type FingerIndex, FVector Location);
+	void TouchStarted(ETouchIndex::Type FingerIndex, FVector Location);
 
 	/** Handler for when a touch input stops. */
-	virtual void TouchStopped(ETouchIndex::Type FingerIndex, FVector Location);
+	void TouchStopped(ETouchIndex::Type FingerIndex, FVector Location);
 
-protected:
+	/** Resets HMD orientation in VR. */
+	void OnResetVR();
+
 	// APawn interface
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	// End of APawn interface
+
+	// Replay history
+	UFUNCTION(BlueprintCallable, Category = "Time Travel", meta = (AllowPrivateAccess = "true"))
+	void ReplayHistory();
+
+	void ReplayAction();
 
 public:
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+
+	FORCEINLINE class UTimeTravelComponent* GetTimeTravelComponent() const { return TimeTravel; }
+
+private:
+	/** Component to implement character's time-travelling ability	*/
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Time Travel", meta = (AllowPrivateAccess = "true"))
+	UTimeTravelComponent* TimeTravel;
 };
 

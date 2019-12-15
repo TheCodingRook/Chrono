@@ -2,7 +2,6 @@
 
 
 #include "TimeTravelComponent.h"
-#include "TimeTraveller.h"
 
 // Sets default values for this component's properties
 UTimeTravelComponent::UTimeTravelComponent()

@@ -8,6 +8,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "TimerManager.h"
 
 //////////////////////////////////////////////////////////////////////////
 // AChronoCharacter
@@ -45,6 +46,9 @@ AChronoCharacter::AChronoCharacter()
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
+
+	// Sets up a time travel component
+	TimeTravel = CreateDefaultSubobject<UTimeTravelComponent>(FName("Time Travel Component"));
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -54,8 +58,8 @@ void AChronoCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 {
 	// Set up gameplay key bindings
 	check(PlayerInputComponent);
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
-	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AChronoCharacter::JumpAndRecord); // cannot override Pawn's Jump here so had to name differently
+	PlayerInputComponent->BindAction("Jump", IE_Released, this, &AChronoCharacter::StopJumping);
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &AChronoCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AChronoCharacter::MoveRight);
@@ -64,9 +68,9 @@ void AChronoCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 	// "turn" handles devices that provide an absolute delta, such as a mouse.
 	// "turnrate" is for devices that we choose to treat as a rate of change, such as an analog joystick
 
-	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
+	PlayerInputComponent->BindAxis("Turn", this, &AChronoCharacter::Turn);
 	PlayerInputComponent->BindAxis("TurnRate", this, &AChronoCharacter::TurnAtRate);
-	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
+	PlayerInputComponent->BindAxis("LookUp", this, &AChronoCharacter::LookUp);
 	PlayerInputComponent->BindAxis("LookUpAtRate", this, &AChronoCharacter::LookUpAtRate);
 
 	// handle touch devices
@@ -77,59 +81,214 @@ void AChronoCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 	PlayerInputComponent->BindAction("ResetVR", IE_Pressed, this, &AChronoCharacter::OnResetVR);
 }
 
-
-void AChronoCharacter::OnResetVR()
+void AChronoCharacter::JumpAndRecord()
 {
-	UHeadMountedDisplayFunctionLibrary::ResetOrientationAndPosition();
-}
+	if (TimeTravel->ShouldRecord())
+	{
+		// First record time and identity of input...
+		TimeTravel->AddRecordedAction(GetWorld()->GetTimeSeconds(), EInputActionEnum::Jump, 0);
 
-void AChronoCharacter::TouchStarted(ETouchIndex::Type FingerIndex, FVector Location)
-{
+		// ... then execute action through APawn's interface
 		Jump();
+	}
 }
 
-void AChronoCharacter::TouchStopped(ETouchIndex::Type FingerIndex, FVector Location)
+void AChronoCharacter::StopJumpingAndRecord()
 {
+	if (TimeTravel->ShouldRecord())
+	{
+		// First record time and identity of input...
+		TimeTravel->AddRecordedAction(GetWorld()->GetTimeSeconds(), EInputActionEnum::Stop_Jumping, 0);
+
+		// ... then execute action through APawn's interface
 		StopJumping();
-}
-
-void AChronoCharacter::TurnAtRate(float Rate)
-{
-	// calculate delta for this frame from the rate information
-	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
-}
-
-void AChronoCharacter::LookUpAtRate(float Rate)
-{
-	// calculate delta for this frame from the rate information
-	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
+	}
 }
 
 void AChronoCharacter::MoveForward(float Value)
 {
 	if ((Controller != NULL) && (Value != 0.0f))
 	{
-		// find out which way is forward
-		const FRotator Rotation = Controller->GetControlRotation();
-		const FRotator YawRotation(0, Rotation.Yaw, 0);
+		if (TimeTravel->ShouldRecord())
+		{
+			// First record time and identity of input...
+			TimeTravel->AddRecordedAction(GetWorld()->GetTimeSeconds(), EInputActionEnum::Move_Forward, Value);
 
-		// get forward vector
-		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-		AddMovementInput(Direction, Value);
+
+			// find out which way is forward
+			const FRotator Rotation = Controller->GetControlRotation();
+			const FRotator YawRotation(0, Rotation.Yaw, 0);
+
+			// get forward vector
+			const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+			AddMovementInput(Direction, Value);
+		}
 	}
 }
 
 void AChronoCharacter::MoveRight(float Value)
 {
-	if ( (Controller != NULL) && (Value != 0.0f) )
+	if ((Controller != NULL) && (Value != 0.0f))
 	{
-		// find out which way is right
-		const FRotator Rotation = Controller->GetControlRotation();
-		const FRotator YawRotation(0, Rotation.Yaw, 0);
-	
-		// get right vector 
-		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-		// add movement in that direction
-		AddMovementInput(Direction, Value);
+		if (TimeTravel->ShouldRecord())
+		{
+			// First record time and identity of input...
+			TimeTravel->AddRecordedAction(GetWorld()->GetTimeSeconds(), EInputActionEnum::Move_Right, Value);
+
+			// find out which way is right
+			const FRotator Rotation = Controller->GetControlRotation();
+			const FRotator YawRotation(0, Rotation.Yaw, 0);
+
+			// get right vector 
+			const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+			// add movement in that direction
+			AddMovementInput(Direction, Value);
+		}
 	}
+}
+
+void AChronoCharacter::Turn(float Value)
+{
+	if (TimeTravel->ShouldRecord())
+	{
+		// First record time and identity of input...
+		TimeTravel->AddRecordedAction(GetWorld()->GetTimeSeconds(), EInputActionEnum::Turn, Value);
+
+		// call Pawn's interface to turn
+		AddControllerYawInput(Value);
+	}
+}
+
+void AChronoCharacter::TurnAtRate(float Rate)
+{
+	if (TimeTravel->ShouldRecord())
+	{
+		// First record time and identity of input...
+		TimeTravel->AddRecordedAction(GetWorld()->GetTimeSeconds(), EInputActionEnum::Turn_At_Rate, Rate);
+
+		// calculate delta for this frame from the rate information
+		AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
+	}
+}
+
+void AChronoCharacter::LookUp(float Value)
+{
+	if (TimeTravel->ShouldRecord())
+	{
+		// First record time and identity of input...
+		TimeTravel->AddRecordedAction(GetWorld()->GetTimeSeconds(), EInputActionEnum::Look_Up, Value);
+
+		// call Pawn's interface to look up
+		AddControllerPitchInput(Value);
+	}
+}
+
+void AChronoCharacter::LookUpAtRate(float Rate)
+{
+	if (TimeTravel->ShouldRecord())
+	{
+		// First record time and identity of input...
+		TimeTravel->AddRecordedAction(GetWorld()->GetTimeSeconds(), EInputActionEnum::Look_Up, Rate);
+
+		// calculate delta for this frame from the rate information
+		AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
+	}
+}
+
+
+void AChronoCharacter::TouchStarted(ETouchIndex::Type FingerIndex, FVector Location)
+{
+	Jump();
+}
+
+void AChronoCharacter::TouchStopped(ETouchIndex::Type FingerIndex, FVector Location)
+{
+	StopJumping();
+}
+
+void AChronoCharacter::OnResetVR()
+{
+	UHeadMountedDisplayFunctionLibrary::ResetOrientationAndPosition();
+}
+
+void AChronoCharacter::ReplayHistory()
+{
+	// Stop recording input actions because "time travel" has been initiated
+	TimeTravel->AllowRecording(false);
+
+	// To be used for calculating time elapsed between recorded actions.
+	float PreviousTimeStamp = 0;
+
+	FTimerHandle Delay;
+
+	// manual for loop to go through the array of structs with delays.
+	int i = 0;
+
+	while (i < TimeTravel->GetPastActions().Num())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Array index: %i"), i)
+			TempActionName = TimeTravel->GetPastActions()[i].ActionName;
+			TempActionValue = TimeTravel->GetPastActions()[i].Value;
+
+		const UEnum* InputActionEnum = FindObject<UEnum>(ANY_PACKAGE, TEXT("EInputActionEnum"));
+
+		UE_LOG(LogTemp, Warning, TEXT("Action is: %s"), *InputActionEnum->GetEnumName((int32)TempActionName))
+			UE_LOG(LogTemp, Warning, TEXT("TimeStamp is: %f"), TempActionValue)
+
+			// Deal with the first element in the array when time travel begins.
+			if (i == 0)
+			{
+				// Execute immediately; this is the first index in the array
+				GetWorldTimerManager().SetTimer(Delay, this, &AChronoCharacter::ReplayAction, 0.001f, false);
+			}
+			else
+			{
+				GetWorldTimerManager().SetTimer(Delay, this, &AChronoCharacter::ReplayAction, TimeTravel->GetPastActions()[i].TimeStamp - TimeTravel->GetPastActions()[i - 1].TimeStamp, false);
+			}
+		i++;
+	}
+}
+
+void AChronoCharacter::ReplayAction()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Entered ReplayAction()"))
+		switch (TempActionName)
+		{
+		case EInputActionEnum::Jump:
+			Jump(); // This is ACharacter's interface
+			break;
+
+		case EInputActionEnum::Stop_Jumping:
+			StopJumping(); // This is ACharacter's interface
+			break;
+
+		case EInputActionEnum::Move_Forward:
+			MoveForward(TempActionValue);
+			break;
+
+		case EInputActionEnum::Move_Right:
+			MoveRight(TempActionValue);
+			break;
+
+		case EInputActionEnum::Turn:
+			AddControllerYawInput(TempActionValue); // This is APawn's interface
+			break;
+
+		case EInputActionEnum::Turn_At_Rate:
+			TurnAtRate(TempActionValue);
+			break;
+
+		case EInputActionEnum::Look_Up:
+			AddControllerPitchInput(TempActionValue); // This is APawn's interface
+			break;
+
+		case EInputActionEnum::Look_Up_At_Rate:
+			LookUpAtRate(TempActionValue);
+			break;
+
+		case EInputActionEnum::Fire:
+
+		default:
+			break;
+		}
 }
