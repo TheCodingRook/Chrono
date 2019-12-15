@@ -229,10 +229,10 @@ void AChronoCharacter::OnResetVR()
 	UHeadMountedDisplayFunctionLibrary::ResetOrientationAndPosition();
 }
 
-void AChronoCharacter::ReplayAction()
+void AChronoCharacter::ReplayAction(FRecordedInputAction ActionToReplay)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Entered ReplayAction()"))
-		switch (TempActionName)
+		switch (ActionToReplay.ActionName)
 		{
 		case EInputActionEnum::Jump:
 			Jump(); // This is ACharacter's interface
@@ -243,27 +243,27 @@ void AChronoCharacter::ReplayAction()
 			break;
 
 		case EInputActionEnum::Move_Forward:
-			MoveForward(TempActionValue);
+			MoveForward(ActionToReplay.Value);
 			break;
 
 		case EInputActionEnum::Move_Right:
-			MoveRight(TempActionValue);
+			MoveRight(ActionToReplay.Value);
 			break;
 
 		case EInputActionEnum::Turn:
-			AddControllerYawInput(TempActionValue); // This is APawn's interface
+			AddControllerYawInput(ActionToReplay.Value); // This is APawn's interface
 			break;
 
 		case EInputActionEnum::Turn_At_Rate:
-			TurnAtRate(TempActionValue);
+			TurnAtRate(ActionToReplay.Value);
 			break;
 
 		case EInputActionEnum::Look_Up:
-			AddControllerPitchInput(TempActionValue); // This is APawn's interface
+			AddControllerPitchInput(ActionToReplay.Value); // This is APawn's interface
 			break;
 
 		case EInputActionEnum::Look_Up_At_Rate:
-			LookUpAtRate(TempActionValue);
+			LookUpAtRate(ActionToReplay.Value);
 			break;
 
 		case EInputActionEnum::Fire:

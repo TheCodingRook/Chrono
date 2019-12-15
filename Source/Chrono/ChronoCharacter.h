@@ -20,9 +20,6 @@ class AChronoCharacter : public ACharacter
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
 
-	EInputActionEnum TempActionName;
-	float TempActionValue;
-
 public:
 	AChronoCharacter();
 
@@ -83,7 +80,7 @@ protected:
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "Time Travel", meta = (AllowPrivateAccess = "true"))
 	void ReplayHistory();
 
-	void ReplayAction();
+	void ReplayAction(FRecordedInputAction ActionToReplay);
 
 public:
 	/** Returns CameraBoom subobject **/

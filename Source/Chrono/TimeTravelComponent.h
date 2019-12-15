@@ -29,15 +29,16 @@ struct FRecordedInputAction
 {
 	GENERATED_USTRUCT_BODY()
 	
-	UPROPERTY(VisibleAnywhere, Category = "Struct Contents")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Struct Contents")
 	float TimeStamp;
 	
-	UPROPERTY(VisibleAnywhere, Category = "Struct Contents")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Struct Contents")
 	EInputActionEnum ActionName;
 
 	// Stores the value for axis-related actions, can be set to zero for button actions
-	UPROPERTY(VisibleAnywhere, Category = "Struct Contents")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Struct Contents")
 	float Value;
+	// TODO Vaggelis: designated the members of the struct as BlueprintReadWrite so I can make sure I can see them in BP, however, should they be writeable????
 };
 
 
