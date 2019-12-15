@@ -6,10 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "TimeTravelComponent.generated.h"
 
-/*
-*	Simple struct to store a specific input action and the exact time it was received
-*/
-
+/*Enumeration to store name of actions */
 UENUM(BlueprintType)
 enum class EInputActionEnum : uint8
 {
@@ -24,6 +21,26 @@ enum class EInputActionEnum : uint8
 	Fire UMETA(DisplayName = "Fire")
 };
 
+
+/*	Utility to be able to print the enumerations easily for debugging purposes.
+ *
+ *
+ */
+
+template <typename TEnum>
+static FORCEINLINE FString EnumToString(const FString& Name, TEnum Value)
+{
+	const UEnum* enumPtr = FindObject<UEnum>(ANY_PACKAGE, *Name, true);
+	if (!enumPtr)
+	{
+		return FString("Invalid Enum!");
+	}
+	return enumPtr->GetDisplayNameTextByIndex((int32)Value).ToString();
+};
+
+ /*
+ *	Simple struct to store a specific input action and the exact time it was received
+ */
 USTRUCT(BlueprintType)
 struct FRecordedInputAction
 {

@@ -83,13 +83,15 @@ void AChronoCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 
 void AChronoCharacter::JumpAndRecord()
 {
+	UE_LOG(LogTemp, Error, TEXT("reached jump&record"))
 	if (Controller)
 	{
 		if (TimeTravel->ShouldRecord())
 		{
 			// First record time and identity of input...
 			TimeTravel->AddRecordedAction(GetWorld()->GetTimeSeconds(), EInputActionEnum::Jump, 1);
-
+			FString NewAction = EnumToString<EInputActionEnum>("EInputActionEnum",TimeTravel->GetPastActions().Last(0).ActionName);
+			UE_LOG(LogTemp, Warning, TEXT("Recorded enum: %s"), *NewAction)
 			// ... then execute action through APawn's interface
 			Jump();
 		}
@@ -205,7 +207,7 @@ void AChronoCharacter::LookUpAtRate(float Rate)
 		if (TimeTravel->ShouldRecord())
 		{
 			// First record time and identity of input...
-			TimeTravel->AddRecordedAction(GetWorld()->GetTimeSeconds(), EInputActionEnum::Look_Up, Rate);
+			TimeTravel->AddRecordedAction(GetWorld()->GetTimeSeconds(), EInputActionEnum::Look_Up_At_Rate, Rate);
 
 			// calculate delta for this frame from the rate information
 			AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
