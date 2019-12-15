@@ -84,7 +84,7 @@ protected:
 	
 private:
 	// Array of structs to record a continuous stream of input actions
-	UPROPERTY(EditAnywhere, Category = "Time Travel")
+	UPROPERTY(VisibleAnywhere, Category = "Time Travel")
 	TArray<FRecordedInputAction> PastActions;
 
 	// Maximum "history recording" time
