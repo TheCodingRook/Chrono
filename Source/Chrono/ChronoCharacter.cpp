@@ -83,31 +83,37 @@ void AChronoCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 
 void AChronoCharacter::JumpAndRecord()
 {
-	if (TimeTravel->ShouldRecord())
+	if (Controller)
 	{
-		// First record time and identity of input...
-		TimeTravel->AddRecordedAction(GetWorld()->GetTimeSeconds(), EInputActionEnum::Jump, 0);
+		if (TimeTravel->ShouldRecord())
+		{
+			// First record time and identity of input...
+			TimeTravel->AddRecordedAction(GetWorld()->GetTimeSeconds(), EInputActionEnum::Jump, 1);
 
-		// ... then execute action through APawn's interface
-		Jump();
+			// ... then execute action through APawn's interface
+			Jump();
+		}
 	}
 }
 
 void AChronoCharacter::StopJumpingAndRecord()
 {
-	if (TimeTravel->ShouldRecord())
+	if (Controller)
 	{
-		// First record time and identity of input...
-		TimeTravel->AddRecordedAction(GetWorld()->GetTimeSeconds(), EInputActionEnum::Stop_Jumping, 0);
+		if (TimeTravel->ShouldRecord())
+		{
+			// First record time and identity of input...
+			TimeTravel->AddRecordedAction(GetWorld()->GetTimeSeconds(), EInputActionEnum::Stop_Jumping, 0);
 
-		// ... then execute action through APawn's interface
-		StopJumping();
+			// ... then execute action through APawn's interface
+			StopJumping();
+		}
 	}
 }
 
 void AChronoCharacter::MoveForward(float Value)
 {
-	if ((Controller != NULL) && (Value != 0.0f))
+	if (Controller)
 	{
 		if (TimeTravel->ShouldRecord())
 		{
@@ -128,7 +134,7 @@ void AChronoCharacter::MoveForward(float Value)
 
 void AChronoCharacter::MoveRight(float Value)
 {
-	if ((Controller != NULL) && (Value != 0.0f))
+	if (Controller) // TODO: Vaggelis: Earlier versions of this had a Value!= 0.0f test... consider this for smaller-size array?
 	{
 		if (TimeTravel->ShouldRecord())
 		{
@@ -149,49 +155,61 @@ void AChronoCharacter::MoveRight(float Value)
 
 void AChronoCharacter::Turn(float Value)
 {
-	if (TimeTravel->ShouldRecord())
+	if (Controller)
 	{
-		// First record time and identity of input...
-		TimeTravel->AddRecordedAction(GetWorld()->GetTimeSeconds(), EInputActionEnum::Turn, Value);
+		if (TimeTravel->ShouldRecord())
+		{
+			// First record time and identity of input...
+			TimeTravel->AddRecordedAction(GetWorld()->GetTimeSeconds(), EInputActionEnum::Turn, Value);
 
-		// call Pawn's interface to turn
-		AddControllerYawInput(Value);
+			// call Pawn's interface to turn
+			AddControllerYawInput(Value);
+		}
 	}
 }
 
 void AChronoCharacter::TurnAtRate(float Rate)
 {
-	if (TimeTravel->ShouldRecord())
+	if (Controller)
 	{
-		// First record time and identity of input...
-		TimeTravel->AddRecordedAction(GetWorld()->GetTimeSeconds(), EInputActionEnum::Turn_At_Rate, Rate);
+		if (TimeTravel->ShouldRecord())
+		{
+			// First record time and identity of input...
+			TimeTravel->AddRecordedAction(GetWorld()->GetTimeSeconds(), EInputActionEnum::Turn_At_Rate, Rate);
 
-		// calculate delta for this frame from the rate information
-		AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
+			// calculate delta for this frame from the rate information
+			AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
+		}
 	}
 }
 
 void AChronoCharacter::LookUp(float Value)
 {
-	if (TimeTravel->ShouldRecord())
+	if (Controller)
 	{
-		// First record time and identity of input...
-		TimeTravel->AddRecordedAction(GetWorld()->GetTimeSeconds(), EInputActionEnum::Look_Up, Value);
+		if (TimeTravel->ShouldRecord())
+		{
+			// First record time and identity of input...
+			TimeTravel->AddRecordedAction(GetWorld()->GetTimeSeconds(), EInputActionEnum::Look_Up, Value);
 
-		// call Pawn's interface to look up
-		AddControllerPitchInput(Value);
+			// call Pawn's interface to look up
+			AddControllerPitchInput(Value);
+		}
 	}
 }
 
 void AChronoCharacter::LookUpAtRate(float Rate)
 {
-	if (TimeTravel->ShouldRecord())
+	if (Controller)
 	{
-		// First record time and identity of input...
-		TimeTravel->AddRecordedAction(GetWorld()->GetTimeSeconds(), EInputActionEnum::Look_Up, Rate);
+		if (TimeTravel->ShouldRecord())
+		{
+			// First record time and identity of input...
+			TimeTravel->AddRecordedAction(GetWorld()->GetTimeSeconds(), EInputActionEnum::Look_Up, Rate);
 
-		// calculate delta for this frame from the rate information
-		AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
+			// calculate delta for this frame from the rate information
+			AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
+		}
 	}
 }
 
