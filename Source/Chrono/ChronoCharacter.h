@@ -80,7 +80,7 @@ protected:
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "Time Travel", meta = (AllowPrivateAccess = "true"))
 	void ReplayHistory();
 
-	UFUNCTION(BlueprintCallable, Category = "Time Travel", meta = (AllowPrivateAccess = "true"))
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Time Travel", meta = (AllowPrivateAccess = "true"))
 	void ReplayAction(FRecordedInputAction ActionToReplay);
 
 public:

@@ -231,7 +231,7 @@ void AChronoCharacter::OnResetVR()
 	UHeadMountedDisplayFunctionLibrary::ResetOrientationAndPosition();
 }
 
-void AChronoCharacter::ReplayAction(FRecordedInputAction ActionToReplay)
+void AChronoCharacter::ReplayAction_Implementation(FRecordedInputAction ActionToReplay)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Entered ReplayAction()"))
 		switch (ActionToReplay.ActionName)
@@ -245,27 +245,58 @@ void AChronoCharacter::ReplayAction(FRecordedInputAction ActionToReplay)
 			break;
 
 		case EInputActionEnum::Move_Forward:
-			MoveForward(ActionToReplay.Value);
+			if (ActionToReplay.Value != 0.0f)
+			{
+				// find out which way is forward
+				const FRotator Rotation = Controller->GetControlRotation();
+				const FRotator YawRotation(0, Rotation.Yaw, 0);
+
+				// get forward vector
+				const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+				AddMovementInput(Direction, ActionToReplay.Value);
+			}
 			break;
 
 		case EInputActionEnum::Move_Right:
-			MoveRight(ActionToReplay.Value);
+			if (ActionToReplay.Value != 0.0f)
+			{
+				// find out which way is right
+				const FRotator Rotation = Controller->GetControlRotation();
+				const FRotator YawRotation(0, Rotation.Yaw, 0);
+
+				// get right vector 
+				const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+				// add movement in that direction
+				AddMovementInput(Direction, ActionToReplay.Value);
+			}
 			break;
 
 		case EInputActionEnum::Turn:
-			AddControllerYawInput(ActionToReplay.Value); // This is APawn's interface
+			if (ActionToReplay.Value != 0.0f)
+			{
+				AddControllerYawInput(ActionToReplay.Value); // This is APawn's interface
+			}
 			break;
 
 		case EInputActionEnum::Turn_At_Rate:
-			TurnAtRate(ActionToReplay.Value);
+			if (ActionToReplay.Value != 0.0f)
+			{
+				TurnAtRate(ActionToReplay.Value);
+			}
 			break;
 
 		case EInputActionEnum::Look_Up:
-			AddControllerPitchInput(ActionToReplay.Value); // This is APawn's interface
+			if (ActionToReplay.Value != 0.0f)
+			{
+				AddControllerPitchInput(ActionToReplay.Value); // This is APawn's interface
+			}
 			break;
 
 		case EInputActionEnum::Look_Up_At_Rate:
-			LookUpAtRate(ActionToReplay.Value);
+			if (ActionToReplay.Value != 0.0f)
+			{
+				LookUpAtRate(ActionToReplay.Value);
+			}
 			break;
 
 		case EInputActionEnum::Fire:
