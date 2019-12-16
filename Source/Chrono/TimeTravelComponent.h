@@ -58,6 +58,45 @@ struct FRecordedInputAction
 	// TODO Vaggelis: designated the members of the struct as BlueprintReadWrite so I can make sure I can see them in BP, however, should they be writeable????
 };
 
+/*
+*	Struct to store unique timestamp entries with associated values for all input actions in that timestamp
+*/
+USTRUCT(BlueprintType)
+struct FUniqueTimeStamp
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Struct Contents")
+	float TimeStamp;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Struct Contents")
+	float JumpValue;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Struct Contents")
+	float StopJumpingValue;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Struct Contents")
+	float MoveForwardValue;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Struct Contents")
+	float MoveRightValue;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Struct Contents")
+	float TurnValue;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Struct Contents")
+	float TurnAtRateValue;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Struct Contents")
+	float LookupValue;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Struct Contents")
+	float LookUpAtRateValue;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Struct Contents")
+	float FireValue;
+};
+
 
 /*	A class that allows the actor (in this case most likely the controlled pawn) to
 * 	store its controller's input so it can be re-played at a later time. Intended to
@@ -81,6 +120,9 @@ public:
 	TArray<FRecordedInputAction> GetPastActions() const;
 
 	UFUNCTION(BlueprintPure, Category = "Time Travel")
+	TArray<FUniqueTimeStamp> GetUniqueTimeStamps() const;
+
+	UFUNCTION(BlueprintPure, Category = "Time Travel")
 	float GetMaxRecordingTime() const;
 
 	UFUNCTION(BlueprintPure, Category = "Time Travel")
@@ -89,9 +131,13 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Time Travel")
 	bool ShouldRecord() const;
 
-	/*Add to the array*/
+	/*Add to the arrays*/
 	UFUNCTION(BlueprintCallable, Category = "Time Travel")
 	void AddRecordedAction(float TimeStamp, EInputActionEnum RecordedActionName, float RecordedValue);
+	UFUNCTION(BlueprintCallable, Category = "Time Travel")
+	void AddUniqueTimeStamp(float TimeStamp, EInputActionEnum RecordedActionName, float InValue);
+	UFUNCTION(BlueprintCallable, Category = "Time Travel")
+	void AddDuplicateTimeStamp(EInputActionEnum RecordedActionName, float InValue); // this by default will amend the last element only
 
 	UFUNCTION(BlueprintCallable, Category = "Time Travel")
 	void AllowRecording(bool bInCanRecord);
@@ -101,9 +147,13 @@ protected:
 	virtual void BeginPlay() override;
 	
 private:
-	// Array of structs to record a continuous stream of input actions
+	// Array of structs to record a continuous stream of input actions - acts like a crude log
 	UPROPERTY(VisibleAnywhere, Category = "Time Travel")
 	TArray<FRecordedInputAction> PastActions;
+
+	// Better refined array of structs where the timestamp entry is unique and all input values for that entry are recorded
+	UPROPERTY(VisibleAnywhere, Category = "Time Travel")
+	TArray<FUniqueTimeStamp> UniqueTimeStamps;
 
 	// Maximum "history recording" time
 	UPROPERTY(EditDefaultsOnly, Category = "Time Travel")

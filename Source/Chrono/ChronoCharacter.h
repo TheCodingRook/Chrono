@@ -77,11 +77,11 @@ protected:
 	// End of APawn interface
 
 	// Replay history
-	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "Time Travel", meta = (AllowPrivateAccess = "true"))
+	UFUNCTION(BlueprintCallable, Category = "Time Travel", meta = (AllowPrivateAccess = "true"))
 	void ReplayHistory();
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Time Travel", meta = (AllowPrivateAccess = "true"))
-	void ReplayAction(FRecordedInputAction ActionToReplay);
+	void ReplayAction(FUniqueTimeStamp ActionToReplay);
 
 public:
 	/** Returns CameraBoom subobject **/

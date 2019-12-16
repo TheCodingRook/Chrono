@@ -81,6 +81,7 @@ void AChronoCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 	PlayerInputComponent->BindAction("ResetVR", IE_Pressed, this, &AChronoCharacter::OnResetVR);
 }
 
+
 void AChronoCharacter::JumpAndRecord()
 {
 	UE_LOG(LogTemp, Error, TEXT("reached jump&record"))
@@ -231,77 +232,101 @@ void AChronoCharacter::OnResetVR()
 	UHeadMountedDisplayFunctionLibrary::ResetOrientationAndPosition();
 }
 
-void AChronoCharacter::ReplayAction_Implementation(FRecordedInputAction ActionToReplay)
+void AChronoCharacter::ReplayHistory()
+{
+	/*	The PastActions array contains non-unique entries for timestamps.
+	 *	Create new array of structs where all inputs at the same timestamp are in the same element.
+	 */
+
+	// Initialize placeholder timestamp value with zero to keep track of duplicates as we loop structs array
+	float EarlierTimeStamp = 0.0f;
+
+	for (auto ThisAction : TimeTravel->GetPastActions())
+	{
+		/*	For every identical timestamp, write to the same struct of all-floats before proceeding to the next addition in that array
+		 *	it's probably safe to assume array is already sorted since we are dealing with timestamps during gameplay
+		 */
+		if (ThisAction.TimeStamp != EarlierTimeStamp)
+		{
+			TimeTravel->AddUniqueTimeStamp(ThisAction.TimeStamp, ThisAction.ActionName, ThisAction.Value);
+
+			// Update latest EarlierTimeStamp variable
+			EarlierTimeStamp = ThisAction.TimeStamp;
+		}
+		else
+		{
+			// amend current struct of UniqueTimeStamp (two variables only necessary), so overload funciton
+			TimeTravel->AddDuplicateTimeStamp(ThisAction.ActionName, ThisAction.Value);
+		}
+	}
+
+	// Now replay history!
+	for (auto ThisTimeStamp : TimeTravel->GetUniqueTimeStamps())
+	{
+		ReplayAction(ThisTimeStamp);
+	}
+}
+
+
+void AChronoCharacter::ReplayAction_Implementation(FUniqueTimeStamp ActionToReplay)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Entered ReplayAction()"))
-		switch (ActionToReplay.ActionName)
-		{
-		case EInputActionEnum::Jump:
-			Jump(); // This is ACharacter's interface
-			break;
+		
+	if (ActionToReplay.JumpValue == 1.0f)
+	{
+		Jump(); // This is ACharacter's interface
+	}
+		
+	if (ActionToReplay.StopJumpingValue == 1.0f)
+	{
+		StopJumping(); // This is ACharacter's interface
+	}
+	if (ActionToReplay.MoveForwardValue != 0.0f)
+	{
+		// find out which way is forward
+		const FRotator Rotation = Controller->GetControlRotation();
+		const FRotator YawRotation(0, Rotation.Yaw, 0);
 
-		case EInputActionEnum::Stop_Jumping:
-			StopJumping(); // This is ACharacter's interface
-			break;
+		// get forward vector
+		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+		AddMovementInput(Direction, ActionToReplay.MoveForwardValue);
+	}
+	
 
-		case EInputActionEnum::Move_Forward:
-			if (ActionToReplay.Value != 0.0f)
-			{
-				// find out which way is forward
-				const FRotator Rotation = Controller->GetControlRotation();
-				const FRotator YawRotation(0, Rotation.Yaw, 0);
+	if (ActionToReplay.MoveRightValue != 0.0f)
+	{
+		// find out which way is forward
+		const FRotator Rotation = Controller->GetControlRotation();
+		const FRotator YawRotation(0, Rotation.Yaw, 0);
 
-				// get forward vector
-				const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-				AddMovementInput(Direction, ActionToReplay.Value);
-			}
-			break;
+		// get forward vector
+		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+		AddMovementInput(Direction, ActionToReplay.MoveRightValue);
+	}
+	
+	if (ActionToReplay.TurnValue != 0.0f)
+	{
+		AddControllerYawInput(ActionToReplay.TurnValue); // This is APawn's interface
+	}
 
-		case EInputActionEnum::Move_Right:
-			if (ActionToReplay.Value != 0.0f)
-			{
-				// find out which way is right
-				const FRotator Rotation = Controller->GetControlRotation();
-				const FRotator YawRotation(0, Rotation.Yaw, 0);
+	if (ActionToReplay.TurnAtRateValue != 0.0f)
+	{
+		AddControllerYawInput(ActionToReplay.TurnAtRateValue * BaseTurnRate * GetWorld()->GetDeltaSeconds());
+	}
 
-				// get right vector 
-				const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-				// add movement in that direction
-				AddMovementInput(Direction, ActionToReplay.Value);
-			}
-			break;
+	if (ActionToReplay.LookupValue != 0.0f)
+	{
+		AddControllerPitchInput(ActionToReplay.LookupValue); // This is APawn's interface
+	}
+		
+	if (ActionToReplay.LookUpAtRateValue != 0.0f)
+	{
+		AddControllerPitchInput(ActionToReplay.LookUpAtRateValue * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
+	}
+	
+	if (ActionToReplay.FireValue == 1.0f)
+	{
+		// Fire implementation here
+	}
 
-		case EInputActionEnum::Turn:
-			if (ActionToReplay.Value != 0.0f)
-			{
-				AddControllerYawInput(ActionToReplay.Value); // This is APawn's interface
-			}
-			break;
-
-		case EInputActionEnum::Turn_At_Rate:
-			if (ActionToReplay.Value != 0.0f)
-			{
-				TurnAtRate(ActionToReplay.Value);
-			}
-			break;
-
-		case EInputActionEnum::Look_Up:
-			if (ActionToReplay.Value != 0.0f)
-			{
-				AddControllerPitchInput(ActionToReplay.Value); // This is APawn's interface
-			}
-			break;
-
-		case EInputActionEnum::Look_Up_At_Rate:
-			if (ActionToReplay.Value != 0.0f)
-			{
-				LookUpAtRate(ActionToReplay.Value);
-			}
-			break;
-
-		case EInputActionEnum::Fire:
-
-		default:
-			break;
-		}
 }
