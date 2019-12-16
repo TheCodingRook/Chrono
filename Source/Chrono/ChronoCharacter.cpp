@@ -8,7 +8,6 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "TimerManager.h"
 
 //////////////////////////////////////////////////////////////////////////
 // AChronoCharacter
@@ -46,9 +45,6 @@ AChronoCharacter::AChronoCharacter()
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
-
-	// Sets up a time travel component
-	TimeTravel = CreateDefaultSubobject<UTimeTravelComponent>(FName("Time Travel Component"));
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -58,8 +54,8 @@ void AChronoCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 {
 	// Set up gameplay key bindings
 	check(PlayerInputComponent);
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AChronoCharacter::JumpAndRecord); // cannot override Pawn's Jump here so had to name differently
-	PlayerInputComponent->BindAction("Jump", IE_Released, this, &AChronoCharacter::StopJumping);
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
+	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &AChronoCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AChronoCharacter::MoveRight);
@@ -67,11 +63,10 @@ void AChronoCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 	// We have 2 versions of the rotation bindings to handle different kinds of devices differently
 	// "turn" handles devices that provide an absolute delta, such as a mouse.
 	// "turnrate" is for devices that we choose to treat as a rate of change, such as an analog joystick
-
-	PlayerInputComponent->BindAxis("Turn", this, &AChronoCharacter::Turn);
+	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
 	PlayerInputComponent->BindAxis("TurnRate", this, &AChronoCharacter::TurnAtRate);
-	PlayerInputComponent->BindAxis("LookUp", this, &AChronoCharacter::LookUp);
-	PlayerInputComponent->BindAxis("LookUpAtRate", this, &AChronoCharacter::LookUpAtRate);
+	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
+	PlayerInputComponent->BindAxis("LookUpRate", this, &AChronoCharacter::LookUpAtRate);
 
 	// handle touch devices
 	PlayerInputComponent->BindTouch(IE_Pressed, this, &AChronoCharacter::TouchStarted);
@@ -82,140 +77,10 @@ void AChronoCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 }
 
 
-void AChronoCharacter::JumpAndRecord()
+void AChronoCharacter::OnResetVR()
 {
-	UE_LOG(LogTemp, Error, TEXT("reached jump&record"))
-	if (Controller)
-	{
-		if (TimeTravel->ShouldRecord())
-		{
-			// First record time and identity of input...
-			TimeTravel->AddRecordedAction(GetWorld()->GetTimeSeconds(), EInputActionEnum::Jump, 1);
-			FString NewAction = EnumToString<EInputActionEnum>("EInputActionEnum",TimeTravel->GetPastActions().Last(0).ActionName);
-			UE_LOG(LogTemp, Warning, TEXT("Recorded enum: %s"), *NewAction)
-			// ... then execute action through APawn's interface
-			Jump();
-		}
-	}
+	UHeadMountedDisplayFunctionLibrary::ResetOrientationAndPosition();
 }
-
-void AChronoCharacter::StopJumpingAndRecord()
-{
-	if (Controller)
-	{
-		if (TimeTravel->ShouldRecord())
-		{
-			// First record time and identity of input...
-			TimeTravel->AddRecordedAction(GetWorld()->GetTimeSeconds(), EInputActionEnum::Stop_Jumping, 0);
-
-			// ... then execute action through APawn's interface
-			StopJumping();
-		}
-	}
-}
-
-void AChronoCharacter::MoveForward(float Value)
-{
-	if (Controller)
-	{
-		if (TimeTravel->ShouldRecord())
-		{
-			// First record time and identity of input...
-			TimeTravel->AddRecordedAction(GetWorld()->GetTimeSeconds(), EInputActionEnum::Move_Forward, Value);
-
-
-			// find out which way is forward
-			const FRotator Rotation = Controller->GetControlRotation();
-			const FRotator YawRotation(0, Rotation.Yaw, 0);
-
-			// get forward vector
-			const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-			AddMovementInput(Direction, Value);
-		}
-	}
-}
-
-void AChronoCharacter::MoveRight(float Value)
-{
-	if (Controller) // TODO: Vaggelis: Earlier versions of this had a Value!= 0.0f test... consider this for smaller-size array?
-	{
-		if (TimeTravel->ShouldRecord())
-		{
-			// First record time and identity of input...
-			TimeTravel->AddRecordedAction(GetWorld()->GetTimeSeconds(), EInputActionEnum::Move_Right, Value);
-
-			// find out which way is right
-			const FRotator Rotation = Controller->GetControlRotation();
-			const FRotator YawRotation(0, Rotation.Yaw, 0);
-
-			// get right vector 
-			const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-			// add movement in that direction
-			AddMovementInput(Direction, Value);
-		}
-	}
-}
-
-void AChronoCharacter::Turn(float Value)
-{
-	if (Controller)
-	{
-		if (TimeTravel->ShouldRecord())
-		{
-			// First record time and identity of input...
-			TimeTravel->AddRecordedAction(GetWorld()->GetTimeSeconds(), EInputActionEnum::Turn, Value);
-
-			// call Pawn's interface to turn
-			AddControllerYawInput(Value);
-		}
-	}
-}
-
-void AChronoCharacter::TurnAtRate(float Rate)
-{
-	if (Controller)
-	{
-		if (TimeTravel->ShouldRecord())
-		{
-			// First record time and identity of input...
-			TimeTravel->AddRecordedAction(GetWorld()->GetTimeSeconds(), EInputActionEnum::Turn_At_Rate, Rate);
-
-			// calculate delta for this frame from the rate information
-			AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
-		}
-	}
-}
-
-void AChronoCharacter::LookUp(float Value)
-{
-	if (Controller)
-	{
-		if (TimeTravel->ShouldRecord())
-		{
-			// First record time and identity of input...
-			TimeTravel->AddRecordedAction(GetWorld()->GetTimeSeconds(), EInputActionEnum::Look_Up, Value);
-
-			// call Pawn's interface to look up
-			AddControllerPitchInput(Value);
-		}
-	}
-}
-
-void AChronoCharacter::LookUpAtRate(float Rate)
-{
-	if (Controller)
-	{
-		if (TimeTravel->ShouldRecord())
-		{
-			// First record time and identity of input...
-			TimeTravel->AddRecordedAction(GetWorld()->GetTimeSeconds(), EInputActionEnum::Look_Up_At_Rate, Rate);
-
-			// calculate delta for this frame from the rate information
-			AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
-		}
-	}
-}
-
 
 void AChronoCharacter::TouchStarted(ETouchIndex::Type FingerIndex, FVector Location)
 {
@@ -227,63 +92,21 @@ void AChronoCharacter::TouchStopped(ETouchIndex::Type FingerIndex, FVector Locat
 	StopJumping();
 }
 
-void AChronoCharacter::OnResetVR()
+void AChronoCharacter::TurnAtRate(float Rate)
 {
-	UHeadMountedDisplayFunctionLibrary::ResetOrientationAndPosition();
+	// calculate delta for this frame from the rate information
+	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
 }
 
-void AChronoCharacter::ReplayHistory()
+void AChronoCharacter::LookUpAtRate(float Rate)
 {
-	/*	The PastActions array contains non-unique entries for timestamps.
-	 *	Create new array of structs where all inputs at the same timestamp are in the same element.
-	 */
-
-	// Initialize placeholder timestamp value with zero to keep track of duplicates as we loop structs array
-	float EarlierTimeStamp = 0.0f;
-
-	for (auto ThisAction : TimeTravel->GetPastActions())
-	{
-		/*	For every identical timestamp, write to the same struct of all-floats before proceeding to the next addition in that array
-		 *	it's probably safe to assume array is already sorted since we are dealing with timestamps during gameplay
-		 */
-		if (ThisAction.TimeStamp != EarlierTimeStamp)
-		{
-			TimeTravel->AddUniqueTimeStamp(ThisAction.TimeStamp, ThisAction.ActionName, ThisAction.Value);
-
-			// Update latest EarlierTimeStamp variable
-			EarlierTimeStamp = ThisAction.TimeStamp;
-		}
-		else
-		{
-			// amend current struct of UniqueTimeStamp (two variables only necessary), so overload funciton
-			TimeTravel->AddDuplicateTimeStamp(ThisAction.ActionName, ThisAction.Value);
-		}
-	}
-
-	/*
-	// Now replay history!
-	for (auto ThisTimeStamp : TimeTravel->GetUniqueTimeStamps())
-	{
-		ReplayAction(ThisTimeStamp);
-	}
-	*/
+	// calculate delta for this frame from the rate information
+	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
 }
 
-
-void AChronoCharacter::ReplayAction_Implementation(FUniqueTimeStamp ActionToReplay)
+void AChronoCharacter::MoveForward(float Value)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Entered ReplayAction()"))
-		
-	if (ActionToReplay.JumpValue == 1.0f)
-	{
-		Jump(); // This is ACharacter's interface
-	}
-		
-	if (ActionToReplay.StopJumpingValue == 1.0f)
-	{
-		StopJumping(); // This is ACharacter's interface
-	}
-	if (ActionToReplay.MoveForwardValue != 0.0f)
+	if ((Controller != NULL) && (Value != 0.0f))
 	{
 		// find out which way is forward
 		const FRotator Rotation = Controller->GetControlRotation();
@@ -291,44 +114,21 @@ void AChronoCharacter::ReplayAction_Implementation(FUniqueTimeStamp ActionToRepl
 
 		// get forward vector
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-		AddMovementInput(Direction, ActionToReplay.MoveForwardValue);
+		AddMovementInput(Direction, Value);
 	}
-	
+}
 
-	if (ActionToReplay.MoveRightValue != 0.0f)
+void AChronoCharacter::MoveRight(float Value)
+{
+	if ((Controller != NULL) && (Value != 0.0f))
 	{
-		// find out which way is forward
+		// find out which way is right
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
 
-		// get forward vector
+		// get right vector 
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-		AddMovementInput(Direction, ActionToReplay.MoveRightValue);
+		// add movement in that direction
+		AddMovementInput(Direction, Value);
 	}
-	
-	if (ActionToReplay.TurnValue != 0.0f)
-	{
-		AddControllerYawInput(ActionToReplay.TurnValue); // This is APawn's interface
-	}
-
-	if (ActionToReplay.TurnAtRateValue != 0.0f)
-	{
-		AddControllerYawInput(ActionToReplay.TurnAtRateValue * BaseTurnRate * GetWorld()->GetDeltaSeconds());
-	}
-
-	if (ActionToReplay.LookupValue != 0.0f)
-	{
-		AddControllerPitchInput(ActionToReplay.LookupValue); // This is APawn's interface
-	}
-		
-	if (ActionToReplay.LookUpAtRateValue != 0.0f)
-	{
-		AddControllerPitchInput(ActionToReplay.LookUpAtRateValue * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
-	}
-	
-	if (ActionToReplay.FireValue == 1.0f)
-	{
-		// Fire implementation here
-	}
-
 }

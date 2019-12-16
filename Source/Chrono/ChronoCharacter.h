@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "TimeTravelComponent.h"
 #include "ChronoCharacter.generated.h"
 
 UCLASS(config=Game)
@@ -33,11 +32,8 @@ public:
 
 protected:
 
-	/**	Called for jumping */
-	void JumpAndRecord();
-
-	/**	Called to stop jumping */
-	void StopJumpingAndRecord();
+	/** Resets HMD orientation in VR. */
+	void OnResetVR();
 
 	/** Called for forwards/backward input */
 	void MoveForward(float Value);
@@ -45,20 +41,14 @@ protected:
 	/** Called for side to side input */
 	void MoveRight(float Value);
 
-	/** Called via pawn interface to turn (after recording input first) */
-	void Turn(float Value);
-	
-	/** 
-	 * Called via input to turn at a given rate. 
+	/**
+	 * Called via input to turn at a given rate.
 	 * @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
 	 */
 	void TurnAtRate(float Rate);
 
-	/** Called via pawn interface to turn (after recording input first) */
-	void LookUp(float Value);
-
 	/**
-	 * Called via input to turn look up/down at a given rate. 
+	 * Called via input to turn look up/down at a given rate.
 	 * @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
 	 */
 	void LookUpAtRate(float Rate);
@@ -69,31 +59,15 @@ protected:
 	/** Handler for when a touch input stops. */
 	void TouchStopped(ETouchIndex::Type FingerIndex, FVector Location);
 
-	/** Resets HMD orientation in VR. */
-	void OnResetVR();
-
+protected:
 	// APawn interface
-	void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	// End of APawn interface
-
-	// Replay history
-	UFUNCTION(BlueprintCallable, Category = "Time Travel", meta = (AllowPrivateAccess = "true"))
-	void ReplayHistory();
-
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Time Travel", meta = (AllowPrivateAccess = "true"))
-	void ReplayAction(FUniqueTimeStamp ActionToReplay);
 
 public:
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
-
-	FORCEINLINE class UTimeTravelComponent* GetTimeTravelComponent() const { return TimeTravel; }
-
-private:
-	/** Component to implement character's time-travelling ability	*/
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Time Travel", meta = (AllowPrivateAccess = "true"))
-	UTimeTravelComponent* TimeTravel;
 };
 
