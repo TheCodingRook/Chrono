@@ -89,11 +89,10 @@ void AChronoCharacter::JumpAndRecord()
 			{
 				// First record time and identity of input...
 				TimeTravel->AddRecordedAction(GetWorld()->GetTimeSeconds(), EInputActionEnum::Jump, 1);
-				FString NewAction = EnumToString<EInputActionEnum>("EInputActionEnum", TimeTravel->GetMovementAndActionsLog().Last(0).ActionName);
-				UE_LOG(LogTemp, Warning, TEXT("Recorded enum: %s"), *NewAction)
-					// ... then execute action through APawn's interface
-					Jump();
 			}
+
+			// ... then execute action through APawn's interface
+			Jump();
 		}
 }
 
@@ -105,10 +104,10 @@ void AChronoCharacter::StopJumpingAndRecord()
 		{
 			// First record time and identity of input...
 			TimeTravel->AddRecordedAction(GetWorld()->GetTimeSeconds(), EInputActionEnum::Stop_Jumping, 0);
-
-			// ... then execute action through APawn's interface
-			StopJumping();
 		}
+		// ... then execute action through APawn's interface
+		StopJumping();
+		
 	}
 }
 
@@ -120,16 +119,15 @@ void AChronoCharacter::MoveForwardAndRecord(float Value)
 		{
 			// First record time and identity of input...
 			TimeTravel->AddRecordedAction(GetWorld()->GetTimeSeconds(), EInputActionEnum::Move_Forward, Value);
-
-
-			// find out which way is forward
-			const FRotator Rotation = Controller->GetControlRotation();
-			const FRotator YawRotation(0, Rotation.Yaw, 0);
-
-			// get forward vector
-			const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-			AddMovementInput(Direction, Value);
 		}
+
+		// find out which way is forward
+		const FRotator Rotation = Controller->GetControlRotation();
+		const FRotator YawRotation(0, Rotation.Yaw, 0);
+
+		// get forward vector
+		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+		AddMovementInput(Direction, Value);
 	}
 }
 
@@ -141,16 +139,16 @@ void AChronoCharacter::MoveRightAndRecord(float Value)
 		{
 			// First record time and identity of input...
 			TimeTravel->AddRecordedAction(GetWorld()->GetTimeSeconds(), EInputActionEnum::Move_Right, Value);
-
-			// find out which way is right
-			const FRotator Rotation = Controller->GetControlRotation();
-			const FRotator YawRotation(0, Rotation.Yaw, 0);
-
-			// get right vector 
-			const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-			// add movement in that direction
-			AddMovementInput(Direction, Value);
 		}
+
+		// find out which way is right
+		const FRotator Rotation = Controller->GetControlRotation();
+		const FRotator YawRotation(0, Rotation.Yaw, 0);
+
+		// get right vector 
+		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+		// add movement in that direction
+		AddMovementInput(Direction, Value);
 	}
 }
 
@@ -162,10 +160,10 @@ void AChronoCharacter::TurnAndRecord(float Value)
 		{
 			// First record time and identity of input...
 			TimeTravel->AddRecordedAction(GetWorld()->GetTimeSeconds(), EInputActionEnum::Turn, Value);
-
-			// call Pawn's interface to turn
-			AddControllerYawInput(Value);
 		}
+
+		// call Pawn's interface to turn
+		AddControllerYawInput(Value);
 	}
 }
 
@@ -177,10 +175,10 @@ void AChronoCharacter::TurnAtRateAndRecord(float Rate)
 		{
 			// First record time and identity of input...
 			TimeTravel->AddRecordedAction(GetWorld()->GetTimeSeconds(), EInputActionEnum::Turn_At_Rate, Rate);
-
-			// calculate delta for this frame from the rate information
-			AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
 		}
+
+		// calculate delta for this frame from the rate information
+		AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
 	}
 }
 
@@ -192,10 +190,10 @@ void AChronoCharacter::LookUpAndRecord(float Value)
 		{
 			// First record time and identity of input...
 			TimeTravel->AddRecordedAction(GetWorld()->GetTimeSeconds(), EInputActionEnum::Look_Up, Value);
-
-			// call Pawn's interface to look up
-			AddControllerPitchInput(Value);
 		}
+
+		// call Pawn's interface to look up
+		AddControllerPitchInput(Value);
 	}
 }
 
@@ -207,10 +205,10 @@ void AChronoCharacter::LookUpAtRateAndRecord(float Rate)
 		{
 			// First record time and identity of input...
 			TimeTravel->AddRecordedAction(GetWorld()->GetTimeSeconds(), EInputActionEnum::Look_Up_At_Rate, Rate);
-
-			// calculate delta for this frame from the rate information
-			AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
 		}
+
+		// calculate delta for this frame from the rate information
+		AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
 	}
 }
 
@@ -271,6 +269,7 @@ void AChronoCharacter::ReplayPastAction(FUniqueTimeStamp ActionToReplay)
 
 	if (ActionToReplay.TurnValue != 0.0f)
 	{
+		UE_LOG(LogTemp, Error, TEXT("%s is turning with value: %f"), *GetName(), ActionToReplay.TurnValue)
 		AddControllerYawInput(ActionToReplay.TurnValue); // This is APawn's interface
 	}
 

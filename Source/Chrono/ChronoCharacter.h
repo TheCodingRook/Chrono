@@ -37,6 +37,7 @@ public:
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
 	/** Returns TimeTravelComponent subobject **/
+	UFUNCTION(BlueprintPure, Category = "Time Travel")
 	FORCEINLINE class UTimeTravelComponent* GetTimeTravelComponent() const { return TimeTravel; }
 
 protected:
