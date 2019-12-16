@@ -106,59 +106,64 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	/* Public getter functions */
+	UFUNCTION(BlueprintPure, Category = "Time Travel")
+	TArray<FRecordedInputAction> GetMovementAndActionsLog() const;
+
+	UFUNCTION(BlueprintPure, Category = "Time Travel")
+	TArray<FUniqueTimeStamp> GetUniqueTimeStamps() const;
+
+	UFUNCTION(BlueprintPure, Category = "Time Travel")
+	float GetMaxRecordingTime() const;
+
+	UFUNCTION(BlueprintPure, Category = "Time Travel")
+	int GetMaxStructArraySize() const;
+
+	UFUNCTION(BlueprintPure, Category = "Time Travel")
+	bool ShouldRecord() const;
+
+
+	/*Add to the arrays*/
+	UFUNCTION(BlueprintCallable, Category = "Time Travel")
+	void AddRecordedAction(float TimeStamp, EInputActionEnum RecordedActionName, float RecordedValue);
+	UFUNCTION(BlueprintCallable, Category = "Time Travel")
+	void AddUniqueTimeStamp(float TimeStamp, EInputActionEnum RecordedActionName, float InValue);
+	UFUNCTION(BlueprintCallable, Category = "Time Travel")
+	void AddDuplicateTimeStamp(EInputActionEnum RecordedActionName, float InValue); // this by default will amend the last element only
+
+	// Prep the log of recorded movement and actions for replay
+	UFUNCTION(BlueprintCallable, Category = "Time Travel")
+	void ProducePastActionsList();
+
+	UFUNCTION(BlueprintCallable, Category = "Time Travel")
+	void AllowRecording(bool bInCanRecord);
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-	/* Public getter functions */
-	UFUNCTION(BlueprintPure, Category = "Time Travel")
-		TArray<FRecordedInputAction> GetPastActions() const;
-
-	UFUNCTION(BlueprintPure, Category = "Time Travel")
-		TArray<FUniqueTimeStamp> GetUniqueTimeStamps() const;
-
-	UFUNCTION(BlueprintPure, Category = "Time Travel")
-		float GetMaxRecordingTime() const;
-
-	UFUNCTION(BlueprintPure, Category = "Time Travel")
-		int GetMaxStructArraySize() const;
-
-	UFUNCTION(BlueprintPure, Category = "Time Travel")
-		bool ShouldRecord() const;
-
-	/*Add to the arrays*/
-	UFUNCTION(BlueprintCallable, Category = "Time Travel")
-		void AddRecordedAction(float TimeStamp, EInputActionEnum RecordedActionName, float RecordedValue);
-	UFUNCTION(BlueprintCallable, Category = "Time Travel")
-		void AddUniqueTimeStamp(float TimeStamp, EInputActionEnum RecordedActionName, float InValue);
-	UFUNCTION(BlueprintCallable, Category = "Time Travel")
-		void AddDuplicateTimeStamp(EInputActionEnum RecordedActionName, float InValue); // this by default will amend the last element only
-
-	UFUNCTION(BlueprintCallable, Category = "Time Travel")
-		void AllowRecording(bool bInCanRecord);
-
 private:	
 	// Array of structs to record a continuous stream of input actions - acts like a crude log
 	UPROPERTY(VisibleAnywhere, Category = "Time Travel")
-		TArray<FRecordedInputAction> PastActions;
+	TArray<FRecordedInputAction> MovementAndActionsLog;
 
 	// Better refined array of structs where the timestamp entry is unique and all input values for that entry are recorded
 	UPROPERTY(VisibleAnywhere, Category = "Time Travel")
-		TArray<FUniqueTimeStamp> UniqueTimeStamps;
+	TArray<FUniqueTimeStamp> UniqueTimeStamps;
 
 	// Maximum "history recording" time
 	UPROPERTY(EditDefaultsOnly, Category = "Time Travel")
-		float MaxRecordingTime; // in seconds
+	float MaxRecordingTime; // in seconds
 
-		// Maximum size that the struct of recorded input actions can grow to
+	// Maximum size that the struct of recorded input actions can grow to
 	UPROPERTY(EditDefaultsOnly, Category = "Time Travel")
-		int MaxStructArraySize;
+	int MaxStructArraySize;
 
 	// Flat to determine whether input actions should be recorded
 	UPROPERTY(EditDefaultsOnly, Category = "Time Travel")
-		bool bShouldRecord;
+	bool bShouldRecord;
 
 	// Keeps track of whether the character is a past version of itself or not
 	UPROPERTY(EditDefaultsOnly, Category = "Time Travel")
-		bool bIsPastSelf;
+	bool bIsPastSelf;
 };

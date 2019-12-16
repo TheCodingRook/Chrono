@@ -34,9 +34,9 @@ void UTimeTravelComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 	// ...
 }
 
-TArray<FRecordedInputAction> UTimeTravelComponent::GetPastActions() const
+TArray<FRecordedInputAction> UTimeTravelComponent::GetMovementAndActionsLog() const
 {
-	return PastActions;
+	return MovementAndActionsLog;
 }
 
 TArray<FUniqueTimeStamp> UTimeTravelComponent::GetUniqueTimeStamps() const
@@ -67,7 +67,36 @@ void UTimeTravelComponent::AddRecordedAction(float RecordedTimeStamp, EInputActi
 	NewAction.ActionName = RecordedActionName;
 	NewAction.Value = RecordedValue;
 	// Add to array
-	PastActions.Add(NewAction);
+	MovementAndActionsLog.Add(NewAction);
+}
+
+/*	The MovementAndActionsLog array contains non-unique entries for timestamps.
+ *	This method creates new array of structs where all inputs at the same timestamp are in the same element.
+ */
+
+void UTimeTravelComponent::ProducePastActionsList()
+{
+	// Initialize placeholder timestamp value with zero to keep track of duplicates as we loop structs array
+	float EarlierTimeStamp = 0.0f;
+
+	for (auto ThisAction : MovementAndActionsLog)
+	{
+		//	For every identical timestamp, write to the same struct of all-floats before proceeding to the next addition in that array
+		//	it's probably safe to assume array is already sorted since we are dealing with timestamps during gameplay
+		//
+		if (ThisAction.TimeStamp != EarlierTimeStamp)
+		{
+			AddUniqueTimeStamp(ThisAction.TimeStamp, ThisAction.ActionName, ThisAction.Value);
+
+			// Update latest EarlierTimeStamp variable
+			EarlierTimeStamp = ThisAction.TimeStamp;
+		}
+		else
+		{
+			// amend current struct of UniqueTimeStamp (two variables only necessary), so overload funciton
+			AddDuplicateTimeStamp(ThisAction.ActionName, ThisAction.Value);
+		}
+	}
 }
 
 void UTimeTravelComponent::AddUniqueTimeStamp(float RecordedTimeStamp, EInputActionEnum ActionToAdd, float RecordedValue)
