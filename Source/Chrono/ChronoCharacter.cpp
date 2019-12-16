@@ -260,11 +260,13 @@ void AChronoCharacter::ReplayHistory()
 		}
 	}
 
+	/*
 	// Now replay history!
 	for (auto ThisTimeStamp : TimeTravel->GetUniqueTimeStamps())
 	{
 		ReplayAction(ThisTimeStamp);
 	}
+	*/
 }
 
 

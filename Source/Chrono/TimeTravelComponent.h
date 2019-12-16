@@ -67,34 +67,34 @@ struct FUniqueTimeStamp
 	GENERATED_USTRUCT_BODY()
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Struct Contents")
-	float TimeStamp;
+	float TimeStamp = 0;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Struct Contents")
-	float JumpValue;
+	float JumpValue = 0;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Struct Contents")
-	float StopJumpingValue;
+	float StopJumpingValue = 0;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Struct Contents")
-	float MoveForwardValue;
+	float MoveForwardValue = 0;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Struct Contents")
-	float MoveRightValue;
+	float MoveRightValue = 0;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Struct Contents")
-	float TurnValue;
+	float TurnValue = 0;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Struct Contents")
-	float TurnAtRateValue;
+	float TurnAtRateValue = 0;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Struct Contents")
-	float LookupValue;
+	float LookupValue = 0;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Struct Contents")
-	float LookUpAtRateValue;
+	float LookUpAtRateValue = 0;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Struct Contents")
-	float FireValue;
+	float FireValue = 0;
 };
 
 
