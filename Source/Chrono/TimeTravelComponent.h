@@ -21,12 +21,7 @@ enum class EInputActionEnum : uint8
 	Fire UMETA(DisplayName = "Fire")
 };
 
-
-/*	Utility to be able to print the enumerations easily for debugging purposes.
- *
- *
- */
-
+//	Utility to be able to print the enumeration types easily for debugging purposes.
 template <typename TEnum>
 static FORCEINLINE FString EnumToString(const FString& Name, TEnum Value)
 {
@@ -38,70 +33,67 @@ static FORCEINLINE FString EnumToString(const FString& Name, TEnum Value)
 	return enumPtr->GetDisplayNameTextByIndex((int32)Value).ToString();
 };
 
- /*
- *	Simple struct to store a specific input action and the exact time it was received
- */
+
+// Simple struct to store a specific input action and the exact time it was received
 USTRUCT(BlueprintType)
 struct FRecordedInputAction
 {
 	GENERATED_USTRUCT_BODY()
-	
+
+		UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Struct Contents")
+		float TimeStamp;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Struct Contents")
-	float TimeStamp;
-	
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Struct Contents")
-	EInputActionEnum ActionName;
+		EInputActionEnum ActionName;
 
 	// Stores the value for axis-related actions, can be set to zero for button actions
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Struct Contents")
-	float Value;
+		float Value;
 	// TODO Vaggelis: designated the members of the struct as BlueprintReadWrite so I can make sure I can see them in BP, however, should they be writeable????
 };
 
-/*
-*	Struct to store unique timestamp entries with associated values for all input actions in that timestamp
-*/
+
+// Struct to store unique timestamp entries with associated values for all input actions in that timestamp
 USTRUCT(BlueprintType)
 struct FUniqueTimeStamp
 {
 	GENERATED_USTRUCT_BODY()
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Struct Contents")
-	float TimeStamp = 0;
+		UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Struct Contents")
+		float TimeStamp = 0;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Struct Contents")
-	float JumpValue = 0;
+		float JumpValue = 0;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Struct Contents")
-	float StopJumpingValue = 0;
+		float StopJumpingValue = 0;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Struct Contents")
-	float MoveForwardValue = 0;
+		float MoveForwardValue = 0;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Struct Contents")
-	float MoveRightValue = 0;
+		float MoveRightValue = 0;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Struct Contents")
-	float TurnValue = 0;
+		float TurnValue = 0;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Struct Contents")
-	float TurnAtRateValue = 0;
+		float TurnAtRateValue = 0;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Struct Contents")
-	float LookupValue = 0;
+		float LookupValue = 0;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Struct Contents")
-	float LookUpAtRateValue = 0;
+		float LookUpAtRateValue = 0;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Struct Contents")
-	float FireValue = 0;
+		float FireValue = 0;
 };
-
 
 /*	A class that allows the actor (in this case most likely the controlled pawn) to
 * 	store its controller's input so it can be re-played at a later time. Intended to
 *	be used to simulate a Player travelling back in time and encountering "past self".
-*/	
+*/
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class CHRONO_API UTimeTravelComponent : public UActorComponent
 {
@@ -114,10 +106,9 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-
 	/* Public getter functions */
 	UFUNCTION(BlueprintPure, Category = "Time Travel")
-	TArray<FRecordedInputAction> GetPastActions() const;
+	TArray<FRecordedInputAction> GetMovementAndActionsLog() const;
 
 	UFUNCTION(BlueprintPure, Category = "Time Travel")
 	TArray<FUniqueTimeStamp> GetUniqueTimeStamps() const;
@@ -131,6 +122,7 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Time Travel")
 	bool ShouldRecord() const;
 
+
 	/*Add to the arrays*/
 	UFUNCTION(BlueprintCallable, Category = "Time Travel")
 	void AddRecordedAction(float TimeStamp, EInputActionEnum RecordedActionName, float RecordedValue);
@@ -139,17 +131,21 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Time Travel")
 	void AddDuplicateTimeStamp(EInputActionEnum RecordedActionName, float InValue); // this by default will amend the last element only
 
+	// Prep the log of recorded movement and actions for replay
+	UFUNCTION(BlueprintCallable, Category = "Time Travel")
+	void ProducePastActionsList();
+
 	UFUNCTION(BlueprintCallable, Category = "Time Travel")
 	void AllowRecording(bool bInCanRecord);
 
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
-	
-private:
+
+private:	
 	// Array of structs to record a continuous stream of input actions - acts like a crude log
 	UPROPERTY(VisibleAnywhere, Category = "Time Travel")
-	TArray<FRecordedInputAction> PastActions;
+	TArray<FRecordedInputAction> MovementAndActionsLog;
 
 	// Better refined array of structs where the timestamp entry is unique and all input values for that entry are recorded
 	UPROPERTY(VisibleAnywhere, Category = "Time Travel")
@@ -158,7 +154,7 @@ private:
 	// Maximum "history recording" time
 	UPROPERTY(EditDefaultsOnly, Category = "Time Travel")
 	float MaxRecordingTime; // in seconds
-	
+
 	// Maximum size that the struct of recorded input actions can grow to
 	UPROPERTY(EditDefaultsOnly, Category = "Time Travel")
 	int MaxStructArraySize;

@@ -1,10 +1,10 @@
-// Copyright 1998-2019 Epic Games, Inc. All Rights Reserved.
+//  Copyright 2019. All rights reserved. A prototype by Evangelos ("Vaggelis") Tsesmelidakis.
 
 #pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "TimeTravelComponent.h"
+#include "TimeTravelComponent.h" // Have to include this here because I cannot forward declare the FUniqueTimeStamp struct in the ReplayPastAction method declaration below
 #include "ChronoCharacter.generated.h"
 
 UCLASS(config=Game)
@@ -31,37 +31,33 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
 	float BaseLookUpRate;
 
+	/** Returns CameraBoom subobject **/
+	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
+	/** Returns FollowCamera subobject **/
+	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+
+	/** Returns TimeTravelComponent subobject **/
+	UFUNCTION(BlueprintPure, Category = "Time Travel")
+	FORCEINLINE class UTimeTravelComponent* GetTimeTravelComponent() const { return TimeTravel; }
+
 protected:
 
-	/**	Called for jumping */
+	/**	Methods to call to perform movements (and actions when necessary) but also record them for replay in the future */
 	void JumpAndRecord();
-
-	/**	Called to stop jumping */
 	void StopJumpingAndRecord();
+	void MoveForwardAndRecord(float Value);
+	void MoveRightAndRecord(float Value);
+	void TurnAndRecord(float Value);
+	void TurnAtRateAndRecord(float Rate);
+	void LookUpAndRecord(float Value);
+	void LookUpAtRateAndRecord(float Rate);
 
-	/** Called for forwards/backward input */
-	void MoveForward(float Value);
+	///////////////////////////////////////////////////////////////////////////////////////////////////
+	// LEGACY METHODS THAT ARE NOT BEING USED AT THE MOMENT
+	// ************************************************************************************************
 
-	/** Called for side to side input */
-	void MoveRight(float Value);
-
-	/** Called via pawn interface to turn (after recording input first) */
-	void Turn(float Value);
-	
-	/** 
-	 * Called via input to turn at a given rate. 
-	 * @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
-	 */
-	void TurnAtRate(float Rate);
-
-	/** Called via pawn interface to turn (after recording input first) */
-	void LookUp(float Value);
-
-	/**
-	 * Called via input to turn look up/down at a given rate. 
-	 * @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
-	 */
-	void LookUpAtRate(float Rate);
+	/** Resets HMD orientation in VR. */
+	void OnResetVR();
 
 	/** Handler for when a touch input begins. */
 	void TouchStarted(ETouchIndex::Type FingerIndex, FVector Location);
@@ -69,31 +65,18 @@ protected:
 	/** Handler for when a touch input stops. */
 	void TouchStopped(ETouchIndex::Type FingerIndex, FVector Location);
 
-	/** Resets HMD orientation in VR. */
-	void OnResetVR();
+	// END OF LEGACY METHODS ************************************************************************
+	//////////////////////////////////////////////////////////////////////////////////////////////////
 
 	// APawn interface
-	void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	// End of APawn interface
 
-	// Replay history
 	UFUNCTION(BlueprintCallable, Category = "Time Travel", meta = (AllowPrivateAccess = "true"))
-	void ReplayHistory();
-
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Time Travel", meta = (AllowPrivateAccess = "true"))
-	void ReplayAction(FUniqueTimeStamp ActionToReplay);
-
-public:
-	/** Returns CameraBoom subobject **/
-	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
-	/** Returns FollowCamera subobject **/
-	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
-
-	FORCEINLINE class UTimeTravelComponent* GetTimeTravelComponent() const { return TimeTravel; }
+	void ReplayPastAction(FUniqueTimeStamp ActionToReplay);
 
 private:
 	/** Component to implement character's time-travelling ability	*/
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Time Travel", meta = (AllowPrivateAccess = "true"))
 	UTimeTravelComponent* TimeTravel;
 };
-

@@ -14,6 +14,16 @@ UTimeTravelComponent::UTimeTravelComponent()
 	MaxRecordingTime = 600.0f; // TODO: Default is 10 minutes; is this enough?
 	MaxStructArraySize = 3600; // TODO: At 60 frames per second that is 10 minutes; Is this enough? Should it be "frame-rate safe"?
 	bShouldRecord = true;	// Initial setting so recording can begin the first time
+
+}
+
+// Called when the game starts
+void UTimeTravelComponent::BeginPlay()
+{
+	Super::BeginPlay();
+
+	// ...
+	
 }
 
 // Called every frame
@@ -24,9 +34,9 @@ void UTimeTravelComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 	// ...
 }
 
-TArray<FRecordedInputAction> UTimeTravelComponent::GetPastActions() const
+TArray<FRecordedInputAction> UTimeTravelComponent::GetMovementAndActionsLog() const
 {
-	return PastActions;
+	return MovementAndActionsLog;
 }
 
 TArray<FUniqueTimeStamp> UTimeTravelComponent::GetUniqueTimeStamps() const
@@ -57,7 +67,36 @@ void UTimeTravelComponent::AddRecordedAction(float RecordedTimeStamp, EInputActi
 	NewAction.ActionName = RecordedActionName;
 	NewAction.Value = RecordedValue;
 	// Add to array
-	PastActions.Add(NewAction);
+	MovementAndActionsLog.Add(NewAction);
+}
+
+/*	The MovementAndActionsLog array contains non-unique entries for timestamps.
+ *	This method creates new array of structs where all inputs at the same timestamp are in the same element.
+ */
+
+void UTimeTravelComponent::ProducePastActionsList()
+{
+	// Initialize placeholder timestamp value with zero to keep track of duplicates as we loop structs array
+	float EarlierTimeStamp = 0.0f;
+
+	for (auto ThisAction : MovementAndActionsLog)
+	{
+		//	For every identical timestamp, write to the same struct of all-floats before proceeding to the next addition in that array
+		//	it's probably safe to assume array is already sorted since we are dealing with timestamps during gameplay
+		//
+		if (ThisAction.TimeStamp != EarlierTimeStamp)
+		{
+			AddUniqueTimeStamp(ThisAction.TimeStamp, ThisAction.ActionName, ThisAction.Value);
+
+			// Update latest EarlierTimeStamp variable
+			EarlierTimeStamp = ThisAction.TimeStamp;
+		}
+		else
+		{
+			// amend current struct of UniqueTimeStamp (two variables only necessary), so overload funciton
+			AddDuplicateTimeStamp(ThisAction.ActionName, ThisAction.Value);
+		}
+	}
 }
 
 void UTimeTravelComponent::AddUniqueTimeStamp(float RecordedTimeStamp, EInputActionEnum ActionToAdd, float RecordedValue)
@@ -89,7 +128,7 @@ void UTimeTravelComponent::AddUniqueTimeStamp(float RecordedTimeStamp, EInputAct
 		break;
 
 	case EInputActionEnum::Turn_At_Rate:
-		NewUniqueTimeStamp.TurnAtRateValue= RecordedValue;
+		NewUniqueTimeStamp.TurnAtRateValue = RecordedValue;
 		break;
 
 	case EInputActionEnum::Look_Up:
@@ -161,16 +200,3 @@ void UTimeTravelComponent::AllowRecording(bool bInCanRecord)
 {
 	bShouldRecord = bInCanRecord;
 }
-
-// Called when the game starts
-void UTimeTravelComponent::BeginPlay()
-{
-	Super::BeginPlay();
-
-	// ...
-	
-}
-
-
-
-
