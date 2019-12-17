@@ -269,7 +269,6 @@ void AChronoCharacter::ReplayPastAction(FUniqueTimeStamp ActionToReplay)
 
 	if (ActionToReplay.TurnValue != 0.0f)
 	{
-		UE_LOG(LogTemp, Error, TEXT("%s is turning with value: %f"), *GetName(), ActionToReplay.TurnValue)
 		AddControllerYawInput(ActionToReplay.TurnValue); // This is APawn's interface
 	}
 
