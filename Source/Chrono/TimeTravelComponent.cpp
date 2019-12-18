@@ -196,6 +196,18 @@ void UTimeTravelComponent::AddDuplicateTimeStamp(EInputActionEnum RecordedAction
 
 }
 
+void UTimeTravelComponent::WipeHistory()
+{
+	// Empty the logs and time stamp arrays so as not compound historic actions
+	MovementAndActionsLog.Empty();
+	WipePastActionsList();
+}
+
+void UTimeTravelComponent::WipePastActionsList()
+{
+	UniqueTimeStamps.Empty();
+}
+
 void UTimeTravelComponent::AllowRecording(bool bInCanRecord)
 {
 	bShouldRecord = bInCanRecord;

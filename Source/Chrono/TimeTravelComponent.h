@@ -131,9 +131,17 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Time Travel")
 	void AddDuplicateTimeStamp(EInputActionEnum RecordedActionName, float InValue); // this by default will amend the last element only
 
-	// Prep the log of recorded movement and actions for replay
+	// Prep the log of recorded movement and actions for replay by producing a list with unique timestamps
 	UFUNCTION(BlueprintCallable, Category = "Time Travel")
 	void ProducePastActionsList();
+
+	// Reset all the movement and action arrays
+	UFUNCTION(BlueprintCallable, Category = "Time Travel")
+	void WipeHistory();
+
+	// Reset just the PastActionsList only, keeping the original Movement/Actions log intact (potentially for further use, i.e. repeating same time-travel sequence)
+	UFUNCTION(BlueprintCallable, Category = "Time Travel")
+	void WipePastActionsList();
 
 	UFUNCTION(BlueprintCallable, Category = "Time Travel")
 	void AllowRecording(bool bInCanRecord);
