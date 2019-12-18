@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "TimeTravelComponent.h" // Have to include this here because I cannot forward declare the FUniqueTimeStamp struct in the ReplayPastAction method declaration below
+#include "TimeTravelComponent.h" // Have to include this here because I cannot forward declare the FTimestampedInputs struct in the ReplayPastAction method declaration below
 #include "ChronoCharacter.generated.h"
 
 UCLASS(config=Game)
@@ -73,7 +73,7 @@ protected:
 	// End of APawn interface
 
 	UFUNCTION(BlueprintCallable, Category = "Time Travel", meta = (AllowPrivateAccess = "true"))
-	void ReplayPastAction(FUniqueTimeStamp ActionToReplay);
+	void ReplayPastAction(FTimestampedInputs ActionToReplay);
 
 private:
 	/** Component to implement character's time-travelling ability	*/

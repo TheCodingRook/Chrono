@@ -88,7 +88,7 @@ void AChronoCharacter::JumpAndRecord()
 			if (TimeTravel->ShouldRecord())
 			{
 				// First record time and identity of input...
-				TimeTravel->AddRecordedAction(GetWorld()->GetTimeSeconds(), EInputActionEnum::Jump, 1);
+				TimeTravel->AddTimestampedInput(GetWorld()->GetTimeSeconds(), EInputActionEnum::Jump, 1);
 			}
 
 			// ... then execute action through APawn's interface
@@ -103,7 +103,7 @@ void AChronoCharacter::StopJumpingAndRecord()
 		if (TimeTravel->ShouldRecord())
 		{
 			// First record time and identity of input...
-			TimeTravel->AddRecordedAction(GetWorld()->GetTimeSeconds(), EInputActionEnum::Stop_Jumping, 0);
+			TimeTravel->AddTimestampedInput(GetWorld()->GetTimeSeconds(), EInputActionEnum::Stop_Jumping, 0);
 		}
 		// ... then execute action through APawn's interface
 		StopJumping();
@@ -118,7 +118,7 @@ void AChronoCharacter::MoveForwardAndRecord(float Value)
 		if (TimeTravel->ShouldRecord())
 		{
 			// First record time and identity of input...
-			TimeTravel->AddRecordedAction(GetWorld()->GetTimeSeconds(), EInputActionEnum::Move_Forward, Value);
+			TimeTravel->AddTimestampedInput(GetWorld()->GetTimeSeconds(), EInputActionEnum::Move_Forward, Value);
 		}
 
 		// find out which way is forward
@@ -138,7 +138,7 @@ void AChronoCharacter::MoveRightAndRecord(float Value)
 		if (TimeTravel->ShouldRecord())
 		{
 			// First record time and identity of input...
-			TimeTravel->AddRecordedAction(GetWorld()->GetTimeSeconds(), EInputActionEnum::Move_Right, Value);
+			TimeTravel->AddTimestampedInput(GetWorld()->GetTimeSeconds(), EInputActionEnum::Move_Right, Value);
 		}
 
 		// find out which way is right
@@ -159,7 +159,7 @@ void AChronoCharacter::TurnAndRecord(float Value)
 		if (TimeTravel->ShouldRecord())
 		{
 			// First record time and identity of input...
-			TimeTravel->AddRecordedAction(GetWorld()->GetTimeSeconds(), EInputActionEnum::Turn, Value);
+			TimeTravel->AddTimestampedInput(GetWorld()->GetTimeSeconds(), EInputActionEnum::Turn, Value);
 		}
 
 		// call Pawn's interface to turn
@@ -174,7 +174,7 @@ void AChronoCharacter::TurnAtRateAndRecord(float Rate)
 		if (TimeTravel->ShouldRecord())
 		{
 			// First record time and identity of input...
-			TimeTravel->AddRecordedAction(GetWorld()->GetTimeSeconds(), EInputActionEnum::Turn_At_Rate, Rate);
+			TimeTravel->AddTimestampedInput(GetWorld()->GetTimeSeconds(), EInputActionEnum::Turn_At_Rate, Rate);
 		}
 
 		// calculate delta for this frame from the rate information
@@ -189,7 +189,7 @@ void AChronoCharacter::LookUpAndRecord(float Value)
 		if (TimeTravel->ShouldRecord())
 		{
 			// First record time and identity of input...
-			TimeTravel->AddRecordedAction(GetWorld()->GetTimeSeconds(), EInputActionEnum::Look_Up, Value);
+			TimeTravel->AddTimestampedInput(GetWorld()->GetTimeSeconds(), EInputActionEnum::Look_Up, Value);
 		}
 
 		// call Pawn's interface to look up
@@ -204,7 +204,7 @@ void AChronoCharacter::LookUpAtRateAndRecord(float Rate)
 		if (TimeTravel->ShouldRecord())
 		{
 			// First record time and identity of input...
-			TimeTravel->AddRecordedAction(GetWorld()->GetTimeSeconds(), EInputActionEnum::Look_Up_At_Rate, Rate);
+			TimeTravel->AddTimestampedInput(GetWorld()->GetTimeSeconds(), EInputActionEnum::Look_Up_At_Rate, Rate);
 		}
 
 		// calculate delta for this frame from the rate information
@@ -233,7 +233,7 @@ void AChronoCharacter::TouchStopped(ETouchIndex::Type FingerIndex, FVector Locat
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-void AChronoCharacter::ReplayPastAction(FUniqueTimeStamp ActionToReplay)
+void AChronoCharacter::ReplayPastAction(FTimestampedInputs ActionToReplay)
 {
 		if (ActionToReplay.JumpValue == 1.0f)
 		{
@@ -277,9 +277,9 @@ void AChronoCharacter::ReplayPastAction(FUniqueTimeStamp ActionToReplay)
 		AddControllerYawInput(ActionToReplay.TurnAtRateValue * BaseTurnRate * GetWorld()->GetDeltaSeconds());
 	}
 
-	if (ActionToReplay.LookupValue != 0.0f)
+	if (ActionToReplay.LookUpValue != 0.0f)
 	{
-		AddControllerPitchInput(ActionToReplay.LookupValue); // This is APawn's interface
+		AddControllerPitchInput(ActionToReplay.LookUpValue); // This is APawn's interface
 	}
 
 	if (ActionToReplay.LookUpAtRateValue != 0.0f)

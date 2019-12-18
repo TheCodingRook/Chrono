@@ -33,34 +33,23 @@ static FORCEINLINE FString EnumToString(const FString& Name, TEnum Value)
 	return enumPtr->GetDisplayNameTextByIndex((int32)Value).ToString();
 };
 
-
-// Simple struct to store a specific input action and the exact time it was received
-USTRUCT(BlueprintType)
-struct FRecordedInputAction
-{
-	GENERATED_USTRUCT_BODY()
-
-		UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Struct Contents")
-		float TimeStamp;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Struct Contents")
-		EInputActionEnum ActionName;
-
-	// Stores the value for axis-related actions, can be set to zero for button actions
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Struct Contents")
-		float Value;
-	// TODO Vaggelis: designated the members of the struct as BlueprintReadWrite so I can make sure I can see them in BP, however, should they be writeable????
-};
-
-
 // Struct to store unique timestamp entries with associated values for all input actions in that timestamp
 USTRUCT(BlueprintType)
-struct FUniqueTimeStamp
+struct FTimestampedInputs
 {
 	GENERATED_USTRUCT_BODY()
 
-		UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Struct Contents")
-		float TimeStamp = 0;
+	// Default constructor
+	FTimestampedInputs();
+
+	// Constructor with a known timestamp
+	FTimestampedInputs(float ts);
+
+	// Constructor with known initializing values
+	FTimestampedInputs(float ts, float jv, float sjv, float mfv, float mrv, float tv, float tarv, float luv, float luarv, float fv);
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Struct Contents")
+	float TimeStamp = 0;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Struct Contents")
 		float JumpValue = 0;
@@ -81,7 +70,7 @@ struct FUniqueTimeStamp
 		float TurnAtRateValue = 0;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Struct Contents")
-		float LookupValue = 0;
+		float LookUpValue = 0;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Struct Contents")
 		float LookUpAtRateValue = 0;
@@ -107,11 +96,9 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	/* Public getter functions */
-	UFUNCTION(BlueprintPure, Category = "Time Travel")
-	TArray<FRecordedInputAction> GetMovementAndActionsLog() const;
 
 	UFUNCTION(BlueprintPure, Category = "Time Travel")
-	TArray<FUniqueTimeStamp> GetUniqueTimeStamps() const;
+	TArray<FTimestampedInputs> GetTimestampedInputs() const;
 
 	UFUNCTION(BlueprintPure, Category = "Time Travel")
 	float GetMaxRecordingTime() const;
@@ -123,25 +110,13 @@ public:
 	bool ShouldRecord() const;
 
 
-	/*Add to the arrays*/
+	//Add to the array of timestamped inputs
 	UFUNCTION(BlueprintCallable, Category = "Time Travel")
-	void AddRecordedAction(float TimeStamp, EInputActionEnum RecordedActionName, float RecordedValue);
-	UFUNCTION(BlueprintCallable, Category = "Time Travel")
-	void AddUniqueTimeStamp(float TimeStamp, EInputActionEnum RecordedActionName, float InValue);
-	UFUNCTION(BlueprintCallable, Category = "Time Travel")
-	void AddDuplicateTimeStamp(EInputActionEnum RecordedActionName, float InValue); // this by default will amend the last element only
-
-	// Prep the log of recorded movement and actions for replay by producing a list with unique timestamps
-	UFUNCTION(BlueprintCallable, Category = "Time Travel")
-	void ProducePastActionsList();
-
+	void AddTimestampedInput(float TimeStamp, EInputActionEnum RecordedActionName, float RecordedValue);
+	
 	// Reset all the movement and action arrays
 	UFUNCTION(BlueprintCallable, Category = "Time Travel")
 	void WipeHistory();
-
-	// Reset just the PastActionsList only, keeping the original Movement/Actions log intact (potentially for further use, i.e. repeating same time-travel sequence)
-	UFUNCTION(BlueprintCallable, Category = "Time Travel")
-	void WipePastActionsList();
 
 	UFUNCTION(BlueprintCallable, Category = "Time Travel")
 	void AllowRecording(bool bInCanRecord);
@@ -151,13 +126,9 @@ protected:
 	virtual void BeginPlay() override;
 
 private:	
-	// Array of structs to record a continuous stream of input actions - acts like a crude log
+	// Array of structs where the timestamp entry is unique and all input values for that entry are recorded
 	UPROPERTY(VisibleAnywhere, Category = "Time Travel")
-	TArray<FRecordedInputAction> MovementAndActionsLog;
-
-	// Better refined array of structs where the timestamp entry is unique and all input values for that entry are recorded
-	UPROPERTY(VisibleAnywhere, Category = "Time Travel")
-	TArray<FUniqueTimeStamp> UniqueTimeStamps;
+	TArray<FTimestampedInputs> TimestampedInputs;
 
 	// Maximum "history recording" time
 	UPROPERTY(EditDefaultsOnly, Category = "Time Travel")
@@ -175,3 +146,8 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Time Travel")
 	bool bIsPastSelf;
 };
+
+/** Helper functions */
+
+// Helper to update the input float values in a TimestampedInputs entry
+void AmendTimestampedInputEntry(FTimestampedInputs& Out_TimestampedInputs, EInputActionEnum RecordedActionName, float RecordedValue);

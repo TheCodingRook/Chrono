@@ -3,6 +3,33 @@
 
 #include "TimeTravelComponent.h"
 
+// Default constructor
+FTimestampedInputs::FTimestampedInputs()
+{
+	TimeStamp, JumpValue, StopJumpingValue, MoveForwardValue, MoveRightValue, TurnValue, TurnAtRateValue, LookUpValue, LookUpAtRateValue, FireValue = 0;
+}
+
+// Constructor with only a known timestamp
+FTimestampedInputs::FTimestampedInputs(float ts)
+	:TimeStamp{ ts }
+{}
+
+// Constructor to initialize a TimestampedInputs struct with known values
+// TODO Vaggelis: decide if I truly need this constructor
+FTimestampedInputs::FTimestampedInputs(float ts, float jv, float sjv, float mfv, float mrv, float tv, float tarv, float luv, float luarv, float fv)
+
+	:TimeStamp{ ts },
+	JumpValue{ jv },
+	StopJumpingValue{ sjv },
+	MoveForwardValue{ mfv },
+	MoveRightValue{ mrv },
+	TurnValue{ tv },
+	TurnAtRateValue{ tarv },
+	LookUpValue{ luv },
+	LookUpAtRateValue{ luarv },
+	FireValue{ fv }
+{}
+
 // Sets default values for this component's properties
 UTimeTravelComponent::UTimeTravelComponent()
 {
@@ -34,14 +61,9 @@ void UTimeTravelComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 	// ...
 }
 
-TArray<FRecordedInputAction> UTimeTravelComponent::GetMovementAndActionsLog() const
+TArray<FTimestampedInputs> UTimeTravelComponent::GetTimestampedInputs() const
 {
-	return MovementAndActionsLog;
-}
-
-TArray<FUniqueTimeStamp> UTimeTravelComponent::GetUniqueTimeStamps() const
-{
-	return UniqueTimeStamps;
+	return TimestampedInputs;
 }
 
 float UTimeTravelComponent::GetMaxRecordingTime() const
@@ -59,156 +81,90 @@ bool UTimeTravelComponent::ShouldRecord() const
 	return bShouldRecord;
 }
 
-void UTimeTravelComponent::AddRecordedAction(float RecordedTimeStamp, EInputActionEnum RecordedActionName, float RecordedValue)
+void UTimeTravelComponent::AddTimestampedInput(float RecordedTimeStamp, EInputActionEnum RecordedActionName, float RecordedValue)
 {
-	// Createa  new struct object with the inputs
-	FRecordedInputAction NewAction;
-	NewAction.TimeStamp = RecordedTimeStamp;
-	NewAction.ActionName = RecordedActionName;
-	NewAction.Value = RecordedValue;
-	// Add to array
-	MovementAndActionsLog.Add(NewAction);
-}
-
-/*	The MovementAndActionsLog array contains non-unique entries for timestamps.
- *	This method creates new array of structs where all inputs at the same timestamp are in the same element.
- */
-
-void UTimeTravelComponent::ProducePastActionsList()
-{
-	// Initialize placeholder timestamp value with zero to keep track of duplicates as we loop structs array
-	float EarlierTimeStamp = 0.0f;
-
-	for (auto ThisAction : MovementAndActionsLog)
+	// If this is a non-empty array
+	if (TimestampedInputs.Num() > 0)
 	{
-		//	For every identical timestamp, write to the same struct of all-floats before proceeding to the next addition in that array
-		//	it's probably safe to assume array is already sorted since we are dealing with timestamps during gameplay
-		//
-		if (ThisAction.TimeStamp != EarlierTimeStamp)
+		// Check the last entry's timestamp
+		if (TimestampedInputs.Top().TimeStamp == RecordedTimeStamp)
 		{
-			AddUniqueTimeStamp(ThisAction.TimeStamp, ThisAction.ActionName, ThisAction.Value);
-
-			// Update latest EarlierTimeStamp variable
-			EarlierTimeStamp = ThisAction.TimeStamp;
+			// If same then amend the float variables in same entry based on the Enum passed
+			AmendTimestampedInputEntry(TimestampedInputs.Top(), RecordedActionName, RecordedValue);
 		}
+		// If this is a new entry, just add as is
 		else
 		{
-			// amend current struct of UniqueTimeStamp (two variables only necessary), so overload funciton
-			AddDuplicateTimeStamp(ThisAction.ActionName, ThisAction.Value);
+			TimestampedInputs.Add(FTimestampedInputs(RecordedTimeStamp));
+			AmendTimestampedInputEntry(TimestampedInputs.Top(), RecordedActionName, RecordedValue);
+
 		}
 	}
-}
-
-void UTimeTravelComponent::AddUniqueTimeStamp(float RecordedTimeStamp, EInputActionEnum ActionToAdd, float RecordedValue)
-{
-	// Createa  new struct object with the float inputs
-	FUniqueTimeStamp NewUniqueTimeStamp;
-	NewUniqueTimeStamp.TimeStamp = RecordedTimeStamp;
-
-	switch (ActionToAdd)
+	// otherwise add a FIRST element
+	else
 	{
-	case EInputActionEnum::Jump:
-		NewUniqueTimeStamp.JumpValue = RecordedValue;
-		break;
-
-	case EInputActionEnum::Stop_Jumping:
-		NewUniqueTimeStamp.StopJumpingValue = RecordedValue;
-		break;
-
-	case EInputActionEnum::Move_Forward:
-		NewUniqueTimeStamp.MoveForwardValue = RecordedValue;
-		break;
-
-	case EInputActionEnum::Move_Right:
-		NewUniqueTimeStamp.MoveRightValue = RecordedValue;
-		break;
-
-	case EInputActionEnum::Turn:
-		NewUniqueTimeStamp.TurnValue = RecordedValue;
-		break;
-
-	case EInputActionEnum::Turn_At_Rate:
-		NewUniqueTimeStamp.TurnAtRateValue = RecordedValue;
-		break;
-
-	case EInputActionEnum::Look_Up:
-		NewUniqueTimeStamp.LookupValue = RecordedValue;
-		break;
-
-	case EInputActionEnum::Look_Up_At_Rate:
-		NewUniqueTimeStamp.LookUpAtRateValue = RecordedValue;
-		break;
-
-	case EInputActionEnum::Fire:
-		NewUniqueTimeStamp.FireValue = RecordedValue;
-		break;
-
-	default:
-		break;
+		TimestampedInputs.Add(FTimestampedInputs(RecordedTimeStamp));
+		AmendTimestampedInputEntry(TimestampedInputs.Top(), RecordedActionName, RecordedValue);
 	}
-	// Add to array
-	UniqueTimeStamps.Add(NewUniqueTimeStamp);
-}
-
-void UTimeTravelComponent::AddDuplicateTimeStamp(EInputActionEnum RecordedActionName, float RecordedValue)
-{
-	switch (RecordedActionName)
-	{
-	case EInputActionEnum::Jump:
-		UniqueTimeStamps.Top().JumpValue = RecordedValue;
-		break;
-
-	case EInputActionEnum::Stop_Jumping:
-		UniqueTimeStamps.Top().StopJumpingValue = RecordedValue;
-		break;
-
-	case EInputActionEnum::Move_Forward:
-		UniqueTimeStamps.Top().MoveForwardValue = RecordedValue;
-		break;
-
-	case EInputActionEnum::Move_Right:
-		UniqueTimeStamps.Top().MoveRightValue = RecordedValue;
-		break;
-
-	case EInputActionEnum::Turn:
-		UniqueTimeStamps.Top().TurnValue = RecordedValue;
-		break;
-
-	case EInputActionEnum::Turn_At_Rate:
-		UniqueTimeStamps.Top().TurnAtRateValue = RecordedValue;
-		break;
-
-	case EInputActionEnum::Look_Up:
-		UniqueTimeStamps.Top().LookupValue = RecordedValue;
-		break;
-
-	case EInputActionEnum::Look_Up_At_Rate:
-		UniqueTimeStamps.Top().LookUpAtRateValue = RecordedValue;
-		break;
-
-	case EInputActionEnum::Fire:
-		UniqueTimeStamps.Top().FireValue = RecordedValue;
-		break;
-
-	default:
-		break;
-	}
-
 }
 
 void UTimeTravelComponent::WipeHistory()
 {
-	// Empty the logs and time stamp arrays so as not compound historic actions
-	MovementAndActionsLog.Empty();
-	WipePastActionsList();
-}
-
-void UTimeTravelComponent::WipePastActionsList()
-{
-	UniqueTimeStamps.Empty();
+	// Empty timestamp array so as not compound historic actions
+	TimestampedInputs.Empty();
 }
 
 void UTimeTravelComponent::AllowRecording(bool bInCanRecord)
 {
 	bShouldRecord = bInCanRecord;
 }
+
+/** Helper functions */
+
+// Helper to update the input float values in a TimestampedInputs entry
+void AmendTimestampedInputEntry(FTimestampedInputs& Out_TimestampedInputs, EInputActionEnum RecordedActionName, float RecordedValue)
+{
+	switch (RecordedActionName)
+	{
+	case EInputActionEnum::Jump:
+		Out_TimestampedInputs.JumpValue = RecordedValue;
+		break;
+
+	case EInputActionEnum::Stop_Jumping:
+		Out_TimestampedInputs.StopJumpingValue = RecordedValue;
+		break;
+
+	case EInputActionEnum::Move_Forward:
+		Out_TimestampedInputs.MoveForwardValue = RecordedValue;
+		break;
+
+	case EInputActionEnum::Move_Right:
+		Out_TimestampedInputs.MoveRightValue = RecordedValue;
+		break;
+
+	case EInputActionEnum::Turn:
+		Out_TimestampedInputs.TurnValue = RecordedValue;
+		break;
+
+	case EInputActionEnum::Turn_At_Rate:
+		Out_TimestampedInputs.TurnAtRateValue = RecordedValue;
+		break;
+
+	case EInputActionEnum::Look_Up:
+		Out_TimestampedInputs.LookUpValue = RecordedValue;
+		break;
+
+	case EInputActionEnum::Look_Up_At_Rate:
+		Out_TimestampedInputs.LookUpAtRateValue = RecordedValue;
+		break;
+
+	case EInputActionEnum::Fire:
+		Out_TimestampedInputs.FireValue = RecordedValue;
+		break;
+
+	default:
+		break;
+	}
+}
+
+
