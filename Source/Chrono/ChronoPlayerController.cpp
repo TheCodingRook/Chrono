@@ -4,6 +4,16 @@
 #include "ChronoPlayerController.h"
 #include "GameFramework\Character.h"
 
+// Default constructor not implemented
+FActionNameToValueMap::FActionNameToValueMap()
+{
+}
+
+FActionNameToValueMap::FActionNameToValueMap(FName InActionName, int32 InActionIndex)
+	:ActionName{ InActionName },
+	ActionIndex{ InActionIndex }
+{}
+
 void AChronoPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
