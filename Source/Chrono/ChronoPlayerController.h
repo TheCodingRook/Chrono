@@ -40,7 +40,7 @@ public:
 	void SetUpRecordableAxisBinding(const FName NewAction, UserClass* Object, typename FInputAxisHandlerSignature::TUObjectMethodDelegate< UserClass >::FMethodPtr Func);
 
 	void Jump();
-	void StopJumping();
+	void EndJump();
 
 	//void MoveForward(float Value);
 	//void MoveRight(float Value);

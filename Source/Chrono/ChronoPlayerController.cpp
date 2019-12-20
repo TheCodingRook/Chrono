@@ -14,10 +14,10 @@ AChronoPlayerController::AChronoPlayerController()
 void AChronoPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
-
+	
 	check(InputComponent);
 	SetUpRecordableActionBinding("Jump", IE_Pressed, this, &AChronoPlayerController::Jump); 
-	SetUpRecordableActionBinding("Stop Jumping", IE_Released, this, &AChronoPlayerController::StopJumping);
+	SetUpRecordableActionBinding("Jump", IE_Released, this, &AChronoPlayerController::EndJump);
 
 	//SetUpRecordableAxisBinding("MoveForward", this, &AChronoPlayerController::MoveForward);
 	//SetUpRecordableAxisBinding("MoveRight", this, &AChronoPlayerController::MoveRight);
@@ -51,7 +51,21 @@ void AChronoPlayerController::SetUpRecordableActionBinding(const FName NewAction
 	InputComponent->BindAction(NewAction, KeyEvent, Object, Func);
 	
 	// Keep track of the order in which we add movements/actions in this array
-	RecordableMovementAndActionBindings.Add(NewAction);
+	// Deal with the special case that this is a "key released" type of actions; presumably we have bound
+	// the same action for "key pressed"
+	if (KeyEvent == IE_Released)
+	{
+		FString NewActionString = "End" + NewAction.ToString();
+		FName EndNewAction(*NewActionString);
+		RecordableMovementAndActionBindings.Add(EndNewAction);
+	}
+	else
+	{
+		RecordableMovementAndActionBindings.Add(NewAction);
+	}
+
+	
+	
 	
 	// Then set it up in the FTimestampedInputs template struct, with a default value for its Value as 0
 	// The index of this float in the array will match the index of the action in the
@@ -83,9 +97,38 @@ void AChronoPlayerController::SetUpRecordableAxisBinding(const FName NewAction, 
 
 void AChronoPlayerController::Jump()
 {
-	if(MyCharacter)
+	if (ensure(GetCharacter() != nullptr))
 	{
 		GetCharacter()->Jump();
+
+		// Record the action in Character's TimeTravelComponent
+		if (ensure(TimeTravel != nullptr))
+		{
+			
+			if (TimeTravel->ShouldRecord())
+			{
+				
+				// Record action and pass the array index of that action in the sequnce of bound actions
+				// MAKE SURE YOU USE THE SAME NAME TO DESCRIBE THE ACTION
+				int32 IndexInFloatArray = RecordableMovementAndActionBindings.Find("Jump");
+				UE_LOG(LogTemp, Warning, TEXT("So far so good, int index of %i"), IndexInFloatArray)
+				//TimeTravel->AddTimestampedInput(GetWorld()->GetTimeSeconds(), IndexInFloatArray, 1.f);
+			}
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("%s did not have a valid TimeTravelComponent!"), *GetCharacter()->GetName())
+		}
+	}
+
+	
+}
+
+void AChronoPlayerController::EndJump()
+{
+	if (ensure(GetCharacter() != nullptr))
+	{
+		GetCharacter()->StopJumping();
 
 		// Record the action in Character's TimeTravelComponent
 		if (ensure(TimeTravel != nullptr))
@@ -94,22 +137,16 @@ void AChronoPlayerController::Jump()
 			{
 				// Record action and pass the array index of that action in the sequnce of bound actions
 				// MAKE SURE YOU USE THE SAME NAME TO DESCRIBE THE ACTION
-				int32 IndexInFloatArray = RecordableMovementAndActionBindings.Find("Jump");
-				TimeTravel->AddTimestampedInput(GetWorld()->GetTimeSeconds(), IndexInFloatArray, 1.f);
+				int32 IndexInFloatArray = RecordableMovementAndActionBindings.Find("EndJump");
+				UE_LOG(LogTemp, Warning, TEXT("So far so good, int index of %i"), IndexInFloatArray)
+				//TimeTravel->AddTimestampedInput(GetWorld()->GetTimeSeconds(), IndexInFloatArray, 1.f);
 			}
 		}
 		else
 		{
-			UE_LOG(LogTemp, Error, TEXT("%s did not have a valid TimeTravelComponent!"), *MyCharacter->GetName())
+			UE_LOG(LogTemp, Error, TEXT("%s did not have a valid TimeTravelComponent!"), *GetCharacter()->GetName())
 		}
 	}
-
-	
-}
-
-void AChronoPlayerController::StopJumping()
-{
-	GetCharacter()->StopJumping();
 }
 
 /*
