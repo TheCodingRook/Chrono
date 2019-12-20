@@ -6,8 +6,9 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "GameFramework/Controller.h"
+#include "ChronoPlayerController.h"
 #include "GameFramework/SpringArmComponent.h"
+
 
 //////////////////////////////////////////////////////////////////////////
 // AChronoCharacter
@@ -46,8 +47,6 @@ AChronoCharacter::AChronoCharacter()
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 
-	// Sets up a time travel component
-	TimeTravel = CreateDefaultSubobject<UTimeTravelComponent>(FName("Time Travel Component"));
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -57,30 +56,30 @@ void AChronoCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 {
 	// Set up gameplay key bindings, making every movement and action recordable; all actions implemented locally
 	check(PlayerInputComponent);
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AChronoCharacter::JumpAndRecord); // cannot override Pawn's Jump here so had to name differently
-	PlayerInputComponent->BindAction("Jump", IE_Released, this, &AChronoCharacter::StopJumpingAndRecord);
+	//PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AChronoCharacter::JumpAndRecord); // cannot override Pawn's Jump here so had to name differently
+	//PlayerInputComponent->BindAction("Jump", IE_Released, this, &AChronoCharacter::StopJumpingAndRecord);
 
-	PlayerInputComponent->BindAxis("MoveForward", this, &AChronoCharacter::MoveForwardAndRecord);
-	PlayerInputComponent->BindAxis("MoveRight", this, &AChronoCharacter::MoveRightAndRecord);
+	//PlayerInputComponent->BindAxis("MoveForward", this, &AChronoCharacter::MoveForwardAndRecord);
+	//PlayerInputComponent->BindAxis("MoveRight", this, &AChronoCharacter::MoveRightAndRecord);
 
 	// We have 2 versions of the rotation bindings to handle different kinds of devices differently
 	// "turn" handles devices that provide an absolute delta, such as a mouse.
 	// "turnrate" is for devices that we choose to treat as a rate of change, such as an analog joystick
 
-	PlayerInputComponent->BindAxis("Turn", this, &AChronoCharacter::TurnAndRecord);
-	PlayerInputComponent->BindAxis("TurnRate", this, &AChronoCharacter::TurnAtRateAndRecord);
-	PlayerInputComponent->BindAxis("LookUp", this, &AChronoCharacter::LookUpAndRecord);
-	PlayerInputComponent->BindAxis("LookUpAtRate", this, &AChronoCharacter::LookUpAtRateAndRecord);
+	//PlayerInputComponent->BindAxis("Turn", this, &AChronoCharacter::TurnAndRecord);
+	//PlayerInputComponent->BindAxis("TurnRate", this, &AChronoCharacter::TurnAtRateAndRecord);
+	//PlayerInputComponent->BindAxis("LookUp", this, &AChronoCharacter::LookUpAndRecord);
+	//PlayerInputComponent->BindAxis("LookUpAtRate", this, &AChronoCharacter::LookUpAtRateAndRecord);
 
 
 	/* TOUCH DEVICES AND VR HEADSET NOT IMPLEMENTED YET */
 	// handle touch devices
-	PlayerInputComponent->BindTouch(IE_Pressed, this, &AChronoCharacter::TouchStarted);
-	PlayerInputComponent->BindTouch(IE_Released, this, &AChronoCharacter::TouchStopped);
+	//PlayerInputComponent->BindTouch(IE_Pressed, this, &AChronoCharacter::TouchStarted);
+	//PlayerInputComponent->BindTouch(IE_Released, this, &AChronoCharacter::TouchStopped);
 	// VR headset functionality
-	PlayerInputComponent->BindAction("ResetVR", IE_Pressed, this, &AChronoCharacter::OnResetVR);
+	//PlayerInputComponent->BindAction("ResetVR", IE_Pressed, this, &AChronoCharacter::OnResetVR);
 }
-
+/*
 void AChronoCharacter::JumpAndRecord()
 {
 		if (Controller && TimeTravel)
@@ -232,13 +231,45 @@ void AChronoCharacter::TouchStopped(ETouchIndex::Type FingerIndex, FVector Locat
 // END OF LEGACY METHODS ************************************************************************
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
+*/
 
-void AChronoCharacter::ReplayPastAction(FTimestampedInputs ActionToReplay)
+void AChronoCharacter::ReplayPastActions(FTimestampedInputs ActionsToReplay)
 {
-		if (ActionToReplay.JumpValue == 1.0f)
+	auto ThisController = Cast<AChronoPlayerController>(GetController());
+
+	if (ensure(ThisController != nullptr))
+	{
+
+		// Loop through the InputValues array of this struct that's past in
+
+		for (int i = 0; i < ActionsToReplay.InputValues.Num(); i++)
 		{
-			Jump(); // This is ACharacter's interface
+			// For every non-zero float value you find:
+			if (ActionsToReplay.InputValues[i] != 0.f)
+			{
+				// Look up the action name in same index in the controller's inputbindings array
+				FName WhichAction = ThisController->GetRecordableMovementAndActionBindings()[i];
+
+				if (WhichAction == "Jump")
+				{
+					Jump(); // This is ACharacter's interface
+				}
+
+				else if (WhichAction == "Stop Jumping")
+				{
+					StopJumping(); // This is ACharacter's interface
+				}
+
+				// Have a switch that decides which action to do.
+			}
+
 		}
+	}
+}
+
+
+	/*
+
 
 	if (ActionToReplay.StopJumpingValue == 1.0f)
 	{
@@ -293,3 +324,4 @@ void AChronoCharacter::ReplayPastAction(FTimestampedInputs ActionToReplay)
 	}
 
 }
+*/

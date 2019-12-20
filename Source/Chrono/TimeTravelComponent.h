@@ -6,21 +6,6 @@
 #include "Components/ActorComponent.h"
 #include "TimeTravelComponent.generated.h"
 
-/*Enumeration to store name of actions */
-UENUM(BlueprintType)
-enum class EInputActionEnum : uint8
-{
-	Move_Forward UMETA(DisplayName = "Move Forward"),
-	Move_Right UMETA(DisplayName = "Move Right"),
-	Turn UMETA(DisplayName = "Turn"),
-	Turn_At_Rate UMETA(DisplayName = "Turn At Rate"),
-	Look_Up UMETA(DisplayName = "Look Up"),
-	Look_Up_At_Rate UMETA(DisplayName = "Look Up At Rate"),
-	Jump UMETA(DisplayName = "Jump"),
-	Stop_Jumping UMETA(DisplayName = "Stop Jumping"),
-	Fire UMETA(DisplayName = "Fire")
-};
-
 //	Utility to be able to print the enumeration types easily for debugging purposes.
 template <typename TEnum>
 static FORCEINLINE FString EnumToString(const FString& Name, TEnum Value)
@@ -45,38 +30,11 @@ struct FTimestampedInputs
 	// Constructor with a known timestamp
 	FTimestampedInputs(float ts);
 
-	// Constructor with known initializing values
-	FTimestampedInputs(float ts, float jv, float sjv, float mfv, float mrv, float tv, float tarv, float luv, float luarv, float fv);
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Struct Contents")
 	float TimeStamp = 0;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Struct Contents")
-		float JumpValue = 0;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Struct Contents")
-		float StopJumpingValue = 0;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Struct Contents")
-		float MoveForwardValue = 0;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Struct Contents")
-		float MoveRightValue = 0;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Struct Contents")
-		float TurnValue = 0;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Struct Contents")
-		float TurnAtRateValue = 0;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Struct Contents")
-		float LookUpValue = 0;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Struct Contents")
-		float LookUpAtRateValue = 0;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Struct Contents")
-		float FireValue = 0;
+	TArray<float> InputValues;
 };
 
 /*	A class that allows the actor (in this case most likely the controlled pawn) to
@@ -98,7 +56,7 @@ public:
 	/* Public getter functions */
 
 	UFUNCTION(BlueprintPure, Category = "Time Travel")
-	TArray<FTimestampedInputs> GetTimestampedInputs() const;
+	TArray<FTimestampedInputs> GetTimestampedInputsArray() const;
 
 	UFUNCTION(BlueprintPure, Category = "Time Travel")
 	float GetMaxRecordingTime() const;
@@ -112,7 +70,7 @@ public:
 
 	//Add to the array of timestamped inputs
 	UFUNCTION(BlueprintCallable, Category = "Time Travel")
-	void AddTimestampedInput(float TimeStamp, EInputActionEnum RecordedActionName, float RecordedValue);
+	void AddTimestampedInput(float TimeStamp, int32 InputValuesArrayIndex, float RecordedValue);
 	
 	// Reset all the movement and action arrays
 	UFUNCTION(BlueprintCallable, Category = "Time Travel")
@@ -121,14 +79,25 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Time Travel")
 	void AllowRecording(bool bInCanRecord);
 
+	/*	This is the struct object that will hold the number of different input values depending on how many
+	movement and action bindings we create. It will be the basis for replicating all the elements of the
+	struct array that will hold input values for every timestamp of recording. This way we can dynamically
+	code as many or as few recordable actions we want without explicitly coding the description of each of
+	those in a specific enum or other struct. Once we know how many actions/movements the final game will
+	have we can switch to describing each one of them explicitly.
+ */
+	FTimestampedInputs TimestampedInputsTemplate;
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
 private:	
+
+
 	// Array of structs where the timestamp entry is unique and all input values for that entry are recorded
 	UPROPERTY(VisibleAnywhere, Category = "Time Travel")
-	TArray<FTimestampedInputs> TimestampedInputs;
+	TArray<FTimestampedInputs> TimestampedInputsArray;
 
 	// Maximum "history recording" time
 	UPROPERTY(EditDefaultsOnly, Category = "Time Travel")
@@ -146,8 +115,3 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Time Travel")
 	bool bIsPastSelf;
 };
-
-/** Helper functions */
-
-// Helper to update the input float values in a TimestampedInputs entry
-void AmendTimestampedInputEntry(FTimestampedInputs& Out_TimestampedInputs, EInputActionEnum RecordedActionName, float RecordedValue);

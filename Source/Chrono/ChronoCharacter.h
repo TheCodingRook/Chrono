@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "TimeTravelComponent.h" // Have to include this here because I cannot forward declare the FTimestampedInputs struct in the ReplayPastAction method declaration below
+#include "TimeTravelComponent.h" // Have to include this here because I cannot forward declare the FTimestampedInputs struct in the ReplayPastActions method declaration below
 #include "ChronoCharacter.generated.h"
 
 UCLASS(config=Game)
@@ -36,34 +36,30 @@ public:
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
-	/** Returns TimeTravelComponent subobject **/
-	UFUNCTION(BlueprintPure, Category = "Time Travel")
-	FORCEINLINE class UTimeTravelComponent* GetTimeTravelComponent() const { return TimeTravel; }
-
 protected:
 
 	/**	Methods to call to perform movements (and actions when necessary) but also record them for replay in the future */
-	void JumpAndRecord();
-	void StopJumpingAndRecord();
-	void MoveForwardAndRecord(float Value);
-	void MoveRightAndRecord(float Value);
-	void TurnAndRecord(float Value);
-	void TurnAtRateAndRecord(float Rate);
-	void LookUpAndRecord(float Value);
-	void LookUpAtRateAndRecord(float Rate);
+	//void JumpAndRecord();
+	//void StopJumpingAndRecord();
+	//void MoveForwardAndRecord(float Value);
+	//void MoveRightAndRecord(float Value);
+	//void TurnAndRecord(float Value);
+	//void TurnAtRateAndRecord(float Rate);
+	//void LookUpAndRecord(float Value);
+	//void LookUpAtRateAndRecord(float Rate);
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////
 	// LEGACY METHODS THAT ARE NOT BEING USED AT THE MOMENT
 	// ************************************************************************************************
 
 	/** Resets HMD orientation in VR. */
-	void OnResetVR();
+	//void OnResetVR();
 
 	/** Handler for when a touch input begins. */
-	void TouchStarted(ETouchIndex::Type FingerIndex, FVector Location);
+	//void TouchStarted(ETouchIndex::Type FingerIndex, FVector Location);
 
 	/** Handler for when a touch input stops. */
-	void TouchStopped(ETouchIndex::Type FingerIndex, FVector Location);
+	//void TouchStopped(ETouchIndex::Type FingerIndex, FVector Location);
 
 	// END OF LEGACY METHODS ************************************************************************
 	//////////////////////////////////////////////////////////////////////////////////////////////////
@@ -73,10 +69,5 @@ protected:
 	// End of APawn interface
 
 	UFUNCTION(BlueprintCallable, Category = "Time Travel", meta = (AllowPrivateAccess = "true"))
-	void ReplayPastAction(FTimestampedInputs ActionToReplay);
-
-private:
-	/** Component to implement character's time-travelling ability	*/
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Time Travel", meta = (AllowPrivateAccess = "true"))
-	UTimeTravelComponent* TimeTravel;
+	void ReplayPastActions(FTimestampedInputs ActionsToReplay);
 };

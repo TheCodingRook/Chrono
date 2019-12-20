@@ -4,29 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
-//#include "Components/InputComponent.h"
 #include "ChronoPlayerController.generated.h"
-
-/**
- * Struct to allow mapping of movements/actions we bind and their order in which they will be evaluated in action parsing and processing later in the code
- * For example, the third action we set up via SetUpNewRecordableAction() below will have an index of 2, so we know to look for the float in index 2 of
- * an array of floats (or within a struct or whatever) as the value recorded for that action. Should make life easier rather than comparing with FStrings,
- * FNames or with Enums etc.
- */
-USTRUCT(BlueprintType)
-struct FActionNameToValueMap
-{
-	GENERATED_USTRUCT_BODY()
-
-	// Default constructor
-	FActionNameToValueMap();
-
-	// Constructor / initializer
-	FActionNameToValueMap(FName InActionName, int32 InActionIndex);
-
-	FName ActionName;
-	int32 ActionIndex;
-};
 
 /**
  * Custom PlayerController class to set up input bindings for momvement and actions, all or some of which can be recordeable and replayable for when a "past self" is spawned.
@@ -36,20 +14,50 @@ class CHRONO_API AChronoPlayerController : public APlayerController
 {
 	GENERATED_BODY()
 
+public:
+
+	// Default constructor
+	AChronoPlayerController();
+
 	virtual void SetupInputComponent() override;
 
-	// templated function so I can insert new actions that can be recorded and replayed
+	virtual void BeginPlay();
+
+	// Getter for the TArray of movement/action binding names
+	UFUNCTION(BlueprintPure, Category = "Time Travel")
+	TArray<FName> GetRecordableMovementAndActionBindings() const;
+
+	/** Returns TimeTravelComponent subobject **/
+	UFUNCTION(BlueprintPure, Category = "Time Travel")
+	FORCEINLINE class UTimeTravelComponent* GetTimeTravelComponent() const { return TimeTravel; }
+
+	// Templated function so we can insert new action bindings that can be recorded and replayed
 	template <class UserClass>
-	void SetUpNewRecordableAction(const FName NewAction, const EInputEvent KeyEvent, UserClass* Object, typename FInputActionHandlerSignature::TUObjectMethodDelegate< UserClass >::FMethodPtr Func)
-	{
-		InputComponent->BindAction(NewAction, KeyEvent, Object, Func);
-		RecordableMovementAndActionBindings.Add(FActionNameToValueMap(NewAction, RecordableMovementAndActionBindings.Num()));
-	}
+	void SetUpRecordableActionBinding(const FName NewAction, const EInputEvent KeyEvent, UserClass* Object, typename FInputActionHandlerSignature::TUObjectMethodDelegate< UserClass >::FMethodPtr Func);
+
+	// Templated function so we can insert new axis bindings that can be recorded and replayed
+	template <class UserClass>
+	void SetUpRecordableAxisBinding(const FName NewAction, UserClass* Object, typename FInputAxisHandlerSignature::TUObjectMethodDelegate< UserClass >::FMethodPtr Func);
 
 	void Jump();
+	void StopJumping();
+
+	//void MoveForward(float Value);
+	//void MoveRight(float Value);
+
+	//void Turn(float Value);
+	//void TurnAtRate(float Value);
+	//void LookUp(float Value);
+	//void LookUpAtRate(float Value);
 
 private:
+	/** Component to implement character's time-travelling ability	*/
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Time Travel", meta = (AllowPrivateAccess = "true"))
+	class UTimeTravelComponent* TimeTravel;
+
 	// Store those specific bindings that have been designated for being able to be record and played back on the "past self" character
-	TArray<FActionNameToValueMap> RecordableMovementAndActionBindings;
+	TArray<FName> RecordableMovementAndActionBindings;
 	
+	// Store pointer to this controller's character
+	class AChronoCharacter* MyCharacter;
 };
