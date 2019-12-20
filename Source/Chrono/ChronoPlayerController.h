@@ -40,15 +40,16 @@ public:
 	void SetUpRecordableAxisBinding(const FName NewAction, UserClass* Object, typename FInputAxisHandlerSignature::TUObjectMethodDelegate< UserClass >::FMethodPtr Func);
 
 	void Jump();
+	void RecordAction(FName ActionToRecord, float Value);
 	void EndJump();
 
-	//void MoveForward(float Value);
-	//void MoveRight(float Value);
+	void MoveForward(float Value);
+	void MoveRight(float Value);
 
-	//void Turn(float Value);
-	//void TurnAtRate(float Value);
-	//void LookUp(float Value);
-	//void LookUpAtRate(float Value);
+	void Turn(float Value);
+	void TurnAtRate(float Value);
+	void LookUp(float Value);
+	void LookUpAtRate(float Value);
 
 private:
 	/** Component to implement character's time-travelling ability	*/

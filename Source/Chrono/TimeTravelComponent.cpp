@@ -75,6 +75,7 @@ void UTimeTravelComponent::AddTimestampedInput(float RecordedTimeStamp, int32 In
 		// Check the last entry's timestamp
 		if (TimestampedInputsArray.Top().TimeStamp == RecordedTimeStamp)
 		{
+			UE_LOG(LogTemp, Warning, TEXT("Instructed to record with value: %f"), RecordedValue)
 			// If same then amend the float variable in the InputValues array at the index passed in
 			TimestampedInputsArray.Top().InputValues[InputValuesArrayIndex] = RecordedValue;
 
@@ -88,9 +89,11 @@ void UTimeTravelComponent::AddTimestampedInput(float RecordedTimeStamp, int32 In
 	// In order to add a new element (and more importantly the very first one) we need a copy of the 
 	// struct template first, set up its values (timestamp and float value in the correct index within
 	// the InputValues array, and then add it to the TArray of TimestampedInputs
+	UE_LOG(LogTemp, Warning, TEXT("Instructed to record with value: %f"), RecordedValue)
 	FTimestampedInputs NewEntry = TimestampedInputsTemplate;
 	NewEntry.TimeStamp = RecordedTimeStamp;
 	NewEntry.InputValues[InputValuesArrayIndex] = RecordedValue;
+	UE_LOG(LogTemp, Warning, TEXT("Inserting value: %f"), RecordedValue)
 	TimestampedInputsArray.Add(NewEntry);
 		
 	

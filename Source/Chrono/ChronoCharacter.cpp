@@ -255,9 +255,31 @@ void AChronoCharacter::ReplayPastActions(FTimestampedInputs ActionsToReplay)
 					Jump(); // This is ACharacter's interface
 				}
 
-				else if (WhichAction == "Stop Jumping")
+				else if (WhichAction == "EndJump")
 				{
 					StopJumping(); // This is ACharacter's interface
+				}
+
+				else if (WhichAction == "MoveForward")
+				{
+					// find out which way is forward
+					const FRotator Rotation = Controller->GetControlRotation();
+					const FRotator YawRotation(0, Rotation.Yaw, 0);
+
+					// get forward vector
+					const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+					AddMovementInput(Direction, ActionsToReplay.InputValues[i]);
+				}
+
+				else if (WhichAction == "Moveright")
+				{
+					// find out which way is forward
+					const FRotator Rotation = Controller->GetControlRotation();
+					const FRotator YawRotation(0, Rotation.Yaw, 0);
+
+					// get forward vector
+					const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+					AddMovementInput(Direction, ActionsToReplay.InputValues[i]);
 				}
 
 				// Have a switch that decides which action to do.

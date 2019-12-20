@@ -19,17 +19,17 @@ void AChronoPlayerController::SetupInputComponent()
 	SetUpRecordableActionBinding("Jump", IE_Pressed, this, &AChronoPlayerController::Jump); 
 	SetUpRecordableActionBinding("Jump", IE_Released, this, &AChronoPlayerController::EndJump);
 
-	//SetUpRecordableAxisBinding("MoveForward", this, &AChronoPlayerController::MoveForward);
-	//SetUpRecordableAxisBinding("MoveRight", this, &AChronoPlayerController::MoveRight);
+	SetUpRecordableAxisBinding("MoveForward", this, &AChronoPlayerController::MoveForward);
+	SetUpRecordableAxisBinding("MoveRight", this, &AChronoPlayerController::MoveRight);
 
 	// We have 2 versions of the rotation bindings to handle different kinds of devices differently
 	// "turn" handles devices that provide an absolute delta, such as a mouse.
 	// "turnrate" is for devices that we choose to treat as a rate of change, such as an analog joystick
 
-	//SetUpRecordableAxisBinding("Turn", this, &AChronoPlayerController::Turn);
-	//SetUpRecordableAxisBinding("TurnAtRate", this, &AChronoPlayerController::TurnAtRate);
-	//SetUpRecordableAxisBinding("LookUp", this, &AChronoPlayerController::LookUp);
-	//SetUpRecordableAxisBinding("LookUpAtRate", this, &AChronoPlayerController::LookUpAtRate);
+	SetUpRecordableAxisBinding("Turn", this, &AChronoPlayerController::Turn);
+	SetUpRecordableAxisBinding("TurnAtRate", this, &AChronoPlayerController::TurnAtRate);
+	SetUpRecordableAxisBinding("LookUp", this, &AChronoPlayerController::LookUp);
+	SetUpRecordableAxisBinding("LookUpAtRate", this, &AChronoPlayerController::LookUpAtRate);
 
 	/* TOUCH DEVICES AND VR HEADSET NOT IMPLEMENTED YET */
 }
@@ -64,13 +64,9 @@ void AChronoPlayerController::SetUpRecordableActionBinding(const FName NewAction
 		RecordableMovementAndActionBindings.Add(NewAction);
 	}
 
-	
-	
-	
 	// Then set it up in the FTimestampedInputs template struct, with a default value for its Value as 0
 	// The index of this float in the array will match the index of the action in the
 	// RecordableMovementAndActionBindings array above
-	
 	TimeTravel->TimestampedInputsTemplate.InputValues.Add(0);
 	/* NOTE: THE LENGTH OF THESE TWO ARRAYS SHOULD BE IDENTICAL */
 
@@ -89,10 +85,33 @@ void AChronoPlayerController::SetUpRecordableAxisBinding(const FName NewAction, 
 	// Then set it up in the FTimestampedInputs struct, with a default value for its Value as 0
 	// The index of this float in the array will match the index of the action in the
 	// RecordableMovementAndActionBindings array below
-	CharacterTTC->TimestampedInputsTemplate.InputValues.Add(0);
+	TimeTravel->TimestampedInputsTemplate.InputValues.Add(0);
 
 	/* NOTE: THE LENGTH OF THE ARRAYS SHOULD BE IDENTICAL */
 	
+}
+
+void AChronoPlayerController::RecordAction(FName ActionToRecord, float Value)
+{
+	// Record the action in Character's TimeTravelComponent
+	if (ensure(TimeTravel != nullptr))
+	{
+
+		if (TimeTravel->ShouldRecord())
+		{
+
+			// Record action and pass the array index of that action in the sequnce of bound actions
+			// MAKE SURE YOU USE THE SAME NAME TO DESCRIBE THE ACTION
+			int32 IndexInFloatArray = RecordableMovementAndActionBindings.Find(ActionToRecord);
+			//UE_LOG(LogTemp, Warning, TEXT("So far so good, int index of %i"), IndexInFloatArray)
+			TimeTravel->AddTimestampedInput(GetWorld()->GetTimeSeconds(), IndexInFloatArray, Value);
+			
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s did not have a valid TimeTravelComponent!"), *GetCharacter()->GetName())
+	}
 }
 
 void AChronoPlayerController::Jump()
@@ -100,25 +119,8 @@ void AChronoPlayerController::Jump()
 	if (ensure(GetCharacter() != nullptr))
 	{
 		GetCharacter()->Jump();
-
-		// Record the action in Character's TimeTravelComponent
-		if (ensure(TimeTravel != nullptr))
-		{
-			
-			if (TimeTravel->ShouldRecord())
-			{
-				
-				// Record action and pass the array index of that action in the sequnce of bound actions
-				// MAKE SURE YOU USE THE SAME NAME TO DESCRIBE THE ACTION
-				int32 IndexInFloatArray = RecordableMovementAndActionBindings.Find("Jump");
-				UE_LOG(LogTemp, Warning, TEXT("So far so good, int index of %i"), IndexInFloatArray)
-				//TimeTravel->AddTimestampedInput(GetWorld()->GetTimeSeconds(), IndexInFloatArray, 1.f);
-			}
-		}
-		else
-		{
-			UE_LOG(LogTemp, Error, TEXT("%s did not have a valid TimeTravelComponent!"), *GetCharacter()->GetName())
-		}
+		
+		RecordAction("Jump", 1.f);
 	}
 
 	
@@ -130,29 +132,14 @@ void AChronoPlayerController::EndJump()
 	{
 		GetCharacter()->StopJumping();
 
-		// Record the action in Character's TimeTravelComponent
-		if (ensure(TimeTravel != nullptr))
-		{
-			if (TimeTravel->ShouldRecord())
-			{
-				// Record action and pass the array index of that action in the sequnce of bound actions
-				// MAKE SURE YOU USE THE SAME NAME TO DESCRIBE THE ACTION
-				int32 IndexInFloatArray = RecordableMovementAndActionBindings.Find("EndJump");
-				UE_LOG(LogTemp, Warning, TEXT("So far so good, int index of %i"), IndexInFloatArray)
-				//TimeTravel->AddTimestampedInput(GetWorld()->GetTimeSeconds(), IndexInFloatArray, 1.f);
-			}
-		}
-		else
-		{
-			UE_LOG(LogTemp, Error, TEXT("%s did not have a valid TimeTravelComponent!"), *GetCharacter()->GetName())
-		}
+		RecordAction("EndJump", 1.f);
 	}
 }
 
-/*
+
 void AChronoPlayerController::MoveForward(float Value)
 {
-	if (Value != 0.0f && MyCharacter)
+	if (ensure(GetCharacter() != nullptr))
 	{
 		// find out which way is forward
 		const FRotator Rotation = GetControlRotation();
@@ -160,57 +147,66 @@ void AChronoPlayerController::MoveForward(float Value)
 
 		// get forward vector
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-		MyCharacter->AddMovementInput(Direction, Value);
+		GetCharacter()->AddMovementInput(Direction, Value);
+
+		RecordAction("MoveForward", Value);
 	}
+
 }
+
 
 void AChronoPlayerController::MoveRight(float Value)
 {
-	if (Value != 0.0f && MyCharacter)
+	if (ensure(GetCharacter() != nullptr))
 	{
-		// find out which way is right
+		// find out which way is forward
 		const FRotator Rotation = GetControlRotation();
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
 
-		// get right vector 
+		// get forward vector
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-		// add movement in that direction
-		MyCharacter->AddMovementInput(Direction, Value);
+		GetCharacter()->AddMovementInput(Direction, Value);
+
+		RecordAction("MoveRight", Value);
 	}
 
 }
 
+
 void AChronoPlayerController::Turn(float Value)
 {
-	if (Value != 0.f && MyCharacter && IsLocalPlayerController())
+	if (GetCharacter() && IsLocalPlayerController())
 	{
 		AddYawInput(Value);
+		RecordAction("Turn", Value);
 	}
 
 }
 
 void AChronoPlayerController::TurnAtRate(float Rate)
 {
-	if (Rate != 0.f && MyCharacter && IsLocalPlayerController())
+	if (GetCharacter() && IsLocalPlayerController())
 	{
-		//AddYawInput(Rate * MyCharacter->BaseTurnRate * GetWorld()->GetDeltaSeconds());
+		AddYawInput(Rate * Cast<AChronoCharacter>(GetCharacter())->BaseTurnRate * GetWorld()->GetDeltaSeconds());
+		RecordAction("TurnAtRate", Rate);
 	}
 }
 
 void AChronoPlayerController::LookUp(float Value)
 {
-	if (Value != 0.f && MyCharacter && IsLocalPlayerController())
+	if (GetCharacter() && IsLocalPlayerController())
 	{
 		AddPitchInput(Value);
+		RecordAction("LookUp", Value);
 	}
 }
 
 void AChronoPlayerController::LookUpAtRate(float Rate)
 {
-	if (Rate != 0.f && MyCharacter && IsLocalPlayerController())
+	if (GetCharacter() && IsLocalPlayerController())
 	{
-		//AddPitchInput(Rate * MyCharacter->BaseLookUpRate * GetWorld()->GetDeltaSeconds());
+		AddPitchInput(Rate * Cast<AChronoCharacter>(GetCharacter())->BaseLookUpRate * GetWorld()->GetDeltaSeconds());
+		RecordAction("LookUpAtRate", Rate);
 	}
 }
 
-*/
