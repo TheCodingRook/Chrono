@@ -282,6 +282,26 @@ void AChronoCharacter::ReplayPastActions(FTimestampedInputs ActionsToReplay)
 					AddMovementInput(Direction, ActionsToReplay.InputValues[i]);
 				}
 
+				else if (WhichAction == "Turn")
+				{
+					AddControllerYawInput(ActionsToReplay.InputValues[i]);
+				}
+
+				else if (WhichAction == "TurnAtRate")
+				{
+					AddControllerYawInput(ActionsToReplay.InputValues[i] * BaseTurnRate * GetWorld()->GetDeltaSeconds());
+				}
+
+				else if (WhichAction == "LookUp")
+				{
+					AddControllerPitchInput(ActionsToReplay.InputValues[i]);
+				}
+
+				else if (WhichAction == "LookUpAtRate")
+				{
+					AddControllerPitchInput(ActionsToReplay.InputValues[i] * BaseTurnRate * GetWorld()->GetDeltaSeconds());
+				}
+
 				// Have a switch that decides which action to do.
 			}
 
