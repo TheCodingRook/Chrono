@@ -302,7 +302,15 @@ void AChronoCharacter::ReplayPastActions(FTimestampedInputs ActionsToReplay)
 					AddControllerPitchInput(ActionsToReplay.InputValues[i] * BaseTurnRate * GetWorld()->GetDeltaSeconds());
 				}
 
-				// Have a switch that decides which action to do.
+				else if (WhichAction == "Crouch")
+				{
+					Crouch(); // This is ACharacter's interface
+				}
+
+				else if (WhichAction == "EndCrouch")
+				{
+					UnCrouch(); // This is ACharacter's interface
+				}
 			}
 
 		}
@@ -310,7 +318,7 @@ void AChronoCharacter::ReplayPastActions(FTimestampedInputs ActionsToReplay)
 }
 
 
-	/*
+	/* LEGACY IMPLEMENTATION
 
 
 	if (ActionToReplay.StopJumpingValue == 1.0f)

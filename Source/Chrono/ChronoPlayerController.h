@@ -39,8 +39,11 @@ public:
 	template <class UserClass>
 	void SetUpRecordableAxisBinding(const FName NewAction, UserClass* Object, typename FInputAxisHandlerSignature::TUObjectMethodDelegate< UserClass >::FMethodPtr Func);
 
-	void Jump();
+	// Helper function to make necessary ref pointer checks and ultimately call TimeTravelComponent to store movements/actions and their values
 	void RecordAction(FName ActionToRecord, float Value);
+
+	/*Actions implemented*/
+	void Jump();
 	void EndJump();
 
 	void MoveForward(float Value);
@@ -48,8 +51,15 @@ public:
 
 	void Turn(float Value);
 	void TurnAtRate(float Value);
+	
 	void LookUp(float Value);
 	void LookUpAtRate(float Value);
+
+	void Crouch();
+	void EndCrouch();
+
+	void Grab();
+	void EndGrab();
 
 private:
 	/** Component to implement character's time-travelling ability	*/

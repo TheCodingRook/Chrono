@@ -25,11 +25,16 @@ void AChronoPlayerController::SetupInputComponent()
 	// We have 2 versions of the rotation bindings to handle different kinds of devices differently
 	// "turn" handles devices that provide an absolute delta, such as a mouse.
 	// "turnrate" is for devices that we choose to treat as a rate of change, such as an analog joystick
-
 	SetUpRecordableAxisBinding("Turn", this, &AChronoPlayerController::Turn);
 	SetUpRecordableAxisBinding("TurnAtRate", this, &AChronoPlayerController::TurnAtRate);
 	SetUpRecordableAxisBinding("LookUp", this, &AChronoPlayerController::LookUp);
 	SetUpRecordableAxisBinding("LookUpAtRate", this, &AChronoPlayerController::LookUpAtRate);
+
+	SetUpRecordableActionBinding("Crouch", IE_Pressed, this, &AChronoPlayerController::Crouch);
+	SetUpRecordableActionBinding("Crouch", IE_Released, this, &AChronoPlayerController::EndCrouch);
+
+	SetUpRecordableActionBinding("Grab", IE_Pressed, this, &AChronoPlayerController::Grab);
+	SetUpRecordableActionBinding("Grab", IE_Released, this, &AChronoPlayerController::EndGrab);
 
 	/* TOUCH DEVICES AND VR HEADSET NOT IMPLEMENTED YET */
 }
@@ -208,5 +213,35 @@ void AChronoPlayerController::LookUpAtRate(float Rate)
 		AddPitchInput(Rate * Cast<AChronoCharacter>(GetCharacter())->BaseLookUpRate * GetWorld()->GetDeltaSeconds());
 		RecordAction("LookUpAtRate", Rate);
 	}
+}
+
+void AChronoPlayerController::Crouch()
+{
+	if (ensure(GetCharacter() != nullptr))
+	{
+		GetCharacter()->Crouch();
+
+		RecordAction("Crouch", 1.f);
+	}
+}
+
+void AChronoPlayerController::EndCrouch()
+{
+	if (ensure(GetCharacter() != nullptr))
+	{
+		GetCharacter()->UnCrouch();
+
+		RecordAction("EndCrouch", 1.f);
+	}
+}
+
+void AChronoPlayerController::Grab()
+{
+	// To be implemented ...
+}
+
+void AChronoPlayerController::EndGrab()
+{
+	// To be implemented ...
 }
 
