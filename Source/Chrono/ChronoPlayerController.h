@@ -70,5 +70,5 @@ private:
 	TArray<FName> RecordableMovementAndActionBindings;
 	
 	// Store pointer to this controller's character
-	class AChronoCharacter* MyCharacter;
+	class AChronoCharacter* MyCharacter; //TODO Vaggelis: Decide if this pointer to controlled character is necessary
 };

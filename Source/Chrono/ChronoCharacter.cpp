@@ -8,6 +8,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "ChronoPlayerController.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "GrabbingAbility.h"
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -47,6 +48,32 @@ AChronoCharacter::AChronoCharacter()
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 
+}
+
+void AChronoCharacter::Grab()
+{
+	UGrabbingAbility* Grabber = FindComponentByClass<UGrabbingAbility>();
+	if (Grabber != nullptr)
+	{
+		Grabber->GrabObject();
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("PhysicsHandleComponent not found for Character: %s"), *GetName())
+	}
+}
+
+void AChronoCharacter::EndGrab()
+{
+	UGrabbingAbility* Grabber = FindComponentByClass<UGrabbingAbility>();
+	if (Grabber != nullptr)
+	{
+		Grabber->DropObject();
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("PhysicsHandleComponent not found for Character: %s"), *GetName())
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -310,6 +337,16 @@ void AChronoCharacter::ReplayPastActions(FTimestampedInputs ActionsToReplay)
 				else if (WhichAction == "EndCrouch")
 				{
 					UnCrouch(); // This is ACharacter's interface
+				}
+
+				else if (WhichAction == "Grab")
+				{
+					Grab(); 
+				}
+
+				else if (WhichAction == "EndGrab")
+				{
+					EndGrab(); 
 				}
 			}
 

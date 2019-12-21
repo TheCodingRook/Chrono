@@ -237,11 +237,22 @@ void AChronoPlayerController::EndCrouch()
 
 void AChronoPlayerController::Grab()
 {
-	// To be implemented ...
+	if (ensure(GetCharacter() != nullptr))
+	{
+		RecordAction("Grab", 1.f);
+		CastChecked<AChronoCharacter>(GetCharacter())->Grab();
+		
+	}
 }
 
 void AChronoPlayerController::EndGrab()
 {
-	// To be implemented ...
+	if (ensure(GetCharacter() != nullptr))
+	{
+		RecordAction("EndGrab", 1.f);
+		CastChecked<AChronoCharacter>(GetCharacter())->EndGrab();
+		
+		
+	}
 }
 

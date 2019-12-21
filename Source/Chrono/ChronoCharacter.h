@@ -36,6 +36,14 @@ public:
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
+	/** Implements grabbing objects via the physics handle component if one is present*/
+
+	UFUNCTION(BlueprintCallable, Category = "Grabbing")
+	void Grab();
+
+	UFUNCTION(BlueprintCallable, Category = "Grabbing")
+	void EndGrab();
+
 protected:
 
 	/**	Methods to call to perform movements (and actions when necessary) but also record them for replay in the future */
