@@ -24,8 +24,8 @@ void UGrabbingAbility::GrabObject()
 	UE_LOG(LogTemp, Warning, TEXT("EndVector is: %s"), *EndVector.ToString())
 	
 
-	FCollisionQueryParams GrabParameters;
-	GrabParameters.AddIgnoredActor(OwnerCharacter);
+	FCollisionQueryParams GrabQueryParameters;
+	GrabQueryParameters.AddIgnoredActor(OwnerCharacter);
 	DrawDebugLine(GetWorld(), StartVector, StartVector + (OwnerCharacter->GetActorForwardVector() * GrabDistance), FColor::Red, false , 1.f,(uint8)'\000', 10.f);
 
 	bool FoundSomethingToGrab = GetWorld()->LineTraceSingleByChannel(
@@ -33,21 +33,29 @@ void UGrabbingAbility::GrabObject()
 		StartVector,
 		EndVector,
 		ECollisionChannel::ECC_PhysicsBody,
-		GrabParameters
+		GrabQueryParameters
 	);
 
 	// If there is anything within reach (GrabDistance)
 	if (FoundSomethingToGrab)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Reached out to grab: %s"), *OutHitResult.GetComponent()->GetName())
-		GrabComponentAtLocation(OutHitResult.GetComponent(), NAME_None, EndVector);
+		// Disable collision for now so we can carry the object without crashing into it
+		OutHitResult.GetComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+		// Grab from centre of mass so that it is easier to handle.
+		// TODO Vaggelis: How do I remove rotation from grabbed object?
+		GrabComponentAtLocation(OutHitResult.GetComponent(), NAME_None, OutHitResult.GetComponent()->GetCenterOfMass());
 		
 	}
 }
 
 void UGrabbingAbility::DropObject()
 {
-	ReleaseComponent();
+	// First make sure we are indeed grabbing something!
+	if (GrabbedComponent) {
+		// Reset the collision channel for pawn back to block
+		GrabbedComponent->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
+		ReleaseComponent();
+	}
 }
 
 void UGrabbingAbility::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
