@@ -30,6 +30,30 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 private:
+
+	/* Set up components for the time portal in order to implement both the in-game functionality but also
+	 * some additional elements to help setup and placement while working in the Editor
+	 */
+
+	// Bounds for the portal that triggers time travel
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Time Portal", meta = (AllowPrivateAccess = "true"))
 	class UBoxComponent* CollisionBox;
+
+	// The teleport point that this portal is linked to (in space not in time; this is a location on the level)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Time Portal", meta = (AllowPrivateAccess = "true"))
+	class USceneComponent* TeleportLocation;
+
+	// A "helper" text render so we can see exactly where the teleport spawn point is while working in the Editor
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Time Portal", meta = (AllowPrivateAccess = "true"))
+	class UTextRenderComponent* TeleportLocationText;
+
+	// An additional "helper" in the form of an arrow so we can see exactly where the teleport spawn point is while working in the Editor
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Time Portal", meta = (AllowPrivateAccess = "true"))
+	class UArrowComponent* TeleportLocationArrow;
+
+	// Boolean to toggle the portal
+	UPROPERTY(EditAnywhere, Category = "Time Portal", meta = (AllowPrivateAccess = "true"))
+	bool bIsActive = true;
+
 
 };
