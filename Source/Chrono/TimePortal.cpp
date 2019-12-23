@@ -38,8 +38,8 @@ ATimePortal::ATimePortal()
 	// Setup the arrow component for the teleport spawn point
 	TeleportLocationArrow = CreateDefaultSubobject<UArrowComponent>("Spawn point arrow indicator");
 	TeleportLocationArrow->SetupAttachment(TeleportLocationText);
-	TeleportLocationArrow->SetRelativeLocation(FVector(-15.f, -135.f, 60.f));
-	TeleportLocationArrow->SetRelativeRotation(FRotator(-60.f, 60.f, 0.f));
+	TeleportLocationArrow->SetRelativeLocation(FVector(50.f, 0.f, 50.f));
+	TeleportLocationArrow->SetRelativeRotation(FRotator(-45.f, 180.f, 0.f));
 	TeleportLocationArrow->SetWorldScale3D(FVector(.75f, 4.f, 1.f));
 }
 
