@@ -6,6 +6,7 @@
 #include "Components\SceneComponent.h"
 #include "Components\TextRenderComponent.h"
 #include "Components\ArrowComponent.h"
+#include "ChronoCharacter.h"
 
 // Sets default values
 ATimePortal::ATimePortal()
@@ -17,7 +18,6 @@ ATimePortal::ATimePortal()
 	CollisionBox = CreateDefaultSubobject<UBoxComponent>("Portal Frame");
 	SetRootComponent(CollisionBox);
 	CollisionBox->SetWorldScale3D(FVector(2.f, 0.5f, 2.f));
-	
 	
 	// Setup the spawn point for this time portal
 	TeleportLocation = CreateDefaultSubobject<USceneComponent>("Teleport Location");
@@ -43,6 +43,23 @@ ATimePortal::ATimePortal()
 	TeleportLocationArrow->SetWorldScale3D(FVector(.75f, 4.f, 1.f));
 }
 
+void ATimePortal::NotifyActorBeginOverlap(AActor* OtherActor)
+{
+	Super::NotifyActorBeginOverlap(OtherActor);
+
+	// If it's our ChronoCharacter that passed through the time portal...
+	if (Cast<AChronoCharacter>(OtherActor))
+	{
+		// ...then broadcast the time travel event...
+		OnPortalTraversal.Broadcast();
+
+		// ...and teleport the character to the teleport spawn point
+		//OtherActor->SetActorLocation(TeleportLocation->GetComponentLocation());
+
+	}
+	
+}
+
 // Called when the game starts or when spawned
 void ATimePortal::BeginPlay()
 {
@@ -54,6 +71,5 @@ void ATimePortal::BeginPlay()
 void ATimePortal::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
