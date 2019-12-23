@@ -28,14 +28,20 @@ public:
 	void DropObject();
 
 protected:
+	// Set up some space and distance paramters for the grabbing ability. ALL IN CENTIMETERS (cm) !!!
+	
+
 	// Minimum distance before character can grab an object
-	// NOTE: in centimeters!
 	UPROPERTY(EditAnywhere, Category = "Grab configuration")
 	float GrabDistance = 100.f;
 
+	// Offset from character's default world location vector (dictated by arrow component in UE4's Character, which is in center of body mesh)
+	UPROPERTY(EditAnywhere, Category = "Grab configuration")
+	FVector OffsetFromBodyCenter = FVector(0.f, 0.f, 30.f);
+
 	// Radius of grabbing range when facing forward
 	UPROPERTY(EditAnywhere, Category = "Grab configuration")
-	float GrabRadius = 0.25f;
+	float GrabRadius = 50.f;
 
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;

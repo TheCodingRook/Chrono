@@ -18,21 +18,25 @@ void UGrabbingAbility::GrabObject()
 
 	FHitResult OutHitResult;
 
-	FVector StartVector = OwnerCharacter->ActorToWorld().GetLocation();
+	// Add a bit of a Z-axis offset to the start vector (we want the grab sweep and debug lines to start from chest area of Character)
+	// TODO Vaggelis: Remember to amend this when changing skeletal mesh eventually, or consider using a socket location, i.e. clavicle
+	FVector StartVector = OwnerCharacter->ActorToWorld().GetLocation() + FVector(0.f, 0.f, 30.f);
 	FVector EndVector = StartVector + (OwnerCharacter->GetActorForwardVector() * GrabDistance);
 	
-	UE_LOG(LogTemp, Warning, TEXT("EndVector is: %s"), *EndVector.ToString())
-	
-
 	FCollisionQueryParams GrabQueryParameters;
 	GrabQueryParameters.AddIgnoredActor(OwnerCharacter);
-	DrawDebugLine(GetWorld(), StartVector, StartVector + (OwnerCharacter->GetActorForwardVector() * GrabDistance), FColor::Red, false , 1.f,(uint8)'\000', 10.f);
+	
+	/* Commented-out debug lines for future use if necessary */
+	// DrawDebugLine(GetWorld(), StartVector, EndVector, FColor::Red, false , 1.f,(uint8)'\000', GrabRadius);
+	// DrawDebugSphere(GetWorld(), EndVector, GrabRadius, 16, FColor::Green, false, 1, 10.f);
 
-	bool FoundSomethingToGrab = GetWorld()->LineTraceSingleByChannel(
+	bool FoundSomethingToGrab = GetWorld()->SweepSingleByChannel(
 		OutHitResult,
 		StartVector,
 		EndVector,
-		ECollisionChannel::ECC_PhysicsBody,
+		FQuat::Identity,
+		ECC_PhysicsBody,
+		FCollisionShape::MakeSphere(GrabRadius),
 		GrabQueryParameters
 	);
 
