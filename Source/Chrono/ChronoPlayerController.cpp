@@ -36,6 +36,8 @@ void AChronoPlayerController::SetupInputComponent()
 	SetUpRecordableActionBinding("Grab", IE_Pressed, this, &AChronoPlayerController::Grab);
 	SetUpRecordableActionBinding("Grab", IE_Released, this, &AChronoPlayerController::EndGrab);
 
+	SetUpRecordableActionBinding("HolsterToggle", IE_Pressed, this, &AChronoPlayerController::HolsterToggle);
+
 	/* TOUCH DEVICES AND VR HEADSET NOT IMPLEMENTED YET */
 }
 
@@ -124,11 +126,8 @@ void AChronoPlayerController::Jump()
 	if (ensure(GetCharacter() != nullptr))
 	{
 		GetCharacter()->Jump();
-		
 		RecordAction("Jump", 1.f);
-	}
-
-	
+	}	
 }
 
 void AChronoPlayerController::EndJump()
@@ -136,7 +135,6 @@ void AChronoPlayerController::EndJump()
 	if (ensure(GetCharacter() != nullptr))
 	{
 		GetCharacter()->StopJumping();
-
 		RecordAction("EndJump", 1.f);
 	}
 }
@@ -153,7 +151,6 @@ void AChronoPlayerController::MoveForward(float Value)
 		// get forward vector
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 		GetCharacter()->AddMovementInput(Direction, Value);
-
 		RecordAction("MoveForward", Value);
 	}
 
@@ -171,7 +168,6 @@ void AChronoPlayerController::MoveRight(float Value)
 		// get forward vector
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 		GetCharacter()->AddMovementInput(Direction, Value);
-
 		RecordAction("MoveRight", Value);
 	}
 
@@ -220,7 +216,6 @@ void AChronoPlayerController::Crouch()
 	if (ensure(GetCharacter() != nullptr))
 	{
 		GetCharacter()->Crouch();
-
 		RecordAction("Crouch", 1.f);
 	}
 }
@@ -230,7 +225,6 @@ void AChronoPlayerController::EndCrouch()
 	if (ensure(GetCharacter() != nullptr))
 	{
 		GetCharacter()->UnCrouch();
-
 		RecordAction("EndCrouch", 1.f);
 	}
 }
@@ -241,7 +235,6 @@ void AChronoPlayerController::Grab()
 	{
 		RecordAction("Grab", 1.f);
 		CastChecked<AChronoCharacter>(GetCharacter())->Grab();
-		
 	}
 }
 
@@ -250,9 +243,15 @@ void AChronoPlayerController::EndGrab()
 	if (ensure(GetCharacter() != nullptr))
 	{
 		RecordAction("EndGrab", 1.f);
-		CastChecked<AChronoCharacter>(GetCharacter())->EndGrab();
-		
-		
+		CastChecked<AChronoCharacter>(GetCharacter())->EndGrab();	
 	}
 }
 
+void AChronoPlayerController::HolsterToggle()
+{
+	if (ensure(GetCharacter() != nullptr))
+	{
+		RecordAction("HolsterToggle", 1.f);
+	}
+	// ...
+}

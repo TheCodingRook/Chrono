@@ -1,9 +1,11 @@
-// Copyright 2//019. All rights reserved. A prototype by Evangelos ("Vaggelis") Tsesmelidakis.
+// Copyright 2019. All rights reserved. A prototype by Evangelos ("Vaggelis") Tsesmelidakis.
 
 
 #include "TimePortal.h"
 #include "Components\BoxComponent.h"
 #include "Components\SceneComponent.h"
+#include "Components\StaticMeshComponent.h"
+#include "Components\SceneCaptureComponent2D.h"
 #include "Components\TextRenderComponent.h"
 #include "Components\ArrowComponent.h"
 #include "ChronoCharacter.h"
@@ -14,14 +16,22 @@ ATimePortal::ATimePortal()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	
+	// Set up the default root component
+	DefaultRoot = CreateDefaultSubobject<USceneComponent>("Default root");
+	SetRootComponent(DefaultRoot);
+
 	// Set up the bounds volume for the time portal
 	CollisionBox = CreateDefaultSubobject<UBoxComponent>("Portal Frame");
-	SetRootComponent(CollisionBox);
+	CollisionBox-> SetupAttachment(DefaultRoot);
 	CollisionBox->SetWorldScale3D(FVector(2.f, 0.5f, 2.f));
 	
-	// Setup the spawn point for this time portal
+	// Set up the mesh to project the portal's view on
+	PortalScreen = CreateDefaultSubobject<UStaticMeshComponent>("Portal Screen");
+	PortalScreen->SetupAttachment(CollisionBox);
+	
+	// Setup the spawn point for this time portal and its helper children components
 	TeleportLocation = CreateDefaultSubobject<USceneComponent>("Teleport Location");
-	TeleportLocation->SetupAttachment(CollisionBox);
+	TeleportLocation->SetupAttachment(DefaultRoot);
 	TeleportLocation->SetRelativeLocation(FVector(0.f, -1000.f, -32.f));
 
 	// Setup a text label for the spawn point so it is visible in the editor (but not in game obviously)
@@ -37,24 +47,33 @@ ATimePortal::ATimePortal()
 
 	// Setup the arrow component for the teleport spawn point
 	TeleportLocationArrow = CreateDefaultSubobject<UArrowComponent>("Spawn point arrow indicator");
-	TeleportLocationArrow->SetupAttachment(TeleportLocationText);
-	TeleportLocationArrow->SetRelativeLocation(FVector(50.f, 0.f, 50.f));
-	TeleportLocationArrow->SetRelativeRotation(FRotator(-45.f, 180.f, 0.f));
-	TeleportLocationArrow->SetWorldScale3D(FVector(.75f, 4.f, 1.f));
+	TeleportLocationArrow->SetupAttachment(TeleportLocation);
+	TeleportLocationArrow->SetRelativeLocation(FVector(0.f, 0.f, 100.f));
+	TeleportLocationArrow->SetRelativeRotation(FRotator(0.f, 90.f, 0.f));
+	TeleportLocationArrow->SetWorldScale3D(FVector(1.f, 1.f, 1.f));
+
+	// Setup the portal screen
+	PortalProjector = CreateDefaultSubobject<USceneCaptureComponent2D>("Portal Projector");
+	PortalProjector->SetupAttachment(TeleportLocation);
+	PortalProjector->SetRelativeLocation(FVector(0.f, 0.f, 75.f));
+	PortalProjector->SetRelativeRotation(FRotator(0.f, 90.f, 0.f));
 }
 
 void ATimePortal::NotifyActorBeginOverlap(AActor* OtherActor)
 {
 	Super::NotifyActorBeginOverlap(OtherActor);
+	auto OtherCharacter = CastChecked<AChronoCharacter>(OtherActor);
 
 	// If it's our ChronoCharacter that passed through the time portal...
-	if (Cast<AChronoCharacter>(OtherActor))
+	if (OtherCharacter)
 	{
 		// ...then broadcast the time travel event...
 		OnPortalTraversal.Broadcast();
 
 		// ...and teleport the character to the teleport spawn point
 		OtherActor->SetActorLocation(TeleportLocation->GetComponentLocation());
+		OtherCharacter->SetActorRotation(TeleportLocationArrow->GetComponentRotation());
+		OtherCharacter->GetController()->SetControlRotation(PortalProjector->GetComponentRotation());
 
 	}
 	

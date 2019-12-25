@@ -61,6 +61,8 @@ public:
 	void Grab();
 	void EndGrab();
 
+	void HolsterToggle();
+
 private:
 	/** Component to implement character's time-travelling ability	*/
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Time Travel", meta = (AllowPrivateAccess = "true"))
