@@ -10,6 +10,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "GrabbingAbility.h"
 #include "TimeWeapon.h"
+#include "Components\ArrowComponent.h"
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -46,8 +47,17 @@ AChronoCharacter::AChronoCharacter()
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
-	// Initialize the holstertoggle boolean
+	// Create an arrow component to indicate aim camera location
+	AimCameraLocation = CreateDefaultSubobject<UArrowComponent>(TEXT("AimCameraLocation"));
+	AimCameraLocation->SetupAttachment(CameraBoom);
+	AimCameraLocation->SetRelativeLocation(FVector(300.f, 35.f, 60.f)); // Set the aim camera next to the head for an "over-the-shoulder" view point effect
+
+	// Initialize the holstertoggle and aimtoggle booleans
 	bHolsterButtonDown = false;
+	bAimButtonDown = false;
+
+	// Set the camera offset before toggle begins
+	CameraOffset = AimCameraLocation->RelativeLocation;
 }
 
 void AChronoCharacter::Grab()
@@ -94,6 +104,32 @@ void AChronoCharacter::EquipWeapon()
 void AChronoCharacter::UnEquipWeapon()
 {
 	TimeWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), "WeaponHolster");
+}
+
+void AChronoCharacter::ToggleCameras()
+{
+	FollowCamera->AddRelativeLocation(CameraOffset);
+	// Set the camera offset as the negative of the previous one so it toggles back and forth into place
+	CameraOffset = -CameraOffset;
+	FollowCamera->bUsePawnControlRotation = !FollowCamera->bUsePawnControlRotation;
+
+	// Toggle the rotation properties of the character (APawn interface) for this "FPS-style" view
+	bUseControllerRotationYaw = !bUseControllerRotationYaw;
+}
+
+void AChronoCharacter::ToggleAimButtonDown()
+{
+	bAimButtonDown = bAimButtonDown ? false : true;
+}
+
+bool AChronoCharacter::GetAimButtonDown() const
+{
+	return bAimButtonDown;
+}
+
+void AChronoCharacter::SetAimButtonDown(bool InFlag)
+{
+	bAimButtonDown = InFlag;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -371,8 +407,14 @@ void AChronoCharacter::ReplayPastActions(FTimestampedInputs ActionsToReplay)
 
 				else if (WhichAction == "HolsterToggle")
 				{
-					// Toggle the holster / unholster boolean;
+					// Toggle the holster / unholster boolean
 					bHolsterButtonDown = bHolsterButtonDown ? false : true;
+				}
+
+				else if (WhichAction == "Aim")
+				{
+					// Toggle AimButtonDown (no need to worry about camera for past self...
+					ToggleAimButtonDown();
 				}
 			}
 

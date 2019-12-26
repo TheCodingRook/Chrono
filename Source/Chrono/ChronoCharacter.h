@@ -20,6 +20,10 @@ class AChronoCharacter : public ACharacter
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
 
+	/** Aim weapon camera location, represented by an arrow component*/
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	class UArrowComponent* AimCameraLocation;
+
 	/** Set up the TimeWeapon reference and class */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapons", meta = (AllowPrivateAccess = "true"))
 	class ATimeWeapon* TimeWeapon;
@@ -29,6 +33,13 @@ class AChronoCharacter : public ACharacter
 	// Bool to track when player has pressed the unholster/holster button that will eventually notify an animation 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon Controls", meta = (AllowPrivateAccess = "true"))
 	bool bHolsterButtonDown;
+
+	// Bool to track when player has pressed the Aim button that will switch between the cameras 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon Controls", meta = (AllowPrivateAccess = "true"))
+	bool bAimButtonDown;
+
+	// Vector to calculate aim camera's offset from original position
+	FVector CameraOffset;
 
 public:
 	AChronoCharacter();
@@ -64,6 +75,20 @@ public:
 	void EquipWeapon();
 	UFUNCTION(BlueprintCallable, Category = "Weapons")
 		void UnEquipWeapon();
+
+	UFUNCTION(BlueprintCallable, Category = "Weapons")
+	void ToggleCameras();
+
+	UFUNCTION(BlueprintCallable, Category = "Weapons")
+	void ToggleAimButtonDown();
+
+	// Getter for the aim button  boolean
+	UFUNCTION(BlueprintPure, Category = "Weapon Controls")
+	bool GetAimButtonDown() const;
+
+	// Setter for the aim button boolean
+	UFUNCTION(BlueprintCallable, Category = "WeaponControls")
+		void SetAimButtonDown(bool InFlag);
 
 
 protected:

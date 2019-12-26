@@ -38,6 +38,9 @@ void AChronoPlayerController::SetupInputComponent()
 
 	SetUpRecordableActionBinding("HolsterToggle", IE_Pressed, this, &AChronoPlayerController::HolsterToggle);
 
+	SetUpRecordableActionBinding("Aim", IE_Pressed, this, &AChronoPlayerController::AimToggle);
+	SetUpRecordableActionBinding("Aim", IE_Released, this, &AChronoPlayerController::AimToggle);
+
 	/* TOUCH DEVICES AND VR HEADSET NOT IMPLEMENTED YET */
 }
 
@@ -263,5 +266,15 @@ void AChronoPlayerController::HolsterToggle()
 			CastChecked<AChronoCharacter>(GetCharacter())->SetHolsterButtonDown(true);
 		}
 	}
-	// ...
 }
+
+void AChronoPlayerController::AimToggle()
+{
+	if (ensure(GetCharacter() != nullptr))
+	{
+		RecordAction("Aim", 1.f);
+		CastChecked<AChronoCharacter>(GetCharacter())->ToggleCameras();
+		CastChecked<AChronoCharacter>(GetCharacter())->ToggleAimButtonDown();
+	}
+}
+

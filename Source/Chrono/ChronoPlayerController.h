@@ -63,6 +63,8 @@ public:
 	void EndGrab();
 
 	void HolsterToggle();
+	void AimToggle();
+
 
 private:
 	/** Component to implement character's time-travelling ability	*/
