@@ -9,6 +9,7 @@
 #include "ChronoPlayerController.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GrabbingAbility.h"
+#include "TimeWeapon.h"
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -45,9 +46,8 @@ AChronoCharacter::AChronoCharacter()
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
-	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
-	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
-
+	// Initialize the holstertoggle boolean
+	bHolsterButtonDown = false;
 }
 
 void AChronoCharacter::Grab()
@@ -74,6 +74,26 @@ void AChronoCharacter::EndGrab()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("PhysicsHandleComponent not found for Character: %s"), *GetName())
 	}
+}
+
+bool AChronoCharacter::GetHolsterButtonDown() const
+{
+	return bHolsterButtonDown;
+}
+
+void AChronoCharacter::SetHolsterButtonDown(bool InFlag)
+{
+	bHolsterButtonDown = InFlag;
+}
+
+void AChronoCharacter::EquipWeapon()
+{
+	TimeWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), "WeaponSocket");
+}
+
+void AChronoCharacter::UnEquipWeapon()
+{
+	TimeWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), "WeaponHolster");
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -348,67 +368,26 @@ void AChronoCharacter::ReplayPastActions(FTimestampedInputs ActionsToReplay)
 				{
 					EndGrab(); 
 				}
+
+				else if (WhichAction == "HolsterToggle")
+				{
+					// Toggle the holster / unholster boolean;
+					bHolsterButtonDown = bHolsterButtonDown ? false : true;
+				}
 			}
 
 		}
 	}
 }
 
-
-	/* LEGACY IMPLEMENTATION
-
-
-	if (ActionToReplay.StopJumpingValue == 1.0f)
+void AChronoCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+	// Configure the weapoon (potentially weapon list)
+	
+	if (ensure(TimeWeaponClass))
 	{
-		StopJumping(); // This is ACharacter's interface
+		TimeWeapon = GetWorld()->SpawnActor<ATimeWeapon>(TimeWeaponClass);
+		TimeWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), "WeaponHolster");
 	}
-	if (ActionToReplay.MoveForwardValue != 0.0f)
-	{
-		// find out which way is forward
-		const FRotator Rotation = Controller->GetControlRotation();
-		const FRotator YawRotation(0, Rotation.Yaw, 0);
-
-		// get forward vector
-		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-		AddMovementInput(Direction, ActionToReplay.MoveForwardValue);
-	}
-
-
-	if (ActionToReplay.MoveRightValue != 0.0f)
-	{
-		// find out which way is forward
-		const FRotator Rotation = Controller->GetControlRotation();
-		const FRotator YawRotation(0, Rotation.Yaw, 0);
-
-		// get forward vector
-		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-		AddMovementInput(Direction, ActionToReplay.MoveRightValue);
-	}
-
-	if (ActionToReplay.TurnValue != 0.0f)
-	{
-		AddControllerYawInput(ActionToReplay.TurnValue); // This is APawn's interface
-	}
-
-	if (ActionToReplay.TurnAtRateValue != 0.0f)
-	{
-		AddControllerYawInput(ActionToReplay.TurnAtRateValue * BaseTurnRate * GetWorld()->GetDeltaSeconds());
-	}
-
-	if (ActionToReplay.LookUpValue != 0.0f)
-	{
-		AddControllerPitchInput(ActionToReplay.LookUpValue); // This is APawn's interface
-	}
-
-	if (ActionToReplay.LookUpAtRateValue != 0.0f)
-	{
-		AddControllerPitchInput(ActionToReplay.LookUpAtRateValue * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
-	}
-
-	if (ActionToReplay.FireValue == 1.0f)
-	{
-		// Fire implementation here
-	}
-
 }
-*/

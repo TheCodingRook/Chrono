@@ -32,6 +32,10 @@ public:
 	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
 
 protected:
+	// Boolean to toggle the portal
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Time Portal", meta = (AllowPrivateAccess = "true"))
+	bool bIsActive = true;
+
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
@@ -48,7 +52,11 @@ private:
 
 	// Bounds for the portal that triggers time travel
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Time Portal", meta = (AllowPrivateAccess = "true"))
-	class UBoxComponent* CollisionBox;
+	class UBoxComponent* PortalTrigger;
+
+	// Bounds for the trigger that allows through-access on the flip-side of the portal
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Time Portal", meta = (AllowPrivateAccess = "true"))
+	class UBoxComponent* AllowThroughTrigger;
 
 	// Mesh to render the portal projector on
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Time Portal", meta = (AllowPrivateAccess = "true"))
@@ -73,11 +81,5 @@ private:
 	//
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-	// Boolean to toggle the portal
-	UPROPERTY(EditAnywhere, Category = "Time Portal", meta = (AllowPrivateAccess = "true"))
-	bool bIsActive = true;
-
 
 };

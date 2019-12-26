@@ -43,6 +43,7 @@ public:
 	void RecordAction(FName ActionToRecord, float Value);
 
 	/*Actions implemented*/
+	
 	void Jump();
 	void EndJump();
 
@@ -73,4 +74,5 @@ private:
 	
 	// Store pointer to this controller's character
 	class AChronoCharacter* MyCharacter; //TODO Vaggelis: Decide if this pointer to controlled character is necessary
+
 };

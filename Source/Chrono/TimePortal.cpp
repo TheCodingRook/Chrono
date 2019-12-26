@@ -21,13 +21,19 @@ ATimePortal::ATimePortal()
 	SetRootComponent(DefaultRoot);
 
 	// Set up the bounds volume for the time portal
-	CollisionBox = CreateDefaultSubobject<UBoxComponent>("Portal Frame");
-	CollisionBox-> SetupAttachment(DefaultRoot);
-	CollisionBox->SetWorldScale3D(FVector(2.f, 0.5f, 2.f));
-	
+	PortalTrigger = CreateDefaultSubobject<UBoxComponent>("Portal Frame");
+	PortalTrigger-> SetupAttachment(DefaultRoot);
+	PortalTrigger->SetWorldScale3D(FVector(2.f, 0.1f, 4.f));
+
+	// Set up the bounds volume for the time portal
+	AllowThroughTrigger = CreateDefaultSubobject<UBoxComponent>("Through Access");
+	AllowThroughTrigger->SetupAttachment(PortalTrigger);
+	AllowThroughTrigger->SetRelativeLocation(FVector(0.f, 70.f, 0.f));
+
 	// Set up the mesh to project the portal's view on
 	PortalScreen = CreateDefaultSubobject<UStaticMeshComponent>("Portal Screen");
-	PortalScreen->SetupAttachment(CollisionBox);
+	PortalScreen->SetupAttachment(PortalTrigger);
+	PortalScreen->SetWorldScale3D(FVector(1.26f, 2.55f, 1.f));
 	
 	// Setup the spawn point for this time portal and its helper children components
 	TeleportLocation = CreateDefaultSubobject<USceneComponent>("Teleport Location");
@@ -62,10 +68,10 @@ ATimePortal::ATimePortal()
 void ATimePortal::NotifyActorBeginOverlap(AActor* OtherActor)
 {
 	Super::NotifyActorBeginOverlap(OtherActor);
-	auto OtherCharacter = CastChecked<AChronoCharacter>(OtherActor);
+	auto OtherCharacter = Cast<AChronoCharacter>(OtherActor);
 
-	// If it's our ChronoCharacter that passed through the time portal...
-	if (OtherCharacter)
+	// If it's our ChronoCharacter that passed through an active time portal...
+	if (OtherCharacter && bIsActive)
 	{
 		// ...then broadcast the time travel event...
 		OnPortalTraversal.Broadcast();

@@ -176,7 +176,7 @@ void AChronoPlayerController::MoveRight(float Value)
 
 void AChronoPlayerController::Turn(float Value)
 {
-	if (GetCharacter() && IsLocalPlayerController())
+	if (GetCharacter() && IsLocalPlayerController()) // TODO Vaggelis: Do I really need to check for null LocalPlayerController?
 	{
 		AddYawInput(Value);
 		RecordAction("Turn", Value);
@@ -252,6 +252,16 @@ void AChronoPlayerController::HolsterToggle()
 	if (ensure(GetCharacter() != nullptr))
 	{
 		RecordAction("HolsterToggle", 1.f);
+		
+		// Toggle between holstering/unholstering a weapon (meant to be able to interrupt animations mid-way through)
+		if (CastChecked<AChronoCharacter>(GetCharacter())->GetHolsterButtonDown())
+		{
+			CastChecked<AChronoCharacter>(GetCharacter())->SetHolsterButtonDown(false);
+		}
+		else
+		{
+			CastChecked<AChronoCharacter>(GetCharacter())->SetHolsterButtonDown(true);
+		}
 	}
 	// ...
 }

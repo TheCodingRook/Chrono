@@ -20,6 +20,16 @@ class AChronoCharacter : public ACharacter
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
 
+	/** Set up the TimeWeapon reference and class */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapons", meta = (AllowPrivateAccess = "true"))
+	class ATimeWeapon* TimeWeapon;
+	UPROPERTY(EditDefaultsOnly, Category = "Weapons", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<ATimeWeapon> TimeWeaponClass;
+
+	// Bool to track when player has pressed the unholster/holster button that will eventually notify an animation 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon Controls", meta = (AllowPrivateAccess = "true"))
+	bool bHolsterButtonDown;
+
 public:
 	AChronoCharacter();
 
@@ -37,14 +47,27 @@ public:
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
 	/** Implements grabbing objects via the physics handle component if one is present*/
-
 	UFUNCTION(BlueprintCallable, Category = "Grabbing")
 	void Grab();
-
 	UFUNCTION(BlueprintCallable, Category = "Grabbing")
 	void EndGrab();
 
+	// Getter for the Holster/Unholster  boolean
+	UFUNCTION(BlueprintPure, Category = "Weapon Controls")
+		bool GetHolsterButtonDown() const;
+
+	// Setter for the Holster/Unholster boolean
+	UFUNCTION(BlueprintCallable, Category = "WeaponControls")
+		void SetHolsterButtonDown(bool InFlag);
+
+	UFUNCTION(BlueprintCallable, Category = "Weapons")
+	void EquipWeapon();
+	UFUNCTION(BlueprintCallable, Category = "Weapons")
+		void UnEquipWeapon();
+
+
 protected:
+	virtual void BeginPlay() override;
 
 	/**	Methods to call to perform movements (and actions when necessary) but also record them for replay in the future */
 	//void JumpAndRecord();
