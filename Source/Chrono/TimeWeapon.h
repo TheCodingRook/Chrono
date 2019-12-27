@@ -7,8 +7,10 @@
 #include "TimeWeapon.generated.h"
 
 // Forward declarations
+class USkeletalMeshComponent;
 class UWidgetComponent;
 class AProjectile;
+class USoundBase;
 
 UCLASS()
 class CHRONO_API ATimeWeapon : public AActor
@@ -34,7 +36,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Firing")
 	float GetEnergyBlast() const;
 	
-	
+	// Fire the weapon
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Firing")
+	void Fire();
 
 protected:
 	// Called when the game starts or when spawned
@@ -48,18 +52,19 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Firing")
 	float EnergyBlast;
 	
-	// Fire the weapon
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Firing")
-	void Fire();
-	
 private:
 	/** Set up the mesh and the ammo counter for the weapon*/
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Setup", meta = (AllowPrivateAccess = "true"))
-	class USkeletalMeshComponent* GunMesh; // forward decleration here
+	USkeletalMeshComponent* GunMesh; // forward decleration here
 	
+	// Setup the ammo display on the weapon
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Setup", meta = (AllowPrivateAccess = "true"))
 	UWidgetComponent* AmmoWidget;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Setup")
 	TSubclassOf<AProjectile> ProjectileClass;
+
+	// Reference to the sound asset to play when firing the weapon
+	UPROPERTY(EditDefaultsOnly, Category = "Setup")
+	USoundBase* FireSound;
 };

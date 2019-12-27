@@ -64,6 +64,7 @@ public:
 
 	void HolsterToggle();
 	void AimToggle();
+	void Fire();
 
 
 private:

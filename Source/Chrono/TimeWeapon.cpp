@@ -6,6 +6,8 @@
 #include "Projectile.h"
 #include "Engine/World.h"
 #include "Math/UnrealMathUtility.h"
+#include "Sound/SoundBase.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 ATimeWeapon::ATimeWeapon()
@@ -68,6 +70,11 @@ void ATimeWeapon::Fire_Implementation()
 		if (ProjectileClass != nullptr)
 		{
 			auto NewProjectile = GetWorld()->SpawnActor<AProjectile>(ProjectileClass, SpawnLocation, SpawnRotation);
+		}
+
+		if (FireSound)
+		{
+			UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
 		}
 		
 		

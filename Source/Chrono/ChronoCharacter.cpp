@@ -132,6 +132,14 @@ void AChronoCharacter::SetAimButtonDown(bool InFlag)
 	bAimButtonDown = InFlag;
 }
 
+void AChronoCharacter::Fire()
+{
+	if (TimeWeapon)
+	{
+		TimeWeapon->Fire();
+	}
+}
+
 //////////////////////////////////////////////////////////////////////////
 // Input
 
@@ -415,6 +423,14 @@ void AChronoCharacter::ReplayPastActions(FTimestampedInputs ActionsToReplay)
 				{
 					// Toggle AimButtonDown (no need to worry about camera for past self...
 					ToggleAimButtonDown();
+				}
+
+				else if (WhichAction == "Fire")
+				{
+					if (TimeWeapon)
+					{
+						TimeWeapon->Fire_Implementation();
+					}
 				}
 			}
 

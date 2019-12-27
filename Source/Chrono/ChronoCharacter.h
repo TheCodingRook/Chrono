@@ -90,6 +90,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "WeaponControls")
 		void SetAimButtonDown(bool InFlag);
 
+	UFUNCTION(BlueprintCallable, Category = "WeaponControls")
+	void Fire();
 
 protected:
 	virtual void BeginPlay() override;

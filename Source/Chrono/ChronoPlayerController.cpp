@@ -41,6 +41,8 @@ void AChronoPlayerController::SetupInputComponent()
 	SetUpRecordableActionBinding("Aim", IE_Pressed, this, &AChronoPlayerController::AimToggle);
 	SetUpRecordableActionBinding("Aim", IE_Released, this, &AChronoPlayerController::AimToggle);
 
+	SetUpRecordableActionBinding("Fire", IE_Pressed, this, &AChronoPlayerController::Fire);
+
 	/* TOUCH DEVICES AND VR HEADSET NOT IMPLEMENTED YET */
 }
 
@@ -275,6 +277,15 @@ void AChronoPlayerController::AimToggle()
 		RecordAction("Aim", 1.f);
 		CastChecked<AChronoCharacter>(GetCharacter())->ToggleCameras();
 		CastChecked<AChronoCharacter>(GetCharacter())->ToggleAimButtonDown();
+	}
+}
+
+void AChronoPlayerController::Fire()
+{
+	if (ensure(GetCharacter() != nullptr))
+	{
+		RecordAction("Fire", 1.f);
+		CastChecked<AChronoCharacter>(GetCharacter())->Fire();
 	}
 }
 
