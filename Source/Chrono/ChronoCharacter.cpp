@@ -57,7 +57,10 @@ AChronoCharacter::AChronoCharacter()
 	bAimButtonDown = false;
 
 	// Set the camera offset before toggle begins
-	CameraOffset = AimCameraLocation->RelativeLocation;
+	CameraOffset = AimCameraLocation->GetRelativeLocation();
+
+	// Set a default for Health
+	Health = 100;
 }
 
 void AChronoCharacter::Grab()
@@ -139,6 +142,27 @@ void AChronoCharacter::Fire()
 		TimeWeapon->Fire();
 	}
 }
+
+float AChronoCharacter::GetHealth() const
+{
+	return Health;
+}
+
+void AChronoCharacter::SetHealth(float NewHealthAmount)
+{
+	Health = NewHealthAmount;
+}
+
+void AChronoCharacter::ReduceHealth(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser)
+{
+	SetHealth(Health - Damage);
+}
+
+void AChronoCharacter::NotifyHit(UPrimitiveComponent* MyComp, AActor* Other, UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
+{
+	UE_LOG(LogTemp, Warning, TEXT("I was hit!"))
+}
+
 
 //////////////////////////////////////////////////////////////////////////
 // Input
@@ -429,7 +453,7 @@ void AChronoCharacter::ReplayPastActions(FTimestampedInputs ActionsToReplay)
 				{
 					if (TimeWeapon)
 					{
-						TimeWeapon->Fire_Implementation();
+						TimeWeapon->Fire();
 					}
 				}
 			}
@@ -441,11 +465,19 @@ void AChronoCharacter::ReplayPastActions(FTimestampedInputs ActionsToReplay)
 void AChronoCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// Bind the delegate for projectile impacts
+	OnTakeAnyDamage.AddDynamic(this, &AChronoCharacter::ReduceHealth);
+
 	// Configure the weapoon (potentially weapon list)
-	
 	if (ensure(TimeWeaponClass))
 	{
-		TimeWeapon = GetWorld()->SpawnActor<ATimeWeapon>(TimeWeaponClass);
+		// Set up some spawn parameters for future use, for example when implementing damage events
+		FActorSpawnParameters WeaponSpawnParams;
+		WeaponSpawnParams.Owner = this;
+		WeaponSpawnParams.Instigator = this;
+
+		TimeWeapon = GetWorld()->SpawnActor<ATimeWeapon>(TimeWeaponClass, WeaponSpawnParams);
 		TimeWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), "WeaponHolster");
 	}
 }

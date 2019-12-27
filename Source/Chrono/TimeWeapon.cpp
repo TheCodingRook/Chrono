@@ -59,18 +59,20 @@ float ATimeWeapon::GetEnergyBlast() const
 /** Base implementation of Fire, but can be overriden/extended in Blueprint*/
 void ATimeWeapon::Fire_Implementation()
 {
-	if (EnergyCharge >= EnergyBlast)
+	/** Make sure  there is a Projectile class selected and there is enough ammo, and if so fire weapon */
+	if (EnergyCharge >= EnergyBlast && ProjectileClass)
 	{
 		EnergyCharge = FMath::Clamp<float>(EnergyCharge - EnergyBlast, 0 , EnergyCharge);
 
 		FVector SpawnLocation = GunMesh->GetSocketLocation("Muzzle");
 		FRotator SpawnRotation = GunMesh->GetSocketRotation("Muzzle");
+		
+		// Set up some spawn parameters for future use, for example when implementing damage events
+		FActorSpawnParameters ProjectileSpawnParams;
+		ProjectileSpawnParams.Owner = this;
+		ProjectileSpawnParams.Instigator = GetOwner()->GetInstigator();
 
-		/** Make sure  there is a Projectile class selected and if so fire weapon*/
-		if (ProjectileClass != nullptr)
-		{
-			auto NewProjectile = GetWorld()->SpawnActor<AProjectile>(ProjectileClass, SpawnLocation, SpawnRotation);
-		}
+		auto NewProjectile = GetWorld()->SpawnActor<AProjectile>(ProjectileClass, SpawnLocation, SpawnRotation,ProjectileSpawnParams);
 
 		if (FireSound)
 		{

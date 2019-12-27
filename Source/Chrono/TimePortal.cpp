@@ -44,7 +44,7 @@ ATimePortal::ATimePortal()
 	TeleportLocationText = CreateDefaultSubobject<UTextRenderComponent>("Spawn point label");
 	TeleportLocationText->SetupAttachment(TeleportLocation);
 	TeleportLocationText->SetRelativeRotation(FRotator(90.f, 90.f, 0.f));
-	TeleportLocationText->SetText("Teleport spawn point");
+	TeleportLocationText->SetText(FText::FromString("Teleport spawn point"));
 	TeleportLocationText->SetHiddenInGame(true);
 	// Do some some default text formatting
 	TeleportLocationText->SetWorldSize(50.f);

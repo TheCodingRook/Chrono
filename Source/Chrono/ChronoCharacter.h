@@ -41,6 +41,9 @@ class AChronoCharacter : public ACharacter
 	// Vector to calculate aim camera's offset from original position
 	FVector CameraOffset;
 
+	UPROPERTY(VisibleAnywhere, Category = "Health")
+	float Health;
+
 public:
 	AChronoCharacter();
 
@@ -65,7 +68,7 @@ public:
 
 	// Getter for the Holster/Unholster  boolean
 	UFUNCTION(BlueprintPure, Category = "Weapon Controls")
-		bool GetHolsterButtonDown() const;
+	bool GetHolsterButtonDown() const;
 
 	// Setter for the Holster/Unholster boolean
 	UFUNCTION(BlueprintCallable, Category = "WeaponControls")
@@ -92,6 +95,19 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "WeaponControls")
 	void Fire();
+
+	// Getter for character's health
+	UFUNCTION(BlueprintPure, Category = "Health")
+	float GetHealth() const;
+
+	// Setter for character's health
+	UFUNCTION(BlueprintCallable, Category = "Health")
+	void SetHealth(float NewHealthAmount);
+
+	UFUNCTION(BlueprintCallable, Category = "Health")
+	void ReduceHealth(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
+
+	virtual void NotifyHit(class UPrimitiveComponent* MyComp, AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit) override;
 
 protected:
 	virtual void BeginPlay() override;
