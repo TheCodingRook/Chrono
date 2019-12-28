@@ -107,36 +107,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Health")
 	void ReduceHealth(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
 
-	virtual void NotifyHit(class UPrimitiveComponent* MyComp, AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit) override;
-
 protected:
 	virtual void BeginPlay() override;
-
-	/**	Methods to call to perform movements (and actions when necessary) but also record them for replay in the future */
-	//void JumpAndRecord();
-	//void StopJumpingAndRecord();
-	//void MoveForwardAndRecord(float Value);
-	//void MoveRightAndRecord(float Value);
-	//void TurnAndRecord(float Value);
-	//void TurnAtRateAndRecord(float Rate);
-	//void LookUpAndRecord(float Value);
-	//void LookUpAtRateAndRecord(float Rate);
-
-	///////////////////////////////////////////////////////////////////////////////////////////////////
-	// LEGACY METHODS THAT ARE NOT BEING USED AT THE MOMENT
-	// ************************************************************************************************
-
-	/** Resets HMD orientation in VR. */
-	//void OnResetVR();
-
-	/** Handler for when a touch input begins. */
-	//void TouchStarted(ETouchIndex::Type FingerIndex, FVector Location);
-
-	/** Handler for when a touch input stops. */
-	//void TouchStopped(ETouchIndex::Type FingerIndex, FVector Location);
-
-	// END OF LEGACY METHODS ************************************************************************
-	//////////////////////////////////////////////////////////////////////////////////////////////////
 
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;

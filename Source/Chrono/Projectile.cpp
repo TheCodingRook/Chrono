@@ -14,8 +14,9 @@ AProjectile::AProjectile()
 	Damage = 0;
 
 	// Use a ProjectileMovementComponent to govern this projectile's movement
-	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileComp"));
 	// Leave the rest of the implentation for the derived classes 
+	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileComp"));
+	
 
 }
 /*
@@ -43,6 +44,11 @@ void AProjectile::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+UProjectileMovementComponent* AProjectile::GetProjectileMovement() const
+{
+	return ProjectileMovement;
 }
 
 float AProjectile::GetDamage() const

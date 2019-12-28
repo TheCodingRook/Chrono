@@ -3,13 +3,15 @@
 
 #include "BulletProjectile.h"
 #include "Components/SphereComponent.h"
+#include"Components/StaticMeshComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 
 ABulletProjectile::ABulletProjectile()
 {
+	// Set up the collision functionality for this bullet projectile
 	CollisionShape = CreateDefaultSubobject<USphereComponent>("Collision Component");
 	CollisionShape->InitSphereRadius(5.0f);
-	CollisionShape->BodyInstance.SetCollisionProfileName("Projectile");
+	CollisionShape->BodyInstance.SetCollisionProfileName("BlockAllDynamic");
 	CollisionShape->OnComponentHit.AddDynamic(this, &ABulletProjectile::OnHit);		// set up a notification for when this component hits something blocking
 
 	// Players can't walk on it
@@ -17,10 +19,9 @@ ABulletProjectile::ABulletProjectile()
 	CollisionShape->CanCharacterStepUpOn = ECB_No;
 
 	// Set as root component
-	RootComponent = CollisionShape;
+	SetRootComponent(CollisionShape);
 
-	// Use a ProjectileMovementComponent to govern this projectile's movement
-	
+	// Finish setting up the projectile movement component inheritted from AProjectile
 	ProjectileMovement->UpdatedComponent = CollisionShape;
 	ProjectileMovement->InitialSpeed = 3000.f;
 	ProjectileMovement->MaxSpeed = 3000.f;
@@ -38,6 +39,12 @@ ABulletProjectile::ABulletProjectile()
 
 void ABulletProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	FPointDamageEvent ProjectileDamageEvent;
-	float ActualDamage = OtherActor->TakeDamage(Damage, ProjectileDamageEvent, GetInstigator()->GetController(), this);
+	
+	FDamageEvent ProjectileDamageEvent;
+	OtherActor->TakeDamage(Damage, ProjectileDamageEvent, GetInstigator()->GetController(), this);
+}
+
+USphereComponent* ABulletProjectile::GetCollisionComp() const
+{
+	return CollisionShape;
 }

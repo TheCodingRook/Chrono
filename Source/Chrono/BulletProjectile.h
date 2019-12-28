@@ -16,13 +16,18 @@ class CHRONO_API ABulletProjectile : public AProjectile
 
 	ABulletProjectile();
 
+	UPROPERTY(VisibleDefaultsOnly, Category = "Bullet")
 	class USphereComponent* CollisionShape;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Bullet")
+	class UStaticMeshComponent* Bullet;
 	
 public:
 	/** called when projectile hits something */
-	UFUNCTION()
+	UFUNCTION(Category = "Event Dispatchers")
 	void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
-	/** Returns CollisionComp subobject **/
-	FORCEINLINE USphereComponent* GetCollisionComp() const { return CollisionShape; }
+	/** Returns CollisionShape subobject **/
+	UFUNCTION(BlueprintCallable)
+	USphereComponent* GetCollisionComp() const;
 };

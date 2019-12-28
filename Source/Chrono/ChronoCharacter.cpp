@@ -158,11 +158,6 @@ void AChronoCharacter::ReduceHealth(AActor* DamagedActor, float Damage, const cl
 	SetHealth(Health - Damage);
 }
 
-void AChronoCharacter::NotifyHit(UPrimitiveComponent* MyComp, AActor* Other, UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
-{
-	UE_LOG(LogTemp, Warning, TEXT("I was hit!"))
-}
-
 
 //////////////////////////////////////////////////////////////////////////
 // Input

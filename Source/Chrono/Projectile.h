@@ -20,7 +20,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	/** Returns ProjectileMovement subobject **/
-	FORCEINLINE class UProjectileMovementComponent* GetProjectileMovement() const { return ProjectileMovement; }
+	class UProjectileMovementComponent* GetProjectileMovement() const;
 
 	//Getter for damage dealt by the projectile, if any
 	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "Damage")
@@ -32,9 +32,9 @@ public:
 protected:
 	/* Projectile movement component */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
-		class UProjectileMovementComponent* ProjectileMovement;
+	class UProjectileMovementComponent* ProjectileMovement;
 	
-		// Called when the game starts or when spawned
+	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Damage")
