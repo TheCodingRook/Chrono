@@ -128,7 +128,7 @@ void AChronoPlayerController::RecordAction(FName ActionToRecord, float Value)
 
 void AChronoPlayerController::Jump()
 {
-	if (ensure(GetCharacter() != nullptr))
+	if (GetCharacter())
 	{
 		GetCharacter()->Jump();
 		RecordAction("Jump", 1.f);
@@ -137,7 +137,7 @@ void AChronoPlayerController::Jump()
 
 void AChronoPlayerController::EndJump()
 {
-	if (ensure(GetCharacter() != nullptr))
+	if (GetCharacter())
 	{
 		GetCharacter()->StopJumping();
 		RecordAction("EndJump", 1.f);
@@ -147,7 +147,7 @@ void AChronoPlayerController::EndJump()
 
 void AChronoPlayerController::MoveForward(float Value)
 {
-	if (ensure(GetCharacter() != nullptr))
+	if (GetCharacter())
 	{
 		// find out which way is forward
 		const FRotator Rotation = GetControlRotation();
@@ -164,7 +164,7 @@ void AChronoPlayerController::MoveForward(float Value)
 
 void AChronoPlayerController::MoveRight(float Value)
 {
-	if (ensure(GetCharacter() != nullptr))
+	if (GetCharacter())
 	{
 		// find out which way is forward
 		const FRotator Rotation = GetControlRotation();
@@ -218,7 +218,7 @@ void AChronoPlayerController::LookUpAtRate(float Rate)
 
 void AChronoPlayerController::Crouch()
 {
-	if (ensure(GetCharacter() != nullptr))
+	if (GetCharacter())
 	{
 		GetCharacter()->Crouch();
 		RecordAction("Crouch", 1.f);
@@ -227,7 +227,7 @@ void AChronoPlayerController::Crouch()
 
 void AChronoPlayerController::EndCrouch()
 {
-	if (ensure(GetCharacter() != nullptr))
+	if (GetCharacter())
 	{
 		GetCharacter()->UnCrouch();
 		RecordAction("EndCrouch", 1.f);
@@ -236,7 +236,7 @@ void AChronoPlayerController::EndCrouch()
 
 void AChronoPlayerController::Grab()
 {
-	if (ensure(GetCharacter() != nullptr))
+	if (GetCharacter())
 	{
 		RecordAction("Grab", 1.f);
 		CastChecked<AChronoCharacter>(GetCharacter())->Grab();
@@ -245,7 +245,7 @@ void AChronoPlayerController::Grab()
 
 void AChronoPlayerController::EndGrab()
 {
-	if (ensure(GetCharacter() != nullptr))
+	if (GetCharacter())
 	{
 		RecordAction("EndGrab", 1.f);
 		CastChecked<AChronoCharacter>(GetCharacter())->EndGrab();	
@@ -254,7 +254,7 @@ void AChronoPlayerController::EndGrab()
 
 void AChronoPlayerController::HolsterToggle()
 {
-	if (ensure(GetCharacter() != nullptr))
+	if (GetCharacter())
 	{
 		RecordAction("HolsterToggle", 1.f);
 		
@@ -272,7 +272,7 @@ void AChronoPlayerController::HolsterToggle()
 
 void AChronoPlayerController::AimToggle()
 {
-	if (ensure(GetCharacter() != nullptr))
+	if (GetCharacter())
 	{
 		RecordAction("Aim", 1.f);
 		CastChecked<AChronoCharacter>(GetCharacter())->ToggleCameras();
@@ -282,7 +282,7 @@ void AChronoPlayerController::AimToggle()
 
 void AChronoPlayerController::Fire()
 {
-	if (ensure(GetCharacter() != nullptr))
+	if (GetCharacter())
 	{
 		RecordAction("Fire", 1.f);
 		CastChecked<AChronoCharacter>(GetCharacter())->Fire();

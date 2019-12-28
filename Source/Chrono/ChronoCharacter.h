@@ -107,6 +107,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Health")
 	void ReduceHealth(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
 
+	UFUNCTION(BlueprintCallable, Category = "Health")
+	void KillCharacter();
+
 protected:
 	virtual void BeginPlay() override;
 

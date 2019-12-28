@@ -155,7 +155,24 @@ void AChronoCharacter::SetHealth(float NewHealthAmount)
 
 void AChronoCharacter::ReduceHealth(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser)
 {
+	// We probably don't care if this gets getting too negative.
 	SetHealth(Health - Damage);
+
+	if (Health < 0 )
+	{
+		KillCharacter();
+	}
+}
+
+void AChronoCharacter::KillCharacter()
+{
+	if (GetController()) // Check for controller because if the character has died already, it will been unpossessed as well.
+	{
+		// Depossess the character and simulate physics to simulate the character collapsing
+		GetController()->UnPossess();
+		GetMesh()->BodyInstance.SetCollisionProfileName("BlockAll"); // to make sure dead body doesn't go through the floor/ground/surface it's on.
+		GetMesh()->SetSimulatePhysics(true);
+	}
 }
 
 
@@ -189,165 +206,12 @@ void AChronoCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 	// VR headset functionality
 	//PlayerInputComponent->BindAction("ResetVR", IE_Pressed, this, &AChronoCharacter::OnResetVR);
 }
-/*
-void AChronoCharacter::JumpAndRecord()
-{
-		if (Controller && TimeTravel)
-		{
-			if (TimeTravel->ShouldRecord())
-			{
-				// First record time and identity of input...
-				TimeTravel->AddTimestampedInput(GetWorld()->GetTimeSeconds(), EInputActionEnum::Jump, 1);
-			}
-
-			// ... then execute action through APawn's interface
-			Jump();
-		}
-}
-
-void AChronoCharacter::StopJumpingAndRecord()
-{
-	if (Controller && TimeTravel)
-	{
-		if (TimeTravel->ShouldRecord())
-		{
-			// First record time and identity of input...
-			TimeTravel->AddTimestampedInput(GetWorld()->GetTimeSeconds(), EInputActionEnum::Stop_Jumping, 0);
-		}
-		// ... then execute action through APawn's interface
-		StopJumping();
-		
-	}
-}
-
-void AChronoCharacter::MoveForwardAndRecord(float Value)
-{
-	if (Controller && TimeTravel)
-	{
-		if (TimeTravel->ShouldRecord())
-		{
-			// First record time and identity of input...
-			TimeTravel->AddTimestampedInput(GetWorld()->GetTimeSeconds(), EInputActionEnum::Move_Forward, Value);
-		}
-
-		// find out which way is forward
-		const FRotator Rotation = Controller->GetControlRotation();
-		const FRotator YawRotation(0, Rotation.Yaw, 0);
-
-		// get forward vector
-		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-		AddMovementInput(Direction, Value);
-	}
-}
-
-void AChronoCharacter::MoveRightAndRecord(float Value)
-{
-	if (Controller && TimeTravel) // TODO: Vaggelis: Earlier versions of this had a Value!= 0.0f test... consider this for smaller-size array?
-	{
-		if (TimeTravel->ShouldRecord())
-		{
-			// First record time and identity of input...
-			TimeTravel->AddTimestampedInput(GetWorld()->GetTimeSeconds(), EInputActionEnum::Move_Right, Value);
-		}
-
-		// find out which way is right
-		const FRotator Rotation = Controller->GetControlRotation();
-		const FRotator YawRotation(0, Rotation.Yaw, 0);
-
-		// get right vector 
-		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-		// add movement in that direction
-		AddMovementInput(Direction, Value);
-	}
-}
-
-void AChronoCharacter::TurnAndRecord(float Value)
-{
-	if (Controller && TimeTravel)
-	{
-		if (TimeTravel->ShouldRecord())
-		{
-			// First record time and identity of input...
-			TimeTravel->AddTimestampedInput(GetWorld()->GetTimeSeconds(), EInputActionEnum::Turn, Value);
-		}
-
-		// call Pawn's interface to turn
-		AddControllerYawInput(Value);
-	}
-}
-
-void AChronoCharacter::TurnAtRateAndRecord(float Rate)
-{
-	if (Controller && TimeTravel)
-	{
-		if (TimeTravel->ShouldRecord())
-		{
-			// First record time and identity of input...
-			TimeTravel->AddTimestampedInput(GetWorld()->GetTimeSeconds(), EInputActionEnum::Turn_At_Rate, Rate);
-		}
-
-		// calculate delta for this frame from the rate information
-		AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
-	}
-}
-
-void AChronoCharacter::LookUpAndRecord(float Value)
-{
-	if (Controller && TimeTravel)
-	{
-		if (TimeTravel->ShouldRecord())
-		{
-			// First record time and identity of input...
-			TimeTravel->AddTimestampedInput(GetWorld()->GetTimeSeconds(), EInputActionEnum::Look_Up, Value);
-		}
-
-		// call Pawn's interface to look up
-		AddControllerPitchInput(Value);
-	}
-}
-
-void AChronoCharacter::LookUpAtRateAndRecord(float Rate)
-{
-	if (Controller && TimeTravel)
-	{
-		if (TimeTravel->ShouldRecord())
-		{
-			// First record time and identity of input...
-			TimeTravel->AddTimestampedInput(GetWorld()->GetTimeSeconds(), EInputActionEnum::Look_Up_At_Rate, Rate);
-		}
-
-		// calculate delta for this frame from the rate information
-		AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
-	}
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// LEGACY METHODS THAT ARE NOT BEING USED AT THE MOMENT
-// ************************************************************************************************
-void AChronoCharacter::OnResetVR()
-{
-	UHeadMountedDisplayFunctionLibrary::ResetOrientationAndPosition();
-}
-
-void AChronoCharacter::TouchStarted(ETouchIndex::Type FingerIndex, FVector Location)
-{
-	Jump();
-}
-
-void AChronoCharacter::TouchStopped(ETouchIndex::Type FingerIndex, FVector Location)
-{
-	StopJumping();
-}
-// END OF LEGACY METHODS ************************************************************************
-//////////////////////////////////////////////////////////////////////////////////////////////////
-
-*/
 
 void AChronoCharacter::ReplayPastActions(FTimestampedInputs ActionsToReplay)
 {
 	auto ThisController = Cast<AChronoPlayerController>(GetController());
 
-	if (ensure(ThisController != nullptr))
+	if (ThisController)
 	{
 
 		// Loop through the InputValues array of this struct that's past in
