@@ -284,8 +284,11 @@ void AChronoPlayerController::Fire()
 {
 	if (GetCharacter())
 	{
-		RecordAction("Fire", 1.f);
-		CastChecked<AChronoCharacter>(GetCharacter())->Fire();
+		if (CastChecked<AChronoCharacter>(GetCharacter())->GetHasEquippedWeapon())
+		{
+			RecordAction("Fire", 1.f);
+			CastChecked<AChronoCharacter>(GetCharacter())->Fire();
+		}
 	}
 }
 

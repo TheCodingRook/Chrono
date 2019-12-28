@@ -34,6 +34,10 @@ class AChronoCharacter : public ACharacter
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon Controls", meta = (AllowPrivateAccess = "true"))
 	bool bHolsterButtonDown;
 
+	// Bool to track of whether player is armed or not 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon Controls", meta = (AllowPrivateAccess = "true"))
+	bool bHasEquippedWeapon;
+
 	// Bool to track when player has pressed the Aim button that will switch between the cameras 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon Controls", meta = (AllowPrivateAccess = "true"))
 	bool bAimButtonDown;
@@ -72,17 +76,17 @@ public:
 
 	// Setter for the Holster/Unholster boolean
 	UFUNCTION(BlueprintCallable, Category = "WeaponControls")
-		void SetHolsterButtonDown(bool InFlag);
+	void SetHolsterButtonDown(bool InFlag);
 
-	UFUNCTION(BlueprintCallable, Category = "Weapons")
+	UFUNCTION(BlueprintCallable, Category = "Weapons Controls")
 	void EquipWeapon();
-	UFUNCTION(BlueprintCallable, Category = "Weapons")
-		void UnEquipWeapon();
+	UFUNCTION(BlueprintCallable, Category = "Weapons Controls")
+	void UnEquipWeapon();
 
-	UFUNCTION(BlueprintCallable, Category = "Weapons")
+	UFUNCTION(BlueprintCallable, Category = "Weapons Controls")
 	void ToggleCameras();
 
-	UFUNCTION(BlueprintCallable, Category = "Weapons")
+	UFUNCTION(BlueprintCallable, Category = "Weapons Controls")
 	void ToggleAimButtonDown();
 
 	// Getter for the aim button  boolean
@@ -90,10 +94,14 @@ public:
 	bool GetAimButtonDown() const;
 
 	// Setter for the aim button boolean
-	UFUNCTION(BlueprintCallable, Category = "WeaponControls")
-		void SetAimButtonDown(bool InFlag);
+	UFUNCTION(BlueprintCallable, Category = "Weapon Controls")
+	void SetAimButtonDown(bool InFlag);
 
-	UFUNCTION(BlueprintCallable, Category = "WeaponControls")
+	// Getter for the character armed boolean
+	UFUNCTION(BlueprintPure, Category = "Weapon Controls")
+	bool GetHasEquippedWeapon() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon Controls")
 	void Fire();
 
 	// Getter for character's health
@@ -112,10 +120,6 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
-
-	// APawn interface
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	// End of APawn interface
 
 	UFUNCTION(BlueprintCallable, Category = "Time Travel", meta = (AllowPrivateAccess = "true"))
 	void ReplayPastActions(FTimestampedInputs ActionsToReplay);

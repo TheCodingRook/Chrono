@@ -102,11 +102,13 @@ void AChronoCharacter::SetHolsterButtonDown(bool InFlag)
 void AChronoCharacter::EquipWeapon()
 {
 	TimeWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), "WeaponSocket");
+	bHasEquippedWeapon = true;
 }
 
 void AChronoCharacter::UnEquipWeapon()
 {
 	TimeWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), "WeaponHolster");
+	bHasEquippedWeapon = false;
 }
 
 void AChronoCharacter::ToggleCameras()
@@ -133,6 +135,11 @@ bool AChronoCharacter::GetAimButtonDown() const
 void AChronoCharacter::SetAimButtonDown(bool InFlag)
 {
 	bAimButtonDown = InFlag;
+}
+
+bool AChronoCharacter::GetHasEquippedWeapon() const
+{
+	return bHasEquippedWeapon;
 }
 
 void AChronoCharacter::Fire()
@@ -173,38 +180,6 @@ void AChronoCharacter::KillCharacter()
 		GetMesh()->BodyInstance.SetCollisionProfileName("BlockAll"); // to make sure dead body doesn't go through the floor/ground/surface it's on.
 		GetMesh()->SetSimulatePhysics(true);
 	}
-}
-
-
-//////////////////////////////////////////////////////////////////////////
-// Input
-
-void AChronoCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
-{
-	// Set up gameplay key bindings, making every movement and action recordable; all actions implemented locally
-	check(PlayerInputComponent);
-	//PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AChronoCharacter::JumpAndRecord); // cannot override Pawn's Jump here so had to name differently
-	//PlayerInputComponent->BindAction("Jump", IE_Released, this, &AChronoCharacter::StopJumpingAndRecord);
-
-	//PlayerInputComponent->BindAxis("MoveForward", this, &AChronoCharacter::MoveForwardAndRecord);
-	//PlayerInputComponent->BindAxis("MoveRight", this, &AChronoCharacter::MoveRightAndRecord);
-
-	// We have 2 versions of the rotation bindings to handle different kinds of devices differently
-	// "turn" handles devices that provide an absolute delta, such as a mouse.
-	// "turnrate" is for devices that we choose to treat as a rate of change, such as an analog joystick
-
-	//PlayerInputComponent->BindAxis("Turn", this, &AChronoCharacter::TurnAndRecord);
-	//PlayerInputComponent->BindAxis("TurnRate", this, &AChronoCharacter::TurnAtRateAndRecord);
-	//PlayerInputComponent->BindAxis("LookUp", this, &AChronoCharacter::LookUpAndRecord);
-	//PlayerInputComponent->BindAxis("LookUpAtRate", this, &AChronoCharacter::LookUpAtRateAndRecord);
-
-
-	/* TOUCH DEVICES AND VR HEADSET NOT IMPLEMENTED YET */
-	// handle touch devices
-	//PlayerInputComponent->BindTouch(IE_Pressed, this, &AChronoCharacter::TouchStarted);
-	//PlayerInputComponent->BindTouch(IE_Released, this, &AChronoCharacter::TouchStopped);
-	// VR headset functionality
-	//PlayerInputComponent->BindAction("ResetVR", IE_Pressed, this, &AChronoCharacter::OnResetVR);
 }
 
 void AChronoCharacter::ReplayPastActions(FTimestampedInputs ActionsToReplay)
