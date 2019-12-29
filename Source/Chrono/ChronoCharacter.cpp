@@ -232,7 +232,10 @@ void AChronoCharacter::ReplayPastActions(FTimestampedInputs ActionsToReplay)
 
 				else if (WhichAction == "Turn")
 				{
+					auto APC = CastChecked<AChronoPlayerController>(GetController());
 					AddControllerYawInput(ActionsToReplay.InputValues[i]);
+					APC->UpdateRotation(0.f); // TODO Vaggelis: I don't know why this works... not sure why I have to call this explicitly but it works
+					// Though it does not work for the "spawn second player in game" approach!
 				}
 
 				else if (WhichAction == "TurnAtRate")
