@@ -116,7 +116,6 @@ void AChronoCharacter::ToggleCameras()
 	FollowCamera->AddRelativeLocation(CameraOffset);
 	// Set the camera offset as the negative of the previous one so it toggles back and forth into place
 	CameraOffset = -CameraOffset;
-	FollowCamera->bUsePawnControlRotation = !FollowCamera->bUsePawnControlRotation;
 
 	// Toggle the rotation properties of the character (APawn interface) for this "FPS-style" view
 	bUseControllerRotationYaw = !bUseControllerRotationYaw;
@@ -279,8 +278,11 @@ void AChronoCharacter::ReplayPastActions(FTimestampedInputs ActionsToReplay)
 
 				else if (WhichAction == "Aim")
 				{
-					// Toggle AimButtonDown (no need to worry about camera for past self...
+					// Toggle AimButtonDown 
 					ToggleAimButtonDown();
+
+					// Toggle the rotation properties of the character (APawn interface) for this "FPS-style" view (no need to worry about camera for past self...)
+					bUseControllerRotationYaw = !bUseControllerRotationYaw;
 				}
 
 				else if (WhichAction == "Fire")
