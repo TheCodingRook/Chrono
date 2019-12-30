@@ -48,6 +48,9 @@ class AChronoCharacter : public ACharacter
 	UPROPERTY(VisibleAnywhere, Category = "Health")
 	float Health;
 
+	// Store pointer to this Character's controller
+	class AChronoPlayerController* MyChronoController;
+
 public:
 	AChronoCharacter();
 
@@ -63,6 +66,14 @@ public:
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+
+	/* Returns this characther's controller reference*/
+	UFUNCTION(BlueprintPure, Category = "Controller")
+	AChronoPlayerController* GetMyChronoController() const;
+
+	/* Sets this characther's controller reference*/
+	UFUNCTION(BlueprintCallable, Category = "Controller")
+	void SetMyChronoController(AChronoPlayerController* ControllerToSet);
 
 	/** Implements grabbing objects via the physics handle component if one is present*/
 	UFUNCTION(BlueprintCallable, Category = "Grabbing")

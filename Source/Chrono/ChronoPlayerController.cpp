@@ -51,6 +51,22 @@ void AChronoPlayerController::BeginPlay()
 	Super::BeginPlay();
 }
 
+void AChronoPlayerController::OnPossess(APawn* ControlledPawn)
+{
+	Super::OnPossess(ControlledPawn);
+
+	MyChronoCharacter = CastChecked<AChronoCharacter>(ControlledPawn);
+	if (MyChronoCharacter)
+	{
+		MyChronoCharacter->SetMyChronoController(this);
+	}
+}
+
+AChronoCharacter* AChronoPlayerController::GetMyChronoCharacter() const
+{
+	return MyChronoCharacter;
+}
+
 TArray<FName> AChronoPlayerController::GetRecordableMovementAndActionBindings() const
 {
 	return RecordableMovementAndActionBindings;
@@ -193,7 +209,7 @@ void AChronoPlayerController::TurnAtRate(float Rate)
 {
 	if (GetCharacter() && IsLocalPlayerController())
 	{
-		AddYawInput(Rate * Cast<AChronoCharacter>(GetCharacter())->BaseTurnRate * GetWorld()->GetDeltaSeconds());
+		AddYawInput(Rate * MyChronoCharacter->BaseTurnRate * GetWorld()->GetDeltaSeconds());
 		RecordAction("TurnAtRate", Rate);
 	}
 }
@@ -211,7 +227,7 @@ void AChronoPlayerController::LookUpAtRate(float Rate)
 {
 	if (GetCharacter() && IsLocalPlayerController())
 	{
-		AddPitchInput(Rate * Cast<AChronoCharacter>(GetCharacter())->BaseLookUpRate * GetWorld()->GetDeltaSeconds());
+		AddPitchInput(Rate *MyChronoCharacter->BaseLookUpRate * GetWorld()->GetDeltaSeconds());
 		RecordAction("LookUpAtRate", Rate);
 	}
 }
@@ -239,7 +255,7 @@ void AChronoPlayerController::Grab()
 	if (GetCharacter())
 	{
 		RecordAction("Grab", 1.f);
-		CastChecked<AChronoCharacter>(GetCharacter())->Grab();
+		MyChronoCharacter->Grab();
 	}
 }
 
@@ -248,7 +264,7 @@ void AChronoPlayerController::EndGrab()
 	if (GetCharacter())
 	{
 		RecordAction("EndGrab", 1.f);
-		CastChecked<AChronoCharacter>(GetCharacter())->EndGrab();	
+		MyChronoCharacter->EndGrab();
 	}
 }
 
@@ -259,13 +275,13 @@ void AChronoPlayerController::HolsterToggle()
 		RecordAction("HolsterToggle", 1.f);
 		
 		// Toggle between holstering/unholstering a weapon (meant to be able to interrupt animations mid-way through)
-		if (CastChecked<AChronoCharacter>(GetCharacter())->GetHolsterButtonDown())
+		if (MyChronoCharacter->GetHolsterButtonDown())
 		{
-			CastChecked<AChronoCharacter>(GetCharacter())->SetHolsterButtonDown(false);
+			MyChronoCharacter->SetHolsterButtonDown(false);
 		}
 		else
 		{
-			CastChecked<AChronoCharacter>(GetCharacter())->SetHolsterButtonDown(true);
+			MyChronoCharacter->SetHolsterButtonDown(true);
 		}
 	}
 }
@@ -275,8 +291,8 @@ void AChronoPlayerController::AimToggle()
 	if (GetCharacter())
 	{
 		RecordAction("Aim", 1.f);
-		CastChecked<AChronoCharacter>(GetCharacter())->ToggleCameras();
-		CastChecked<AChronoCharacter>(GetCharacter())->ToggleAimButtonDown();
+		MyChronoCharacter->ToggleCameras();
+		MyChronoCharacter->ToggleAimButtonDown();
 	}
 }
 
@@ -284,11 +300,10 @@ void AChronoPlayerController::Fire()
 {
 	if (GetCharacter())
 	{
-		if (CastChecked<AChronoCharacter>(GetCharacter())->GetHasEquippedWeapon())
+		if (MyChronoCharacter->GetHasEquippedWeapon())
 		{
 			RecordAction("Fire", 1.f);
-			CastChecked<AChronoCharacter>(GetCharacter())->Fire();
+			MyChronoCharacter->Fire();
 		}
 	}
 }
-

@@ -63,6 +63,16 @@ AChronoCharacter::AChronoCharacter()
 	Health = 100;
 }
 
+AChronoPlayerController* AChronoCharacter::GetMyChronoController() const
+{
+	return MyChronoController;
+}
+
+void AChronoCharacter::SetMyChronoController(AChronoPlayerController* ControllerToSet)
+{
+	MyChronoController = ControllerToSet;
+}
+
 void AChronoCharacter::Grab()
 {
 	UGrabbingAbility* Grabber = FindComponentByClass<UGrabbingAbility>();
@@ -183,9 +193,7 @@ void AChronoCharacter::KillCharacter()
 
 void AChronoCharacter::ReplayPastActions(FTimestampedInputs ActionsToReplay)
 {
-	auto ThisController = Cast<AChronoPlayerController>(GetController());
-
-	if (ThisController)
+	if (MyChronoController)
 	{
 		// Loop through the InputValues array of this struct that was passed in
 		for (int i = 0; i < ActionsToReplay.InputValues.Num(); i++)
@@ -194,7 +202,7 @@ void AChronoCharacter::ReplayPastActions(FTimestampedInputs ActionsToReplay)
 			if (ActionsToReplay.InputValues[i] != 0.f)
 			{
 				// Look up the action name in same index in the controller's inputbindings array
-				FName WhichAction = ThisController->GetRecordableMovementAndActionBindings()[i];
+				FName WhichAction = MyChronoController->GetRecordableMovementAndActionBindings()[i];
 
 				if (WhichAction == "Jump")
 				{
@@ -295,7 +303,7 @@ void AChronoCharacter::ReplayPastActions(FTimestampedInputs ActionsToReplay)
 		// TODO Vaggelis: I don't know why this works... not sure why I have to call this explicitly but it works fairly accurately (BUT NOT ALWAYS!)
 		// finally updating the rotation of the character when replaying history of "turn" and "lookup" type rotations
 		// Though it DOES NOT WORK for the "spawn second player in game" approach!
-		ThisController->UpdateRotation(0.f); 
+		MyChronoController->UpdateRotation(0.f); 
 
 	}
 }

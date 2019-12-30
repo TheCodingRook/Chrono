@@ -23,6 +23,12 @@ public:
 
 	virtual void BeginPlay();
 
+	virtual void OnPossess(APawn* ControlledPawn) override;
+
+	/* Getter for the reference of this controller's character*/
+	UFUNCTION(BlueprintPure, Category = "Character")
+	class AChronoCharacter* GetMyChronoCharacter() const;
+
 	// Getter for the TArray of movement/action binding names
 	UFUNCTION(BlueprintPure, Category = "Time Travel")
 	TArray<FName> GetRecordableMovementAndActionBindings() const;
@@ -66,7 +72,6 @@ public:
 	void AimToggle();
 	void Fire();
 
-
 private:
 	/** Component to implement character's time-travelling ability	*/
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Time Travel", meta = (AllowPrivateAccess = "true"))
@@ -76,6 +81,6 @@ private:
 	TArray<FName> RecordableMovementAndActionBindings;
 	
 	// Store pointer to this controller's character
-	class AChronoCharacter* MyCharacter; //TODO Vaggelis: Decide if this pointer to controlled character is necessary
+	AChronoCharacter* MyChronoCharacter; 
 
 };
