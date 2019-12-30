@@ -68,7 +68,7 @@ ATimePortal::ATimePortal()
 void ATimePortal::NotifyActorBeginOverlap(AActor* OtherActor)
 {
 	Super::NotifyActorBeginOverlap(OtherActor);
-	auto OtherCharacter = Cast<AChronoCharacter>(OtherActor);
+	AChronoCharacter* OtherCharacter = Cast<AChronoCharacter>(OtherActor);
 
 	// If it's our ChronoCharacter that passed through an active time portal...
 	if (OtherCharacter && bIsActive)
@@ -78,11 +78,26 @@ void ATimePortal::NotifyActorBeginOverlap(AActor* OtherActor)
 
 		// ...and teleport the character to the teleport spawn point
 		OtherActor->SetActorLocation(TeleportLocation->GetComponentLocation());
-		OtherCharacter->SetActorRotation(TeleportLocationArrow->GetComponentRotation());
+		OtherActor->SetActorRotation(TeleportLocationArrow->GetComponentRotation());
 		OtherCharacter->GetController()->SetControlRotation(PortalProjector->GetComponentRotation());
 
+		// Now disable the portal; helps with double-spawning sometimes. Need to debug further...
+		bIsActive = false;
 	}
 	
+}
+
+void ATimePortal::NotifyActorEndOverlap(AActor* OtherActor)
+{
+	// This helps with preventing double-spawning of past-selves when our character passes through portal. Needs further debuggin.
+	// Also, this will allow past self to go through the portal again, allowing multiple past-self spawns. Could be a neat game
+	// feature, but will have to be disabled if we end up with allowing only one travel back in time.
+	Super::NotifyActorEndOverlap(OtherActor);
+	AChronoCharacter* OtherCharacter = Cast<AChronoCharacter>(OtherActor);
+	if (OtherCharacter)
+	{
+		bIsActive = true;
+	}
 }
 
 // Called when the game starts or when spawned

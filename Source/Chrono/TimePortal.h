@@ -30,6 +30,7 @@ public:
 	FOnPortalTraversal OnPortalTraversal;
 
 	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
+	virtual void NotifyActorEndOverlap(AActor* OtherActor) override;
 
 protected:
 	// Boolean to toggle the portal

@@ -187,9 +187,7 @@ void AChronoCharacter::ReplayPastActions(FTimestampedInputs ActionsToReplay)
 
 	if (ThisController)
 	{
-
-		// Loop through the InputValues array of this struct that's past in
-
+		// Loop through the InputValues array of this struct that was passed in
 		for (int i = 0; i < ActionsToReplay.InputValues.Num(); i++)
 		{
 			// For every non-zero float value you find:
@@ -232,10 +230,7 @@ void AChronoCharacter::ReplayPastActions(FTimestampedInputs ActionsToReplay)
 
 				else if (WhichAction == "Turn")
 				{
-					auto APC = CastChecked<AChronoPlayerController>(GetController());
 					AddControllerYawInput(ActionsToReplay.InputValues[i]);
-					APC->UpdateRotation(0.f); // TODO Vaggelis: I don't know why this works... not sure why I have to call this explicitly but it works
-					// Though it does not work for the "spawn second player in game" approach!
 				}
 
 				else if (WhichAction == "TurnAtRate")
@@ -265,12 +260,12 @@ void AChronoCharacter::ReplayPastActions(FTimestampedInputs ActionsToReplay)
 
 				else if (WhichAction == "Grab")
 				{
-					Grab(); 
+					Grab();
 				}
 
 				else if (WhichAction == "EndGrab")
 				{
-					EndGrab(); 
+					EndGrab();
 				}
 
 				else if (WhichAction == "HolsterToggle")
@@ -296,8 +291,12 @@ void AChronoCharacter::ReplayPastActions(FTimestampedInputs ActionsToReplay)
 					}
 				}
 			}
-
 		}
+		// TODO Vaggelis: I don't know why this works... not sure why I have to call this explicitly but it works fairly accurately (BUT NOT ALWAYS!)
+		// finally updating the rotation of the character when replaying history of "turn" and "lookup" type rotations
+		// Though it DOES NOT WORK for the "spawn second player in game" approach!
+		ThisController->UpdateRotation(0.f); 
+
 	}
 }
 
