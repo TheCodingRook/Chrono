@@ -185,7 +185,8 @@ void AChronoCharacter::KillCharacter()
 	if (GetController()) // Check for controller because if the character has died already, it will been unpossessed as well.
 	{
 		// Depossess the character and simulate physics to simulate the character collapsing
-		GetController()->UnPossess();
+		//GetController()->UnPossess(); // Depossessing uncovered a bug if the past self is still executing recorded actions/movements!!!
+		// TODO Vaggelis: Figure out how to deal with death of character and if unpossessing is necessary then how to do it cleanly.
 		GetMesh()->BodyInstance.SetCollisionProfileName("BlockAll"); // to make sure dead body doesn't go through the floor/ground/surface it's on.
 		GetMesh()->SetSimulatePhysics(true);
 	}
