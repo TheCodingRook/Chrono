@@ -50,7 +50,7 @@ AChronoCharacter::AChronoCharacter()
 	// Create an arrow component to indicate aim camera location
 	AimCameraLocation = CreateDefaultSubobject<UArrowComponent>(TEXT("AimCameraLocation"));
 	AimCameraLocation->SetupAttachment(CameraBoom);
-	AimCameraLocation->SetRelativeLocation(FVector(300.f, 35.f, 60.f)); // Set the aim camera next to the head for an "over-the-shoulder" view point effect
+	AimCameraLocation->SetRelativeLocation(FVector(0.f, 35.f, 60.f)); // Set the aim camera next to the head for an "over-the-shoulder" view point effect
 
 	// Initialize the holstertoggle and aimtoggle booleans
 	bHolsterButtonDown = false;
@@ -58,8 +58,9 @@ AChronoCharacter::AChronoCharacter()
 
 	// Set the camera offset before toggle begins
 	CameraOffset = AimCameraLocation->GetRelativeLocation();
+	BoomOffset = -CameraBoom->TargetArmLength;
 
-	// Set a default for Health
+	// Set a default value for Health
 	Health = 100;
 }
 
@@ -126,6 +127,10 @@ void AChronoCharacter::ToggleCameras()
 	FollowCamera->AddRelativeLocation(CameraOffset);
 	// Set the camera offset as the negative of the previous one so it toggles back and forth into place
 	CameraOffset = -CameraOffset;
+
+	// Do similar adjustment for the camera boom; we want this to be zero as it is supposed to be attached over character's shoulder
+	CameraBoom->TargetArmLength += BoomOffset;
+	BoomOffset = -BoomOffset;
 
 	// Toggle the rotation properties of the character (APawn interface) for this "FPS-style" view
 	bUseControllerRotationYaw = !bUseControllerRotationYaw;

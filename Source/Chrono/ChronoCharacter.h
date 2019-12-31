@@ -45,6 +45,9 @@ class AChronoCharacter : public ACharacter
 	// Vector to calculate aim camera's offset from original position
 	FVector CameraOffset;
 
+	// Float to calcuate the camera boom's target length offset from original position
+	float BoomOffset;
+
 	UPROPERTY(VisibleAnywhere, Category = "Health")
 	float Health;
 
