@@ -64,3 +64,6 @@ Plugins/*/Intermediate/*
 # Cache files for the editor to use
 DerivedDataCache/*
 Content/ImportedAssets/
+
+# Large files that don't need to be in source control (e.g. imported assets that would most likely not be modified)
+Content/NonSourceControl/*
