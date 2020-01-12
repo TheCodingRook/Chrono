@@ -39,7 +39,8 @@ AChronoCharacter::AChronoCharacter()
 	// Create a camera boom (pulls in towards the player if there is a collision)
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
-	CameraBoom->TargetArmLength = 300.0f; // The camera follows at this distance behind the character	
+	CameraBoom->SetRelativeLocation(FVector(0.f, 30.f, 85.f));
+	CameraBoom->TargetArmLength = 350.0f; // The camera follows at this distance behind the character	
 	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
 
 	// Create a follow camera
@@ -50,7 +51,7 @@ AChronoCharacter::AChronoCharacter()
 	// Create an arrow component to indicate aim camera location
 	AimCameraLocation = CreateDefaultSubobject<UArrowComponent>(TEXT("AimCameraLocation"));
 	AimCameraLocation->SetupAttachment(CameraBoom);
-	AimCameraLocation->SetRelativeLocation(FVector(0.f, 35.f, 60.f)); // Set the aim camera next to the head for an "over-the-shoulder" view point effect
+	AimCameraLocation->SetRelativeLocation(FVector(0.f, 5.f, -20.f)); // Set the aim camera next to the head for an "over-the-shoulder" view point effect
 
 	// Initialize the holstertoggle and aimtoggle booleans
 	bHolsterButtonDown = false;
