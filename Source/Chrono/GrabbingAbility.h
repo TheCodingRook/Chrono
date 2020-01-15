@@ -50,4 +50,9 @@ private:
 	// Private member to store the pointer to the owning Character (cast will be necessary depending on which
 	// characters this ability is attached to
 	class ACharacter* OwnerCharacter;
+
+	// Actor tag to designate this object can be held in hand (like a tool, or weapon etc) rather than a generic "grab" with physicshandle.
+	// Will be implemented as an attachment to a socket.
+	// Remember to add an "Attachable" tag to an actor that needs this behavior
+	FName AttachableTag = "Attachable";
 };

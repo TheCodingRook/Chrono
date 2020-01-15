@@ -59,6 +59,7 @@ protected:
 
 private:
 	// The main boolean that determines if this TriggerActor is activated or not
+	UPROPERTY(VisibleAnywhere, Category = "Triggers")
 	bool bIsTriggered;
 
 	// The type of trigger this is: toggle (aka on/off) switch, or a Normally Open switch (aka push-to-make, meaning it has to be kept pressed or triggered to be on and turns off when released)

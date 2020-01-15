@@ -6,6 +6,7 @@
 #include "Templates\Casts.h"
 #include "Components\ArrowComponent.h" // TODO: Can probably remove: only for intellisense
 #include "DrawDebugHelpers.h"
+#include "Components/SkeletalMeshComponent.h"
 
 float UGrabbingAbility::GetGrabDistance() const
 {
@@ -27,8 +28,8 @@ void UGrabbingAbility::GrabObject()
 	GrabQueryParameters.AddIgnoredActor(OwnerCharacter);
 	
 	/* Commented-out debug lines for future use if necessary */
-	// DrawDebugLine(GetWorld(), StartVector, EndVector, FColor::Red, false , 1.f,(uint8)'\000', GrabRadius);
-	// DrawDebugSphere(GetWorld(), EndVector, GrabRadius, 16, FColor::Green, false, 1, 10.f);
+	 //DrawDebugLine(GetWorld(), StartVector, EndVector, FColor::Red, false , 1.f,(uint8)'\000', GrabRadius);
+	 //DrawDebugSphere(GetWorld(), EndVector, GrabRadius, 16, FColor::Green, false, 1, 10.f);
 
 	bool FoundSomethingToGrab = GetWorld()->SweepSingleByChannel(
 		OutHitResult,
@@ -45,10 +46,21 @@ void UGrabbingAbility::GrabObject()
 	{
 		// Disable collision for now so we can carry the object without crashing into it
 		OutHitResult.GetComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+		
+		// Check to see if the actor has any tags that define how it can be grabbed (hand-held or lifted etc.)
+		if (OutHitResult.GetActor()->ActorHasTag(AttachableTag))
+		{
+			// This actor can be attached to a socket, but first stop simulating physics!
+			OutHitResult.GetComponent()->SetSimulatePhysics(false);
+			OutHitResult.GetComponent()->AttachToComponent(OwnerCharacter->GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, "GrabSocket");
+		}
+
+		//else // Default behavior; just treat the usual way with physicshandle 
+		//{
 		// Grab from centre of mass so that it is easier to handle.
 		// TODO Vaggelis: How do I remove rotation from grabbed object?
 		GrabComponentAtLocation(OutHitResult.GetComponent(), NAME_None, OutHitResult.GetComponent()->GetCenterOfMass());
-		
+		//}
 	}
 }
 
@@ -56,6 +68,15 @@ void UGrabbingAbility::DropObject()
 {
 	// First make sure we are indeed grabbing something!
 	if (GrabbedComponent) {
+		// Check to see if the actor has an "Attachable" tag, in which case it was snapped to a socket
+		if (GrabbedComponent->GetOwner()->ActorHasTag(AttachableTag))
+		{
+			// Detach from socket, and re-enable physics
+			GrabbedComponent->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+			GrabbedComponent->SetSimulatePhysics(true);
+		}
+
+		// Otherwise deal with the default physicshandle methodology (release)
 		// Reset the collision channel for pawn back to block
 		GrabbedComponent->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
 		ReleaseComponent();
@@ -68,6 +89,11 @@ void UGrabbingAbility::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 
 	if (GrabbedComponent)
 	{
-		SetTargetLocation(OwnerCharacter->ActorToWorld().GetLocation() + OwnerCharacter->GetActorForwardVector() * GrabDistance);
+		// If this component/actor was grabbed without being attached to a specific socket (i.e. it wasn't "attachable")..
+		if (!GrabbedComponent->GetOwner()->ActorHasTag(AttachableTag))
+		{
+			// ... update its location every tick to be in fron of ChronoCharacter
+			SetTargetLocation(OwnerCharacter->ActorToWorld().GetLocation() + OwnerCharacter->GetActorForwardVector() * GrabDistance);
+		}
 	}
 }
