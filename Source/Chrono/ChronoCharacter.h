@@ -132,6 +132,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Health")
 	void KillCharacter();
 
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Time Travel")
+	void OnTravelBackInTime();
+
 protected:
 	virtual void BeginPlay() override;
 

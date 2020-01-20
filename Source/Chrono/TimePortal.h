@@ -26,11 +26,9 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	UPROPERTY(BlueprintAssignable, Category = "Event Dispatchers", meta = (AllowPrivateAccess = "true"))
+	// Delegate to notify that character (or anyone else) has traversed this Time Portal to anyone who's listening to this event
+	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = "Event Dispatchers", meta = (AllowPrivateAccess = "true"))
 	FOnPortalTraversal OnPortalTraversal;
-
-	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
-	virtual void NotifyActorEndOverlap(AActor* OtherActor) override;
 
 protected:
 	// Boolean to toggle the portal

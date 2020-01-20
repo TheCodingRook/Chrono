@@ -198,6 +198,11 @@ void AChronoCharacter::KillCharacter()
 	}
 }
 
+void AChronoCharacter::OnTravelBackInTime_Implementation()
+{
+	//blank on purpose
+}
+
 void AChronoCharacter::ReplayPastActions(FTimestampedInputs ActionsToReplay)
 {
 	if (MyChronoController)
