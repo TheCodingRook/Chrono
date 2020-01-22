@@ -7,6 +7,7 @@
 #include "Components/InputComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "ChronoPlayerController.h"
+#include "PastSelfController.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GrabbingAbility.h"
 #include "TimeWeapon.h"
@@ -70,9 +71,24 @@ AChronoPlayerController* AChronoCharacter::GetMyChronoController() const
 	return MyChronoController;
 }
 
+APastSelfController* AChronoCharacter::GetMyPastSelfController() const
+{
+	return MyPastSelfController;
+}
+
 void AChronoCharacter::SetMyChronoController(AChronoPlayerController* ControllerToSet)
 {
 	MyChronoController = ControllerToSet;
+}
+
+void AChronoCharacter::SetMyPastSelfController(APastSelfController* ControllerToSet)
+{
+	MyPastSelfController = ControllerToSet;
+}
+
+ATimeWeapon* AChronoCharacter::GetTimeWeapon() const
+{
+	return TimeWeapon;
 }
 
 void AChronoCharacter::Grab()
@@ -201,123 +217,6 @@ void AChronoCharacter::KillCharacter()
 void AChronoCharacter::OnTravelBackInTime_Implementation()
 {
 	//blank on purpose
-}
-
-void AChronoCharacter::ReplayPastActions(FTimestampedInputs ActionsToReplay)
-{
-	if (MyChronoController)
-	{
-		// Loop through the InputValues array of this struct that was passed in
-		for (int i = 0; i < ActionsToReplay.InputValues.Num(); i++)
-		{
-			// For every non-zero float value you find:
-			if (ActionsToReplay.InputValues[i] != 0.f)
-			{
-				// Look up the action name in same index in the controller's inputbindings array
-				FName WhichAction = MyChronoController->GetRecordableMovementAndActionBindings()[i];
-
-				if (WhichAction == "Jump")
-				{
-					Jump(); // This is ACharacter's interface
-				}
-
-				else if (WhichAction == "EndJump")
-				{
-					StopJumping(); // This is ACharacter's interface
-				}
-
-				else if (WhichAction == "MoveForward")
-				{
-					// find out which way is forward
-					const FRotator Rotation = Controller->GetControlRotation();
-					const FRotator YawRotation(0, Rotation.Yaw, 0);
-
-					// get forward vector
-					const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-					AddMovementInput(Direction, ActionsToReplay.InputValues[i]);
-				}
-
-				else if (WhichAction == "Moveright")
-				{
-					// find out which way is forward
-					const FRotator Rotation = Controller->GetControlRotation();
-					const FRotator YawRotation(0, Rotation.Yaw, 0);
-
-					// get forward vector
-					const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-					AddMovementInput(Direction, ActionsToReplay.InputValues[i]);
-				}
-
-				else if (WhichAction == "Turn")
-				{
-					AddControllerYawInput(ActionsToReplay.InputValues[i]);
-				}
-
-				else if (WhichAction == "TurnAtRate")
-				{
-					AddControllerYawInput(ActionsToReplay.InputValues[i] * BaseTurnRate * GetWorld()->GetDeltaSeconds());
-				}
-
-				else if (WhichAction == "LookUp")
-				{
-					AddControllerPitchInput(ActionsToReplay.InputValues[i]);
-				}
-
-				else if (WhichAction == "LookUpAtRate")
-				{
-					AddControllerPitchInput(ActionsToReplay.InputValues[i] * BaseTurnRate * GetWorld()->GetDeltaSeconds());
-				}
-
-				else if (WhichAction == "Crouch")
-				{
-					Crouch(); // This is ACharacter's interface
-				}
-
-				else if (WhichAction == "EndCrouch")
-				{
-					UnCrouch(); // This is ACharacter's interface
-				}
-
-				else if (WhichAction == "Grab")
-				{
-					Grab();
-				}
-
-				else if (WhichAction == "EndGrab")
-				{
-					EndGrab();
-				}
-
-				else if (WhichAction == "HolsterToggle")
-				{
-					// Toggle the holster / unholster boolean
-					bHolsterButtonDown = bHolsterButtonDown ? false : true;
-				}
-
-				else if (WhichAction == "Aim")
-				{
-					// Toggle AimButtonDown 
-					ToggleAimButtonDown();
-
-					// Toggle the rotation properties of the character (APawn interface) for this "FPS-style" view (no need to worry about camera for past self...)
-					bUseControllerRotationYaw = !bUseControllerRotationYaw;
-				}
-
-				else if (WhichAction == "Fire")
-				{
-					if (TimeWeapon)
-					{
-						TimeWeapon->Fire();
-					}
-				}
-			}
-		}
-		// TODO Vaggelis: I don't know why this works... not sure why I have to call this explicitly but it works fairly accurately (BUT NOT ALWAYS!)
-		// finally updating the rotation of the character when replaying history of "turn" and "lookup" type rotations
-		// Though it DOES NOT WORK for the "spawn second player in game" approach!
-		MyChronoController->UpdateRotation(0.f); 
-
-	}
 }
 
 void AChronoCharacter::BeginPlay()
