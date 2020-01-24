@@ -22,24 +22,27 @@ void APastSelfController::OnPossess(APawn* ControlledPawn)
 	}
 }
 
-void APastSelfController::ReplayPastActions(const FTimestampedInputs& ActionsToReplay)
+void APastSelfController::ReplayPastActions(const FTimestampedActions& ActionsToReplay)
 {	
 	// Instigator reference
 	AChronoCharacter* InstigatorCharacter = CastChecked<AChronoCharacter>(GetInstigator());
 
 	if (InstigatorCharacter->GetMyChronoController())
 	{
-		TArray<FName> ActionList = InstigatorCharacter->GetMyChronoController()->GetRecordableMovementAndActionBindings();
 		// Loop through the InputValues array of this struct that was passed in
-		for (int i = 0; i < ActionsToReplay.InputValues.Num(); i++)
+		for (int i = 0; i < ActionsToReplay.RecordedActionInputArray.Num(); i++)
 		{
 			// For every non-zero float value you find:
-			if (ActionsToReplay.InputValues[i] != 0.f)
-			{
+			//if (ActionsToReplay.RecordedActionInputArray[i].InputValue != 0.f)
+			//{
 				// Look up the action name in same index in the controller's inputbindings array
-				FName WhichAction = ActionList[i];
+				FName WhichAction = ActionsToReplay.RecordedActionInputArray[i].RecordedAction;
+				if (WhichAction == NAME_None)
+				{
+					break;
+				}
 
-				if (WhichAction == "Jump")
+				else if (WhichAction == "Jump")
 				{
 					MyChronoCharacter->Jump(); // This is ACharacter's interface
 				}
@@ -57,7 +60,7 @@ void APastSelfController::ReplayPastActions(const FTimestampedInputs& ActionsToR
 
 					// get forward vector
 					const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-					MyChronoCharacter->AddMovementInput(Direction, ActionsToReplay.InputValues[i]);
+					MyChronoCharacter->AddMovementInput(Direction, ActionsToReplay.RecordedActionInputArray[i].InputValue);
 				}
 
 				else if (WhichAction == "Moveright")
@@ -68,27 +71,27 @@ void APastSelfController::ReplayPastActions(const FTimestampedInputs& ActionsToR
 
 					// get forward vector
 					const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-					MyChronoCharacter->AddMovementInput(Direction, ActionsToReplay.InputValues[i]);
+					MyChronoCharacter->AddMovementInput(Direction, ActionsToReplay.RecordedActionInputArray[i].InputValue);
 				}
 
 				else if (WhichAction == "Turn")
 				{
-					MyChronoCharacter->AddControllerYawInput(ActionsToReplay.InputValues[i]);
+					MyChronoCharacter->AddControllerYawInput(ActionsToReplay.RecordedActionInputArray[i].InputValue);
 				}
 
 				else if (WhichAction == "TurnAtRate")
 				{
-					MyChronoCharacter->AddControllerYawInput(ActionsToReplay.InputValues[i] * MyChronoCharacter->BaseTurnRate * GetWorld()->GetDeltaSeconds());
+					MyChronoCharacter->AddControllerYawInput(ActionsToReplay.RecordedActionInputArray[i].InputValue * MyChronoCharacter->BaseTurnRate * GetWorld()->GetDeltaSeconds());
 				}
 
 				else if (WhichAction == "LookUp")
 				{
-					MyChronoCharacter->AddControllerPitchInput(ActionsToReplay.InputValues[i]);
+					MyChronoCharacter->AddControllerPitchInput(ActionsToReplay.RecordedActionInputArray[i].InputValue);
 				}
 
 				else if (WhichAction == "LookUpAtRate")
 				{
-					MyChronoCharacter->AddControllerPitchInput(ActionsToReplay.InputValues[i] * MyChronoCharacter->BaseTurnRate * GetWorld()->GetDeltaSeconds());
+					MyChronoCharacter->AddControllerPitchInput(ActionsToReplay.RecordedActionInputArray[i].InputValue * MyChronoCharacter->BaseTurnRate * GetWorld()->GetDeltaSeconds());
 				}
 
 				else if (WhichAction == "Crouch")
@@ -133,11 +136,13 @@ void APastSelfController::ReplayPastActions(const FTimestampedInputs& ActionsToR
 						MyChronoCharacter->GetTimeWeapon()->Fire();
 					}
 				}
-			}
+				
+			//}
 		}
+		// TODO Vaggelis: I don't know why this works... not sure why I have to call this explicitly but it works fairly accurately (BUT NOT ALWAYS!)
+		// finally updating the rotation of the character when replaying history of "turn" and "lookup" type rotations
+		// Though it DOES NOT WORK for the "spawn second player in game" approach!
+		UpdateRotation(0.f);
 	}
-	// TODO Vaggelis: I don't know why this works... not sure why I have to call this explicitly but it works fairly accurately (BUT NOT ALWAYS!)
-	// finally updating the rotation of the character when replaying history of "turn" and "lookup" type rotations
-	// Though it DOES NOT WORK for the "spawn second player in game" approach!
-	UpdateRotation(0.f);
+	
 }
