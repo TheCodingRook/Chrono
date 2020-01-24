@@ -51,8 +51,11 @@ class AChronoCharacter : public ACharacter
 	UPROPERTY(VisibleAnywhere, Category = "Health")
 	float Health;
 
-	// Store pointer to this Character's controller
+	// Store pointer to this Character's ChronoPlayerController - if any
 	class AChronoPlayerController* MyChronoController;
+
+	// Store pointer to this Character's PlastSelfController - if any
+	class APastSelfController* MyPastSelfController;
 
 public:
 	AChronoCharacter();
@@ -74,9 +77,21 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Controller")
 	AChronoPlayerController* GetMyChronoController() const;
 
-	/* Sets this characther's controller reference*/
+	/* Returns this characther's PastSelfController reference*/
+	UFUNCTION(BlueprintPure, Category = "Controller")
+	APastSelfController* GetMyPastSelfController() const;
+
+	/* Sets this characther's ChronoPlayerController reference*/
 	UFUNCTION(BlueprintCallable, Category = "Controller")
 	void SetMyChronoController(AChronoPlayerController* ControllerToSet);
+
+	/* Sets this characther's MyPastSelfController reference*/
+	UFUNCTION(BlueprintCallable, Category = "Controller")
+	void SetMyPastSelfController(APastSelfController* ControllerToSet);
+
+	/* Returns this characther's TimeWeapon reference*/
+	UFUNCTION(BlueprintPure, Category = "Weapons")
+	ATimeWeapon* GetTimeWeapon() const;
 
 	/** Implements grabbing objects via the physics handle component if one is present*/
 	UFUNCTION(BlueprintCallable, Category = "Grabbing")
@@ -137,7 +152,4 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
-
-	UFUNCTION(BlueprintCallable, Category = "Time Travel", meta = (AllowPrivateAccess = "true"))
-	void ReplayPastActions(FTimestampedInputs ActionsToReplay);
 };
