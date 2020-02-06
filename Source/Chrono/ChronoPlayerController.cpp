@@ -117,7 +117,6 @@ void AChronoPlayerController::RecordAction(FName ActionToRecord, float Value)
 			FRecordedActionInput NewRecordedActionInput;
 			NewRecordedActionInput.RecordedAction = ActionToRecord;
 			NewRecordedActionInput.InputValue = Value;
-			UE_LOG(LogTemp, Warning, TEXT("Will add action: %s"), *ActionToRecord.ToString())
 
 			TimeTravel->AddTimestampedInput(GetWorld()->GetTimeSeconds(), NewRecordedActionInput);
 			
