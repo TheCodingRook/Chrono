@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "TimeTravelComponent.h" // Have to include this here because I cannot forward declare the FTimestampedInputs struct in the ReplayPastActions method declaration below
+#include "TimeTravelComponent.h" // Have to include this here because I cannot forward declare the FTimestampedActions struct in the ReplayPastActions method declaration below
 #include "ChronoCharacter.generated.h"
 
 UCLASS(config=Game)

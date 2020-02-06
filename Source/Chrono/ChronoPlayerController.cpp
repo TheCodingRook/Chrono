@@ -91,14 +91,6 @@ void AChronoPlayerController::SetUpRecordableActionBinding(const FName NewAction
 	{
 		RecordableMovementAndActionBindings.Add(NewAction);
 	}
-
-	// Then set it up in the FTimestampedInputs template struct, with a default value for its Value as 0
-	// The index of this float in the array will match the index of the action in the
-	// RecordableMovementAndActionBindings array above
-	TimeTravel->TimestampedInputsTemplate.InputValues.Add(0);
-	/* NOTE: THE LENGTH OF THESE TWO ARRAYS SHOULD BE IDENTICAL */
-
-	
 }
 
 template <class UserClass>
@@ -109,14 +101,6 @@ void AChronoPlayerController::SetUpRecordableAxisBinding(const FName NewAction, 
 	
 	// Keep track of the order in which we add movements/actions in this array
 	RecordableMovementAndActionBindings.Add(NewAction);
-	
-	// Then set it up in the FTimestampedInputs struct, with a default value for its Value as 0
-	// The index of this float in the array will match the index of the action in the
-	// RecordableMovementAndActionBindings array below
-	TimeTravel->TimestampedInputsTemplate.InputValues.Add(0);
-
-	/* NOTE: THE LENGTH OF THE ARRAYS SHOULD BE IDENTICAL */
-	
 }
 
 void AChronoPlayerController::RecordAction(FName ActionToRecord, float Value)
@@ -128,11 +112,13 @@ void AChronoPlayerController::RecordAction(FName ActionToRecord, float Value)
 		if (TimeTravel->ShouldRecord())
 		{
 
-			// Record action and pass the array index of that action in the sequnce of bound actions
+			// Record action and its associated value
 			// MAKE SURE YOU USE THE SAME NAME TO DESCRIBE THE ACTION
-			int32 IndexInFloatArray = RecordableMovementAndActionBindings.Find(ActionToRecord);
-			//UE_LOG(LogTemp, Warning, TEXT("So far so good, int index of %i"), IndexInFloatArray)
-			TimeTravel->AddTimestampedInput(GetWorld()->GetTimeSeconds(), IndexInFloatArray, Value);
+			FRecordedActionInput NewRecordedActionInput;
+			NewRecordedActionInput.RecordedAction = ActionToRecord;
+			NewRecordedActionInput.InputValue = Value;
+
+			TimeTravel->AddTimestampedInput(GetWorld()->GetTimeSeconds(), NewRecordedActionInput);
 			
 		}
 	}
@@ -197,7 +183,7 @@ void AChronoPlayerController::MoveRight(float Value)
 
 void AChronoPlayerController::Turn(float Value)
 {
-	if (GetCharacter() && IsLocalPlayerController()) // TODO Vaggelis: Do I really need to check for null LocalPlayerController?
+	if (GetCharacter()) 
 	{
 		AddYawInput(Value);
 		RecordAction("Turn", Value);
@@ -207,7 +193,7 @@ void AChronoPlayerController::Turn(float Value)
 
 void AChronoPlayerController::TurnAtRate(float Rate)
 {
-	if (GetCharacter() && IsLocalPlayerController())
+	if (GetCharacter())
 	{
 		AddYawInput(Rate * MyChronoCharacter->BaseTurnRate * GetWorld()->GetDeltaSeconds());
 		RecordAction("TurnAtRate", Rate);
@@ -216,7 +202,7 @@ void AChronoPlayerController::TurnAtRate(float Rate)
 
 void AChronoPlayerController::LookUp(float Value)
 {
-	if (GetCharacter() && IsLocalPlayerController())
+	if (GetCharacter())
 	{
 		AddPitchInput(Value);
 		RecordAction("LookUp", Value);
@@ -225,7 +211,7 @@ void AChronoPlayerController::LookUp(float Value)
 
 void AChronoPlayerController::LookUpAtRate(float Rate)
 {
-	if (GetCharacter() && IsLocalPlayerController())
+	if (GetCharacter())
 	{
 		AddPitchInput(Rate *MyChronoCharacter->BaseLookUpRate * GetWorld()->GetDeltaSeconds());
 		RecordAction("LookUpAtRate", Rate);

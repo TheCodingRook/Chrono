@@ -3,14 +3,20 @@
 
 #include "TimeTravelComponent.h"
 
+// Default constructor for FRecordedActionInput creating an empty/null recording
+FRecordedActionInput::FRecordedActionInput()
+{
+	RecordedAction = NAME_None;
+	InputValue = 0.f;
+}
 
 // Default constructor - no implementation
 // TODO Vaggelis: decide if I truly need this constructor
-FTimestampedInputs::FTimestampedInputs()
+FTimestampedActions::FTimestampedActions()
 {}
 
 // Constructor with only a known timestamp
-FTimestampedInputs::FTimestampedInputs(float ts)
+FTimestampedActions::FTimestampedActions(float ts)
 	:TimeStamp{ ts }
 {}
 
@@ -47,7 +53,7 @@ void UTimeTravelComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 	// ...
 }
 
-TArray<FTimestampedInputs> UTimeTravelComponent::GetTimestampedInputsArray() const
+TArray<FTimestampedActions> UTimeTravelComponent::GetTimestampedInputsArray() const
 {
 	return TimestampedInputsArray;
 }
@@ -67,7 +73,7 @@ bool UTimeTravelComponent::ShouldRecord() const
 	return bShouldRecord;
 }
 
-void UTimeTravelComponent::AddTimestampedInput(float RecordedTimeStamp, int32 InputValuesArrayIndex, float RecordedValue)
+void UTimeTravelComponent::AddTimestampedInput(float RecordedTimeStamp, FRecordedActionInput NewRecordedActionInput) // TODO Vaggelis: Should improve on 
 {
 	// If this is a non-empty array
 	if (TimestampedInputsArray.Num() > 0)
@@ -75,9 +81,9 @@ void UTimeTravelComponent::AddTimestampedInput(float RecordedTimeStamp, int32 In
 		// Check the last entry's timestamp
 		if (TimestampedInputsArray.Top().TimeStamp == RecordedTimeStamp)
 		{
-			// If same then amend the float variable in the InputValues array at the index passed in
-			TimestampedInputsArray.Top().InputValues[InputValuesArrayIndex] = RecordedValue;
-
+			// If same then amend then just add a new recorded action for same timestamp
+			TimestampedInputsArray.Top().RecordedActionInputArray.Add(NewRecordedActionInput);
+			
 			// End the method here by returning
 			return;
 		}
@@ -88,12 +94,10 @@ void UTimeTravelComponent::AddTimestampedInput(float RecordedTimeStamp, int32 In
 	// In order to add a new element (and more importantly the very first one) we need a copy of the 
 	// struct template first, set up its values (timestamp and float value in the correct index within
 	// the InputValues array, and then add it to the TArray of TimestampedInputs
-	FTimestampedInputs NewEntry = TimestampedInputsTemplate;
+	FTimestampedActions NewEntry;
 	NewEntry.TimeStamp = RecordedTimeStamp;
-	NewEntry.InputValues[InputValuesArrayIndex] = RecordedValue;
+	NewEntry.RecordedActionInputArray.Add(NewRecordedActionInput);
 	TimestampedInputsArray.Add(NewEntry);
-		
-	
 }
 
 void UTimeTravelComponent::WipeHistory()

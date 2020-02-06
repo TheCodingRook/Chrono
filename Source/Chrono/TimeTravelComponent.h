@@ -18,23 +18,40 @@ static FORCEINLINE FString EnumToString(const FString& Name, TEnum Value)
 	return enumPtr->GetDisplayNameTextByIndex((int32)Value).ToString();
 };
 
-// Struct to store unique timestamp entries with associated values for all input actions in that timestamp
+// Struct representing a recorded action and its associated value
 USTRUCT(BlueprintType)
-struct FTimestampedInputs
+struct FRecordedActionInput
 {
 	GENERATED_USTRUCT_BODY()
 
 	// Default constructor
-	FTimestampedInputs();
+	FRecordedActionInput();
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Struct Contents")
+	FName RecordedAction;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Struct Contents")
+		float InputValue;
+
+};
+
+// Struct to store unique timestamp entries with associated list of recorded actions
+USTRUCT(BlueprintType)
+struct FTimestampedActions
+{
+	GENERATED_USTRUCT_BODY()
+
+	// Default constructor
+	FTimestampedActions();
 
 	// Constructor with a known timestamp
-	FTimestampedInputs(float ts);
+	FTimestampedActions(float ts);
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Struct Contents")
 	float TimeStamp = 0;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Struct Contents")
-	TArray<float> InputValues;
+	TArray<FRecordedActionInput> RecordedActionInputArray;
 };
 
 /*	A class that allows the actor (in this case most likely the controlled pawn) to
@@ -56,7 +73,7 @@ public:
 	/* Public getter functions */
 
 	UFUNCTION(BlueprintPure, Category = "Time Travel")
-	TArray<FTimestampedInputs> GetTimestampedInputsArray() const;
+	TArray<FTimestampedActions> GetTimestampedInputsArray() const;
 
 	UFUNCTION(BlueprintPure, Category = "Time Travel")
 	float GetMaxRecordingTime() const;
@@ -70,7 +87,7 @@ public:
 
 	//Add to the array of timestamped inputs
 	UFUNCTION(BlueprintCallable, Category = "Time Travel")
-	void AddTimestampedInput(float TimeStamp, int32 InputValuesArrayIndex, float RecordedValue);
+	void AddTimestampedInput(float TimeStamp, FRecordedActionInput NewRecordedActionInput);
 	
 	// Reset all the movement and action arrays
 	UFUNCTION(BlueprintCallable, Category = "Time Travel")
@@ -86,7 +103,7 @@ public:
 	those in a specific enum or other struct. Once we know how many actions/movements the final game will
 	have we can switch to describing each one of them explicitly.
  */
-	FTimestampedInputs TimestampedInputsTemplate;
+	FTimestampedActions TimestampedInputsTemplate;
 
 protected:
 	// Called when the game starts
@@ -97,7 +114,7 @@ private:
 
 	// Array of structs where the timestamp entry is unique and all input values for that entry are recorded
 	UPROPERTY(VisibleAnywhere, Category = "Time Travel")
-	TArray<FTimestampedInputs> TimestampedInputsArray;
+	TArray<FTimestampedActions> TimestampedInputsArray;
 
 	// Maximum "history recording" time
 	UPROPERTY(EditDefaultsOnly, Category = "Time Travel")

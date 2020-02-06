@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
-#include "TimeTravelComponent.h" // Have to include this here because I cannot forward declare the FTimestampedInputs struct in the ReplayPastActions method declaration below
+#include "TimeTravelComponent.h" // Have to include this here because I cannot forward declare the FTimestampedActions struct in the ReplayPastActions method declaration below
 #include "PastSelfController.generated.h"
 
 /**
@@ -21,7 +21,7 @@ public:
 	class AChronoCharacter* GetMyChronoCharacter() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Time Travel", meta = (AllowPrivateAccess = "true"))
-	void ReplayPastActions(const FTimestampedInputs& ActionsToReplay);
+	void ReplayPastActions(const FTimestampedActions& ActionsToReplay);
 
 protected:
 	virtual void OnPossess(APawn* ControlledPawn) override;
