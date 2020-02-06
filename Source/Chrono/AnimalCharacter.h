@@ -21,6 +21,8 @@ public:
 	FORCEINLINE float GetMaxAnimalWalkSpeed() const { return MaxAnimalWalkSpeed; }
 	UFUNCTION(BlueprintPure, Category = "Animal Movement")
 	FORCEINLINE float GetMaxAnimalRunSpeed() const { return MaxAnimalRunSpeed; }
+	UFUNCTION(BlueprintPure, Category = "Animal Behavior")
+	FORCEINLINE float GetMinSafetyDistance() const { return MinSafetyDistance; }
 
 protected:
 	// Called when the game starts or when spawned
@@ -30,6 +32,9 @@ protected:
 	float MaxAnimalWalkSpeed; // To be set by CharacterMovementComponent's max walk speed value initially
 	UPROPERTY(EditDefaultsOnly, Category = "Animal Movement")
 	float MaxAnimalRunSpeed;
+	UPROPERTY(EditDefaultsOnly, Category = "Animal Behavior")
+	float MinSafetyDistance;
+
 
 public:	
 	// Called every frame

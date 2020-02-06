@@ -12,6 +12,7 @@ AAnimalCharacter::AAnimalCharacter()
 
 	MaxAnimalWalkSpeed = GetCharacterMovement()->MaxWalkSpeed; //Set the animal's max walk speed to equal that of default character movement component setting
 	MaxAnimalRunSpeed = 4 * MaxAnimalWalkSpeed; // Just an arbitrary multiple of default walk speed here; should be modified in Blueprint for each animal
+	MinSafetyDistance = 500; //Arbitrary choice for the minumum distance the animal will keep from our character
 
 }
 
