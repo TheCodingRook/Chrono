@@ -28,11 +28,11 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Animal Movement")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Animal Movement")
 	float MaxAnimalWalkSpeed; // To be set by CharacterMovementComponent's max walk speed value initially
-	UPROPERTY(EditDefaultsOnly, Category = "Animal Movement")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Animal Movement")
 	float MaxAnimalRunSpeed;
-	UPROPERTY(EditDefaultsOnly, Category = "Animal Behavior")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Animal Behavior")
 	float MinSafetyDistance;
 
 
