@@ -27,6 +27,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Grab configuration")
 	void DropObject();
 
+	UFUNCTION(BlueprintCallable, Category = "Grab configuration")
+	FName GetAttachableTag();
+
 protected:
 	// Set up some space and distance paramters for the grabbing ability. ALL IN CENTIMETERS (cm) !!!
 	

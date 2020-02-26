@@ -83,6 +83,11 @@ void UGrabbingAbility::DropObject()
 	}
 }
 
+FName UGrabbingAbility::GetAttachableTag()
+{
+	return AttachableTag;
+}
+
 void UGrabbingAbility::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);

@@ -6,6 +6,10 @@
 #include "GameFramework/Actor.h"
 #include "Pickup.generated.h"
 
+/**
+ * Base class to implement consumable pickup items in the world
+ */
+
 UCLASS()
 class CHRONO_API APickup : public AActor
 {

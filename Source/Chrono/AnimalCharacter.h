@@ -15,6 +15,9 @@ public:
 	// Sets default values for this character's properties
 	AAnimalCharacter();
 
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
+
 	// Differentiate between a walking max speed and running/galloping max speed
 	// Max walk speed will initially be driven by CharacterMovementComponent's setting!!!
 	UFUNCTION(BlueprintPure, Category = "Animal Movement")
@@ -35,10 +38,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Animal Behavior")
 	float MinSafetyDistance;
 
-
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
-
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animal Behavior", meta = (AllowPrivateAccess = "true"))
+	class USphereComponent* MouthCollision;
 };

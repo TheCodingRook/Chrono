@@ -3,6 +3,7 @@
 
 #include "AnimalCharacter.h"
 #include "GameFramework\CharacterMovementComponent.h"
+#include "Components/SphereComponent.h"
 
 // Sets default values
 AAnimalCharacter::AAnimalCharacter()
@@ -14,6 +15,9 @@ AAnimalCharacter::AAnimalCharacter()
 	//MaxAnimalRunSpeed = 3 * MaxAnimalWalkSpeed; // Just an arbitrary multiple of default walk speed here; should be modified in Blueprint for each animal
 	//MinSafetyDistance = 500; //Arbitrary choice for the minumum distance the animal will keep from our character
 
+	//Create a collision sphere to serve as a mouth socket (for detecting eating/biting for example)
+	MouthCollision = CreateDefaultSubobject<USphereComponent>("Mouth Collision");
+	MouthCollision->SetupAttachment(GetMesh(),"MouthSocket");
 }
 
 // Called when the game starts or when spawned
