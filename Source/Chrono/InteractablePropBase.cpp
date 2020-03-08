@@ -23,6 +23,11 @@ AInteractablePropBase::AInteractablePropBase()
 	PropName = FText::FromString("Unnamed");
 }
 
+void AInteractablePropBase::SetIsInteractedWith(bool InFlag)
+{
+	bIsInteractedWith = InFlag;
+}
+
 // Called when the game starts or when spawned
 void AInteractablePropBase::BeginPlay()
 {

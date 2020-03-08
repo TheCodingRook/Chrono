@@ -31,6 +31,12 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Widget")
 	FText GetPropName() const { return PropName; }
 
+	UFUNCTION(BlueprintPure)
+	bool IsInteractedWith() const { return bIsInteractedWith; }
+
+	UFUNCTION(BlueprintCallable)
+	void SetIsInteractedWith(bool InFlag);
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -45,4 +51,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Widget Setup", meta = (AllowPrivateAccess = "true"))
 	FText PropName;
 	
+	// Name this prop for text interface
+	UPROPERTY(VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
+	bool bIsInteractedWith;
 };
