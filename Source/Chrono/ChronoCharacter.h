@@ -42,6 +42,10 @@ class AChronoCharacter : public ACharacter
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon Controls", meta = (AllowPrivateAccess = "true"))
 	bool bAimButtonDown;
 
+	// Bool to track when player has pressed the Grab button so it can determine whether to grab a prop or drop an existing held one
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Actions", meta = (AllowPrivateAccess = "true"))
+	bool bGrabButtonDown;
+
 	// Vector to calculate aim camera's offset from original position
 	FVector CameraOffset;
 
@@ -93,7 +97,7 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Weapons")
 	ATimeWeapon* GetTimeWeapon() const;
 
-	/** Implements grabbing objects via the physics handle component if one is present*/
+	/** Implements grabbing objects either by attaching them to a socket or otherwise via the physics handle component (if one is present)*/
 	UFUNCTION(BlueprintCallable, Category = "Grabbing")
 	void Grab();
 	UFUNCTION(BlueprintCallable, Category = "Grabbing")
@@ -133,6 +137,14 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Weapon Controls")
 	void Fire();
 
+	// Getter for the Grab/Drop prop  boolean
+	UFUNCTION(BlueprintPure, Category = "Grabbing")
+	bool GetGrabButtonDown() const;
+
+	// Setter for the Grab/Drop prop boolean
+	UFUNCTION(BlueprintCallable, Category = "Grabbing")
+	void SetGrabButtonDown(bool InFlag);
+	
 	// Getter for character's health
 	UFUNCTION(BlueprintPure, Category = "Health")
 	float GetHealth() const;

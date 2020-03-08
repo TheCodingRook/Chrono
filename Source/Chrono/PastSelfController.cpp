@@ -104,16 +104,28 @@ void APastSelfController::ReplayPastActions(const FTimestampedActions& ActionsTo
 					MyChronoCharacter->UnCrouch(); // This is ACharacter's interface
 				}
 
-				else if (WhichAction == "Grab")
+				else if (WhichAction == "GrabToggle")
 				{
-					MyChronoCharacter->Grab();
+					// Toggle between grabbing/dropping a prop or object 
+					if (MyChronoCharacter->GetGrabButtonDown())
+					{
+						// Already holding something, so drop it!
+						MyChronoCharacter->SetGrabButtonDown(false);
+						MyChronoCharacter->EndGrab();
+					}
+					else
+					{
+						MyChronoCharacter->SetGrabButtonDown(true);
+						MyChronoCharacter->Grab();
+					}
 				}
 
+				/*
 				else if (WhichAction == "EndGrab")
 				{
 					MyChronoCharacter->EndGrab();
 				}
-
+				*/
 				else if (WhichAction == "HolsterToggle")
 				{
 					// Toggle the holster / unholster boolean

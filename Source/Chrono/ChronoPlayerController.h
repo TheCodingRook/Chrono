@@ -65,8 +65,7 @@ public:
 	void Crouch();
 	void EndCrouch();
 
-	void Grab();
-	void EndGrab();
+	void GrabToggle();
 
 	void HolsterToggle();
 	void AimToggle();

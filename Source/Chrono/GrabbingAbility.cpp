@@ -7,6 +7,7 @@
 #include "Components\ArrowComponent.h" // TODO: Can probably remove: only for intellisense
 #include "DrawDebugHelpers.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "InteractablePropBase.h"
 
 float UGrabbingAbility::GetGrabDistance() const
 {
@@ -17,75 +18,76 @@ void UGrabbingAbility::GrabObject()
 {
 	OwnerCharacter = CastChecked<ACharacter>(GetOwner());
 
-	FHitResult OutHitResult;
-
-	// Add a bit of a Z-axis offset to the start vector (we want the grab sweep and debug lines to start from chest area of Character)
-	// TODO Vaggelis: Remember to amend this when changing skeletal mesh eventually, or consider using a socket location, i.e. clavicle
-	FVector StartVector = OwnerCharacter->ActorToWorld().GetLocation() + FVector(0.f, 0.f, 30.f);
-	FVector EndVector = StartVector + (OwnerCharacter->GetActorForwardVector() * GrabDistance);
-	
-	FCollisionQueryParams GrabQueryParameters;
-	GrabQueryParameters.AddIgnoredActor(OwnerCharacter);
-	
-	/* Commented-out debug lines for future use if necessary */
-	 //DrawDebugLine(GetWorld(), StartVector, EndVector, FColor::Red, false , 1.f,(uint8)'\000', GrabRadius);
-	 //DrawDebugSphere(GetWorld(), EndVector, GrabRadius, 16, FColor::Green, false, 1, 10.f);
-
-	bool FoundSomethingToGrab = GetWorld()->SweepSingleByChannel(
-		OutHitResult,
-		StartVector,
-		EndVector,
-		FQuat::Identity,
-		ECC_PhysicsBody,
-		FCollisionShape::MakeSphere(GrabRadius),
-		GrabQueryParameters
-	);
-
-	// If there is anything within reach (GrabDistance)
-	if (FoundSomethingToGrab)
+	// Check first to see if there is a prop we can grab 
+	if (AvailablePropToGrab != nullptr)
 	{
-		// Disable collision for now so we can carry the object without crashing into it
-		OutHitResult.GetComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
-		
-		// Check to see if the actor has any tags that define how it can be grabbed (hand-held or lifted etc.)
-		if (OutHitResult.GetActor()->ActorHasTag(AttachableTag))
+		if (AvailablePropToGrab->ActorHasTag(AttachableTag)) 
 		{
-			// This actor can be attached to a socket, but first stop simulating physics!
-			OutHitResult.GetComponent()->SetSimulatePhysics(false);
-			OutHitResult.GetComponent()->AttachToComponent(OwnerCharacter->GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, "GrabSocket");
+			// This prop can be attached to a socket, but first stop simulating physics!
+			AvailablePropToGrab->GetMesh()->SetSimulatePhysics(false);
+			AvailablePropToGrab->GetMesh()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+			AvailablePropToGrab->AttachToComponent(OwnerCharacter->GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, "GrabSocket");
+		}
+		else
+		{
+			// We can alternativel pick this prop up using the default physics handle component
+			AvailablePropToGrab->GetMesh()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+			GrabComponentAtLocation(AvailablePropToGrab->GetMesh(), NAME_None, AvailablePropToGrab->GetMesh()->GetCenterOfMass());
 		}
 
-		//else // Default behavior; just treat the usual way with physicshandle 
-		//{
-		// Grab from centre of mass so that it is easier to handle.
-		// TODO Vaggelis: How do I remove rotation from grabbed object?
-		GrabComponentAtLocation(OutHitResult.GetComponent(), NAME_None, OutHitResult.GetComponent()->GetCenterOfMass());
-		//}
+		// Notify listeners that the grabbing ability's owner has interacted with a prop/object (used for widget purposes)
+		OnPropInteraction.Broadcast();
+	}
+
+	else
+	{
+		// We have nothing to grab - do noting and return.
+		return;
 	}
 }
 
 void UGrabbingAbility::DropObject()
 {
-	// First make sure we are indeed grabbing something!
+	// First make sure we are indeed grabbing something! First check that we are using the physics handle; if so the pointer GrabbedComponent will be non-null
 	if (GrabbedComponent) {
-		// Check to see if the actor has an "Attachable" tag, in which case it was snapped to a socket
-		if (GrabbedComponent->GetOwner()->ActorHasTag(AttachableTag))
-		{
-			// Detach from socket, and re-enable physics
-			GrabbedComponent->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
-			GrabbedComponent->SetSimulatePhysics(true);
-		}
-
-		// Otherwise deal with the default physicshandle methodology (release)
 		// Reset the collision channel for pawn back to block
 		GrabbedComponent->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
 		ReleaseComponent();
 	}
+
+	// Otherwise let's see if we have a prop that we are grabbing/holding (the AvailablePropToGrab is non-null)
+	else if (AvailablePropToGrab)
+	{
+		// Detach from socket, and re-enable physics
+		AvailablePropToGrab->GetRootComponent()->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+		AvailablePropToGrab->GetMesh()->SetSimulatePhysics(true);
+		AvailablePropToGrab->GetMesh()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
+	}
+
+	else
+	{
+		// Do nothing and return
+		return;
+	}
+
+	// Remember to put the pointer back to null!
+	AvailablePropToGrab = nullptr;
+
+	// Notify listeners that the grabbing ability's owner has stoped interacting with a prop/object (used for widget purposes)
+	OnEndedPropInteraction.Broadcast();
 }
 
 FName UGrabbingAbility::GetAttachableTag()
 {
 	return AttachableTag;
+}
+
+void UGrabbingAbility::SetAvailblePropToGrab(AInteractablePropBase* InPropToGrab)
+{
+	if (AvailablePropToGrab == nullptr)
+	{
+		AvailablePropToGrab = InPropToGrab;
+	}
 }
 
 void UGrabbingAbility::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)

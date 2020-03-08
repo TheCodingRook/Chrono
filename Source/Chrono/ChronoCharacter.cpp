@@ -181,6 +181,16 @@ void AChronoCharacter::Fire()
 	}
 }
 
+bool AChronoCharacter::GetGrabButtonDown() const
+{
+	return bGrabButtonDown;
+}
+
+void AChronoCharacter::SetGrabButtonDown(bool InFlag)
+{
+	bGrabButtonDown = InFlag;
+}
+
 float AChronoCharacter::GetHealth() const
 {
 	return Health;

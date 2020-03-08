@@ -33,8 +33,7 @@ void AChronoPlayerController::SetupInputComponent()
 	SetUpRecordableActionBinding("Crouch", IE_Pressed, this, &AChronoPlayerController::Crouch);
 	SetUpRecordableActionBinding("Crouch", IE_Released, this, &AChronoPlayerController::EndCrouch);
 
-	SetUpRecordableActionBinding("Grab", IE_Pressed, this, &AChronoPlayerController::Grab);
-	SetUpRecordableActionBinding("Grab", IE_Released, this, &AChronoPlayerController::EndGrab);
+	SetUpRecordableActionBinding("GrabToggle", IE_Pressed, this, &AChronoPlayerController::GrabToggle);
 
 	SetUpRecordableActionBinding("HolsterToggle", IE_Pressed, this, &AChronoPlayerController::HolsterToggle);
 
@@ -236,21 +235,24 @@ void AChronoPlayerController::EndCrouch()
 	}
 }
 
-void AChronoPlayerController::Grab()
+void AChronoPlayerController::GrabToggle()
 {
 	if (GetCharacter())
 	{
-		RecordAction("Grab", 1.f);
-		MyChronoCharacter->Grab();
-	}
-}
-
-void AChronoPlayerController::EndGrab()
-{
-	if (GetCharacter())
-	{
-		RecordAction("EndGrab", 1.f);
-		MyChronoCharacter->EndGrab();
+		RecordAction("GrabToggle", 1.f);
+		
+		// Toggle between grabbing/dropping a prop or object 
+		if (MyChronoCharacter->GetGrabButtonDown())
+		{
+			// Already holding something, so drop it!
+			MyChronoCharacter->SetGrabButtonDown(false);
+			MyChronoCharacter->EndGrab();
+		}
+		else
+		{
+			MyChronoCharacter->SetGrabButtonDown(true);
+			MyChronoCharacter->Grab();
+		}
 	}
 }
 
@@ -272,13 +274,16 @@ void AChronoPlayerController::HolsterToggle()
 	}
 }
 
-void AChronoPlayerController::AimToggle()
+void AChronoPlayerController::AimToggle() // TODO Vaggelis: I have to check for equiped weapon first!
 {
 	if (GetCharacter())
 	{
-		RecordAction("Aim", 1.f);
-		MyChronoCharacter->ToggleCameras();
-		MyChronoCharacter->ToggleAimButtonDown();
+		if(MyChronoCharacter->GetHasEquippedWeapon())
+		{
+			RecordAction("Aim", 1.f);
+			MyChronoCharacter->ToggleCameras();
+			MyChronoCharacter->ToggleAimButtonDown();
+		}
 	}
 }
 
