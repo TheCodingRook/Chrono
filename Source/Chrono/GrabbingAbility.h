@@ -41,13 +41,9 @@ public:
 	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = "Event Dispatchers", meta = (AllowPrivateAccess = "true"))
 	FOnEndedPropInteraction OnEndedPropInteraction;
 
-	//UFUNCTION(BlueprintCallable, Category = "Grab configuration")
-	//void SetAvailblePropToGrab(class AInteractablePropBase* InPropToGrab);
-
 protected:
-	// Set up some space and distance paramters for the grabbing ability. ALL IN CENTIMETERS (cm) !!!
+	/** Set up some space and distance parameters for the grabbing ability. ALL IN CENTIMETERS (cm) !!!*/
 	
-
 	// Minimum distance before character can grab an object
 	UPROPERTY(EditAnywhere, Category = "Grab configuration")
 	float GrabDistance = 100.f;

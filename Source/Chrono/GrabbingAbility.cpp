@@ -35,6 +35,7 @@ void UGrabbingAbility::GrabObject(AActor* ObjectToGrab)
 			AvailablePropToGrab->GetMesh()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 			AvailablePropToGrab->AttachToComponent(OwnerCharacter->GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, "GrabSocket");
 		}
+
 		else
 		{
 			// We can alternativel pick this prop up using the default physics handle component
@@ -89,14 +90,6 @@ FName UGrabbingAbility::GetAttachableTag()
 {
 	return AttachableTag;
 }
-/*
-void UGrabbingAbility::SetAvailblePropToGrab(AInteractablePropBase* InPropToGrab)
-{
-	if (AvailablePropToGrab == nullptr)
-	{
-		AvailablePropToGrab = InPropToGrab;
-	}
-}*/
 
 void UGrabbingAbility::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
