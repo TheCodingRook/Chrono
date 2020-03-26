@@ -4,11 +4,14 @@
 #include "ChronoPlayerController.h"
 #include "ChronoCharacter.h"
 #include "TimeTravelComponent.h"
+#include "ChronoGameInstance.h"
+#include "InteractionComponent.h"
 
 AChronoPlayerController::AChronoPlayerController()
 {
 	// Sets up a time travel component
 	TimeTravel = CreateDefaultSubobject<UTimeTravelComponent>(FName("Time Travel Component"));
+	
 }
 
 void AChronoPlayerController::SetupInputComponent()
@@ -34,6 +37,8 @@ void AChronoPlayerController::SetupInputComponent()
 	SetUpRecordableActionBinding("Crouch", IE_Released, this, &AChronoPlayerController::EndCrouch);
 
 	SetUpRecordableActionBinding("GrabToggle", IE_Pressed, this, &AChronoPlayerController::GrabToggle);
+
+	SetUpRecordableActionBinding("Interact", IE_Pressed, this, &AChronoPlayerController::Interact);
 
 	SetUpRecordableActionBinding("HolsterToggle", IE_Pressed, this, &AChronoPlayerController::HolsterToggle);
 
@@ -253,6 +258,18 @@ void AChronoPlayerController::GrabToggle()
 			MyChronoCharacter->SetGrabButtonDown(true);
 			MyChronoCharacter->Grab();
 		}
+	}
+}
+
+void AChronoPlayerController::Interact()
+{
+	if (Cast<UChronoGameInstance>(GetGameInstance())->GetCurrentInteractionCommand())
+	{
+		Cast<UChronoGameInstance>(GetGameInstance())->GetCurrentInteractionCommand()->ExecuteInteraction(MyChronoCharacter);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("No Special Interaction Command Found... Reverting to Default!"))
 	}
 }
 

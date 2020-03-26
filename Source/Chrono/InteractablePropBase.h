@@ -37,6 +37,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetIsInteractedWith(bool InFlag);
 
+	UFUNCTION(BlueprintPure, Category = "Interactions")
+	class UInteractionComponent* GetInteractionCommand();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -54,4 +57,12 @@ protected:
 	// Name this prop for text interface
 	UPROPERTY(VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
 	bool bIsInteractedWith;
+
+	// Class that implements the interaction for this object
+	UPROPERTY(EditDefaultsOnly, Category = "Interaction", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<UInteractionComponent> InteractionClass;
+
+	// Interaction command for this object
+	UPROPERTY(BlueprintReadWrite, Category = "Interaction", meta = (AllowPrivateAccess = "true"))
+	UInteractionComponent* InteractionCommand;
 };

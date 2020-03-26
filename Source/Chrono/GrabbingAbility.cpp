@@ -14,14 +14,21 @@ float UGrabbingAbility::GetGrabDistance() const
 	return GrabDistance;
 }
 
-void UGrabbingAbility::GrabObject()
+void UGrabbingAbility::GrabObject(AActor* ObjectToGrab)
 {
 	OwnerCharacter = CastChecked<ACharacter>(GetOwner());
+	AvailablePropToGrab = Cast<AInteractablePropBase>(ObjectToGrab);
 
-	// Check first to see if there is a prop we can grab 
-	if (AvailablePropToGrab != nullptr)
+	// Check first to see that we are not already grabbing something 
+	if (bIsAlreadyGrabbingSomething)
 	{
-		if (AvailablePropToGrab->ActorHasTag(AttachableTag)) 
+		// We have are already grabbing/holding something - drop it.
+		DropObject();
+	}
+
+	else
+	{
+		if (AvailablePropToGrab->ActorHasTag(AttachableTag))
 		{
 			// This prop can be attached to a socket, but first stop simulating physics!
 			AvailablePropToGrab->GetMesh()->SetSimulatePhysics(false);
@@ -37,13 +44,12 @@ void UGrabbingAbility::GrabObject()
 
 		// Notify listeners that the grabbing ability's owner has interacted with a prop/object (used for widget purposes)
 		OnPropInteraction.Broadcast();
+		
+		// We are now already holding something so reset the member field to null
+		bIsAlreadyGrabbingSomething = true;
+		AvailablePropToGrab = nullptr;
 	}
 
-	else
-	{
-		// We have nothing to grab - do noting and return.
-		return;
-	}
 }
 
 void UGrabbingAbility::DropObject()
@@ -62,6 +68,9 @@ void UGrabbingAbility::DropObject()
 		AvailablePropToGrab->GetRootComponent()->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
 		AvailablePropToGrab->GetMesh()->SetSimulatePhysics(true);
 		AvailablePropToGrab->GetMesh()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
+
+		// Remember to put the pointer back to null!
+		AvailablePropToGrab = nullptr;
 	}
 
 	else
@@ -70,25 +79,24 @@ void UGrabbingAbility::DropObject()
 		return;
 	}
 
-	// Remember to put the pointer back to null!
-	AvailablePropToGrab = nullptr;
-
 	// Notify listeners that the grabbing ability's owner has stoped interacting with a prop/object (used for widget purposes)
 	OnEndedPropInteraction.Broadcast();
+
+	bIsAlreadyGrabbingSomething = false;
 }
 
 FName UGrabbingAbility::GetAttachableTag()
 {
 	return AttachableTag;
 }
-
+/*
 void UGrabbingAbility::SetAvailblePropToGrab(AInteractablePropBase* InPropToGrab)
 {
 	if (AvailablePropToGrab == nullptr)
 	{
 		AvailablePropToGrab = InPropToGrab;
 	}
-}
+}*/
 
 void UGrabbingAbility::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {

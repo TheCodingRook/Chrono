@@ -25,7 +25,7 @@ public:
 	float GetGrabDistance() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Grab configuration")
-	void GrabObject();
+	void GrabObject(AActor* ObjectToGrab);
 
 	UFUNCTION(BlueprintCallable, Category = "Grab configuration")
 	void DropObject();
@@ -41,8 +41,8 @@ public:
 	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = "Event Dispatchers", meta = (AllowPrivateAccess = "true"))
 	FOnEndedPropInteraction OnEndedPropInteraction;
 
-	UFUNCTION(BlueprintCallable, Category = "Grab configuration")
-	void SetAvailblePropToGrab(class AInteractablePropBase* InPropToGrab);
+	//UFUNCTION(BlueprintCallable, Category = "Grab configuration")
+	//void SetAvailblePropToGrab(class AInteractablePropBase* InPropToGrab);
 
 protected:
 	// Set up some space and distance paramters for the grabbing ability. ALL IN CENTIMETERS (cm) !!!
@@ -74,5 +74,8 @@ private:
 	FName AttachableTag = "Attachable";
 
 	// Reference to grabable prop that can be grabbed and held in a socket
-	AInteractablePropBase* AvailablePropToGrab;
+	class AInteractablePropBase* AvailablePropToGrab;
+
+	//Are we holding something already?
+	bool bIsAlreadyGrabbingSomething = false;
 };

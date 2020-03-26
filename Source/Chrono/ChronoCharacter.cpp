@@ -96,7 +96,7 @@ void AChronoCharacter::Grab()
 	UGrabbingAbility* Grabber = FindComponentByClass<UGrabbingAbility>();
 	if (Grabber != nullptr)
 	{
-		Grabber->GrabObject();
+		//Grabber->GrabObject();
 	}
 	else
 	{

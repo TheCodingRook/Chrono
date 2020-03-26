@@ -4,6 +4,7 @@
 #include "InteractablePropBase.h"
 #include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "InteractionComponent.h"
 
 // Sets default values
 AInteractablePropBase::AInteractablePropBase()
@@ -11,7 +12,7 @@ AInteractablePropBase::AInteractablePropBase()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	PropMesh = CreateAbstractDefaultSubobject<UStaticMeshComponent>("Prop Mesh");
+	PropMesh = CreateDefaultSubobject<UStaticMeshComponent>("Prop Mesh");
 	PropMesh->SetupAttachment(RootComponent);
 	//SetRootComponent(PropMesh); This overrides the name "Prop PropMesh"....
 
@@ -26,6 +27,11 @@ AInteractablePropBase::AInteractablePropBase()
 void AInteractablePropBase::SetIsInteractedWith(bool InFlag)
 {
 	bIsInteractedWith = InFlag;
+}
+
+UInteractionComponent* AInteractablePropBase::GetInteractionCommand()
+{
+	return InteractionCommand;
 }
 
 // Called when the game starts or when spawned

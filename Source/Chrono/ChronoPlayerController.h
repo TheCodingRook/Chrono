@@ -67,6 +67,8 @@ public:
 
 	void GrabToggle();
 
+	void Interact();
+
 	void HolsterToggle();
 	void AimToggle();
 	void Fire();
@@ -75,6 +77,13 @@ private:
 	/** Component to implement character's time-travelling ability	*/
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Time Travel", meta = (AllowPrivateAccess = "true"))
 	class UTimeTravelComponent* TimeTravel;
+
+	/** Component to Implement character's interaction ability with different type of interactable objects and props in the world */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Interaction Ability", meta = (AllowPrivateAccess = "true"))
+	class UInteractionComponent* InteractionAbility;
+
+	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Interaction", meta = (AllowPrivateAccess = "true"))
+	//class UInteractionBase* InteractionCommand;
 
 	// Store those specific bindings that have been designated for being able to be record and played back on the "past self" character
 	TArray<FName> RecordableMovementAndActionBindings;
