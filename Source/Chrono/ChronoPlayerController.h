@@ -65,7 +65,7 @@ public:
 	void Crouch();
 	void EndCrouch();
 
-	void GrabToggle();
+	void DropObject();
 
 	void Interact();
 

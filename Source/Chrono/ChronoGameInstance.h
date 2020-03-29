@@ -25,7 +25,21 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Interaction Commands")
 	void DeRegisterCurrentInteractionCommand();
 
+	// ///////////////////////////
+	// Alternative implementation
+	// ///////////////////////////
+
+	UFUNCTION(BlueprintCallable, Category = "Interaction Commands")
+	void PushNewInteractionCommand(UInteractionComponent* NewInteraction);
+
+	UFUNCTION(BlueprintCallable, Category = "Interaction Commands")
+	UInteractionComponent* PopInteractionCommand();
+
+	UFUNCTION(BlueprintCallable, Category = "Interaction Commands")
+	UInteractionComponent* GetLatestInteractionCommand();
+
 private:
 	UInteractionComponent* CurrentInteractionCommand;
+	TArray<UInteractionComponent*> InteractionCommandStack;
 	
 };

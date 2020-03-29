@@ -36,9 +36,8 @@ void AChronoPlayerController::SetupInputComponent()
 	SetUpRecordableActionBinding("Crouch", IE_Pressed, this, &AChronoPlayerController::Crouch);
 	SetUpRecordableActionBinding("Crouch", IE_Released, this, &AChronoPlayerController::EndCrouch);
 
-	SetUpRecordableActionBinding("GrabToggle", IE_Pressed, this, &AChronoPlayerController::GrabToggle);
-
 	SetUpRecordableActionBinding("Interact", IE_Pressed, this, &AChronoPlayerController::Interact);
+	SetUpRecordableActionBinding("DropObject", IE_Pressed, this, &AChronoPlayerController::DropObject);
 
 	SetUpRecordableActionBinding("HolsterToggle", IE_Pressed, this, &AChronoPlayerController::HolsterToggle);
 
@@ -240,23 +239,18 @@ void AChronoPlayerController::EndCrouch()
 	}
 }
 
-void AChronoPlayerController::GrabToggle()
+void AChronoPlayerController::DropObject()
 {
 	if (GetCharacter())
 	{
-		RecordAction("GrabToggle", 1.f);
+		RecordAction("DropObject", 1.f);
 		
-		// Toggle between grabbing/dropping a prop or object 
+		// Check to see if we are actually grabbing something first
 		if (MyChronoCharacter->GetGrabButtonDown())
 		{
 			// Already holding something, so drop it!
 			MyChronoCharacter->SetGrabButtonDown(false);
 			MyChronoCharacter->EndGrab();
-		}
-		else
-		{
-			MyChronoCharacter->SetGrabButtonDown(true);
-			MyChronoCharacter->Grab();
 		}
 	}
 }

@@ -22,8 +22,7 @@ void UGrabbingAbility::GrabObject(AActor* ObjectToGrab)
 	// Check first to see that we are not already grabbing something 
 	if (bIsAlreadyGrabbingSomething)
 	{
-		// We have are already grabbing/holding something - drop it.
-		DropObject();
+		// TODO Vaggelis: How do we handle attempts to grab stuff while holding something else? Where do we deal with this, here or Blueprint?
 	}
 
 	else
@@ -48,7 +47,6 @@ void UGrabbingAbility::GrabObject(AActor* ObjectToGrab)
 		
 		// We are now already holding something so reset the member field to null
 		bIsAlreadyGrabbingSomething = true;
-		AvailablePropToGrab = nullptr;
 	}
 
 }

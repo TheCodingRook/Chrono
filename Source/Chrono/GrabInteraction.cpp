@@ -22,9 +22,9 @@ void UGrabInteraction::ExecuteInteraction(AActor* Instigator)
 		TInlineComponentArray<UGrabbingAbility*> GrabComponents;
 		InteractingCharacter->GetComponents(GrabComponents);
 		InteractingCharacter->GetComponents();
-		//* check to see if we are already grabbing something???!*/
-
+	
 		// We expect this to be the first and only component of its kind!
 		GrabComponents.Top()->GrabObject(PropToGrab);
+		InteractingCharacter->SetGrabButtonDown(true);
 	}
 }
