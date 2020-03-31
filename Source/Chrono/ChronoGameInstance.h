@@ -17,19 +17,6 @@ class CHRONO_API UChronoGameInstance : public UGameInstance
 public:
 
 	UFUNCTION(BlueprintCallable, Category = "Interaction Commands")
-	class UInteractionComponent* GetCurrentInteractionCommand();
-
-	UFUNCTION(BlueprintCallable, Category = "Interaction Commands")
-	void RegisterCurrentInteractionCommand(UInteractionComponent* InCommand);
-
-	UFUNCTION(BlueprintCallable, Category = "Interaction Commands")
-	void DeRegisterCurrentInteractionCommand();
-
-	// ///////////////////////////
-	// Alternative implementation
-	// ///////////////////////////
-
-	UFUNCTION(BlueprintCallable, Category = "Interaction Commands")
 	void PushNewInteractionCommand(UInteractionComponent* NewInteraction);
 
 	UFUNCTION(BlueprintCallable, Category = "Interaction Commands")

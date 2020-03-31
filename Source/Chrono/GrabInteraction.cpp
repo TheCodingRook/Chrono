@@ -24,11 +24,4 @@ void UGrabInteraction::ExecuteInteraction(AActor* Instigator)
 		PropToGrab->SetIsInteractedWith(true);
 		//InteractingCharacter->SetGrabButtonDown(true);
 	}
-
-	////////////////////////////////////////////
-	// Alternative implementation
-	////////////////////////////////////////////
-
-
-
 }

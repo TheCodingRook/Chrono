@@ -69,8 +69,8 @@ private:
 	// Remember to add an "Attachable" tag to an actor that needs this behavior
 	FName AttachableTag = "Attachable";
 
-	// Reference to grabable prop that can be grabbed and held in a socket
-	class AInteractablePropBase* PropToGrab;
+	// Store the pointer to the prop we are already holding at the moment
+	class AInteractablePropBase* PropAlreadyHeld;
 
 	//Are we holding something already?
 	bool bIsAlreadyGrabbingSomething = false;

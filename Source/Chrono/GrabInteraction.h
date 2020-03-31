@@ -7,7 +7,7 @@
 #include "GrabInteraction.generated.h"
 
 /**
- * 
+ * Component class to specifically implement picking up / grabbing of props in the world when the interact button is pressed
  */
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class CHRONO_API UGrabInteraction : public UInteractionComponent
