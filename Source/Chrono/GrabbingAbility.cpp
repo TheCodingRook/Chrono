@@ -14,41 +14,58 @@ float UGrabbingAbility::GetGrabDistance() const
 	return GrabDistance;
 }
 
-void UGrabbingAbility::GrabObject(AActor* ObjectToGrab)
+void UGrabbingAbility::GrabObject(AActor* In_AActor)
 {
 	OwnerCharacter = CastChecked<ACharacter>(GetOwner());
-	AvailablePropToGrab = Cast<AInteractablePropBase>(ObjectToGrab);
+	
+	PropToGrab = Cast<AInteractablePropBase>(In_AActor);
+	UE_LOG(LogTemp, Warning, TEXT("PropToGrab is: %s"), *PropToGrab->GetName())
 
-	// Check first to see that we are not already grabbing something 
-	if (bIsAlreadyGrabbingSomething)
+	if (PropToGrab)
 	{
-		// TODO Vaggelis: How do we handle attempts to grab stuff while holding something else? Where do we deal with this, here or Blueprint?
-	}
-
-	else
-	{
-		if (AvailablePropToGrab->ActorHasTag(AttachableTag))
+		// Check first to see that we are not already grabbing something 
+		if (bIsAlreadyGrabbingSomething)
 		{
+	
+
+			// Are we holding the same thing we are trying to grab?
+				if (PropToGrab == GrabbedComponent->GetOwner())
+				{
+					UE_LOG(LogTemp, Warning, TEXT("Already holding the same thing!"))
+					return;
+				}
+
+				else
+				{
+					// We are holding something different so drop that and will pick up new prop/object
+					DropObject();
+				}
+			
+
+		}
+
+		//if (PropToGrab->ActorHasTag(AttachableTag))
+		//{
 			// This prop can be attached to a socket, but first stop simulating physics!
-			AvailablePropToGrab->GetMesh()->SetSimulatePhysics(false);
-			AvailablePropToGrab->GetMesh()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
-			AvailablePropToGrab->AttachToComponent(OwnerCharacter->GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, "GrabSocket");
-		}
+			//PropToGrab->GetMesh()->SetSimulatePhysics(false);
+			//PropToGrab->GetMesh()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+			//PropToGrab->AttachToComponent(OwnerCharacter->GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, "GrabSocket");
+		//}
 
-		else
-		{
+		//else
+		//{
 			// We can alternativel pick this prop up using the default physics handle component
-			AvailablePropToGrab->GetMesh()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
-			GrabComponentAtLocation(AvailablePropToGrab->GetMesh(), NAME_None, AvailablePropToGrab->GetMesh()->GetCenterOfMass());
-		}
+			PropToGrab->GetMesh()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+			GrabComponentAtLocation(PropToGrab->GetMesh(), NAME_None, PropToGrab->GetMesh()->GetCenterOfMass());
+		//}
 
 		// Notify listeners that the grabbing ability's owner has interacted with a prop/object (used for widget purposes)
 		OnPropInteraction.Broadcast();
 		
 		// We are now already holding something so reset the member field to null
 		bIsAlreadyGrabbingSomething = true;
+	
 	}
-
 }
 
 void UGrabbingAbility::DropObject()
@@ -60,17 +77,17 @@ void UGrabbingAbility::DropObject()
 		ReleaseComponent();
 	}
 
-	// Otherwise let's see if we have a prop that we are grabbing/holding (the AvailablePropToGrab is non-null)
-	else if (AvailablePropToGrab)
-	{
+	// Otherwise let's see if we have a prop that we are grabbing/holding (the PropToGrab is non-null)
+	//else if (PropToGrab)
+	//{
 		// Detach from socket, and re-enable physics
-		AvailablePropToGrab->GetRootComponent()->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
-		AvailablePropToGrab->GetMesh()->SetSimulatePhysics(true);
-		AvailablePropToGrab->GetMesh()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
+		//PropToGrab->GetRootComponent()->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+		//PropToGrab->GetMesh()->SetSimulatePhysics(true);
+		//PropToGrab->GetMesh()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
 
 		// Remember to put the pointer back to null!
-		AvailablePropToGrab = nullptr;
-	}
+		//PropToGrab = nullptr;
+	//}
 
 	else
 	{
@@ -78,6 +95,7 @@ void UGrabbingAbility::DropObject()
 		return;
 	}
 
+	PropToGrab->SetIsInteractedWith(false);
 	// Notify listeners that the grabbing ability's owner has stoped interacting with a prop/object (used for widget purposes)
 	OnEndedPropInteraction.Broadcast();
 
@@ -96,10 +114,10 @@ void UGrabbingAbility::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 	if (GrabbedComponent)
 	{
 		// If this component/actor was grabbed without being attached to a specific socket (i.e. it wasn't "attachable")..
-		if (!GrabbedComponent->GetOwner()->ActorHasTag(AttachableTag))
-		{
+		//if (!GrabbedComponent->GetOwner()->ActorHasTag(AttachableTag))
+		//{
 			// ... update its location every tick to be in fron of ChronoCharacter
 			SetTargetLocation(OwnerCharacter->ActorToWorld().GetLocation() + OwnerCharacter->GetActorForwardVector() * GrabDistance);
-		}
+		//}
 	}
 }

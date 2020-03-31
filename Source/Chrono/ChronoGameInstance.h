@@ -33,10 +33,13 @@ public:
 	void PushNewInteractionCommand(UInteractionComponent* NewInteraction);
 
 	UFUNCTION(BlueprintCallable, Category = "Interaction Commands")
-	UInteractionComponent* PopInteractionCommand();
+	void PopInteractionCommand(UInteractionComponent* InteractionCommandToRemove);
 
 	UFUNCTION(BlueprintCallable, Category = "Interaction Commands")
 	UInteractionComponent* GetLatestInteractionCommand();
+
+	UFUNCTION(BlueprintPure, Category = "Interaction Commands")
+	TArray<UInteractionComponent*> GetInteractionCommandStack() { return InteractionCommandStack; }
 
 private:
 	UInteractionComponent* CurrentInteractionCommand;

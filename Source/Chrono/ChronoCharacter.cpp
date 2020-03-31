@@ -90,7 +90,7 @@ ATimeWeapon* AChronoCharacter::GetTimeWeapon() const
 {
 	return TimeWeapon;
 }
-
+/*
 void AChronoCharacter::Grab()
 {
 	UGrabbingAbility* Grabber = FindComponentByClass<UGrabbingAbility>();
@@ -103,7 +103,7 @@ void AChronoCharacter::Grab()
 		UE_LOG(LogTemp, Warning, TEXT("PhysicsHandleComponent not found for Character: %s"), *GetName())
 	}
 }
-
+*/
 void AChronoCharacter::EndGrab()
 {
 	UGrabbingAbility* Grabber = FindComponentByClass<UGrabbingAbility>();

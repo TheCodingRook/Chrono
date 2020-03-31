@@ -13,18 +13,22 @@ void UGrabInteraction::ExecuteInteraction(AActor* Instigator)
 	AInteractablePropBase* PropToGrab = Cast<AInteractablePropBase>(GetOwner());
 
 	// Recast the instigating actor to AChronoCharacter
-	AChronoCharacter* InteractingCharacter;
-	InteractingCharacter = Cast<AChronoCharacter>(Instigator);
-
-	if (InteractingCharacter)
+	if (AChronoCharacter * InteractingCharacter = Cast<AChronoCharacter>(Instigator))
 	{
 		/** Get the GrabbingAbility component via the array returned by GetComponents() */
 		TInlineComponentArray<UGrabbingAbility*> GrabComponents;
 		InteractingCharacter->GetComponents(GrabComponents);
-		InteractingCharacter->GetComponents();
 	
 		// We expect this to be the first and only component of its kind!
 		GrabComponents.Top()->GrabObject(PropToGrab);
-		InteractingCharacter->SetGrabButtonDown(true);
+		PropToGrab->SetIsInteractedWith(true);
+		//InteractingCharacter->SetGrabButtonDown(true);
 	}
+
+	////////////////////////////////////////////
+	// Alternative implementation
+	////////////////////////////////////////////
+
+
+
 }

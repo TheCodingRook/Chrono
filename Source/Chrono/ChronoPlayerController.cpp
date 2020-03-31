@@ -246,24 +246,29 @@ void AChronoPlayerController::DropObject()
 		RecordAction("DropObject", 1.f);
 		
 		// Check to see if we are actually grabbing something first
-		if (MyChronoCharacter->GetGrabButtonDown())
-		{
+		//if (MyChronoCharacter->GetGrabButtonDown())
+		//{
 			// Already holding something, so drop it!
-			MyChronoCharacter->SetGrabButtonDown(false);
+			//MyChronoCharacter->SetGrabButtonDown(false);
 			MyChronoCharacter->EndGrab();
-		}
+		//}
 	}
 }
 
 void AChronoPlayerController::Interact()
 {
-	if (Cast<UChronoGameInstance>(GetGameInstance())->GetCurrentInteractionCommand())
+	if (GetCharacter())
 	{
-		Cast<UChronoGameInstance>(GetGameInstance())->GetCurrentInteractionCommand()->ExecuteInteraction(MyChronoCharacter);
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("No Special Interaction Command Found... Reverting to Default!"))
+		//if (UInteractionComponent* InteractionToExecute = Cast<UChronoGameInstance>(GetGameInstance())->GetCurrentInteractionCommand())
+		//Alternative version of the above (with array of UInteractionComponent*) follows:
+		if (UInteractionComponent* InteractionToExecute = Cast<UChronoGameInstance>(GetGameInstance())->GetLatestInteractionCommand())
+		{
+			InteractionToExecute->ExecuteInteraction(MyChronoCharacter);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("No Special Interaction Command Found... Reverting to Default!"))
+		}
 	}
 }
 

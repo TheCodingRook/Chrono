@@ -25,7 +25,7 @@ void UInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 
 void UInteractionComponent::ExecuteInteraction(AActor* Instigator)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Command is: %s"), *GetName())
+	UE_LOG(LogTemp, Warning, TEXT("Command is: %s from owner: %s"), *GetName(), *GetOwner()->GetName())
 	// Clear the interaction command register? - probably not for grabbing as it works as a toggle...
 	//Cast<UChronoGameInstance>(GetWorld()->GetGameInstance())->DeRegisterCurrentInteractionCommand();
 }

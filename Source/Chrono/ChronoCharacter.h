@@ -98,8 +98,8 @@ public:
 	ATimeWeapon* GetTimeWeapon() const;
 
 	/** Implements grabbing objects either by attaching them to a socket or otherwise via the physics handle component (if one is present)*/
-	UFUNCTION(BlueprintCallable, Category = "Grabbing")
-	void Grab();
+	//UFUNCTION(BlueprintCallable, Category = "Grabbing")
+	//void Grab();
 	UFUNCTION(BlueprintCallable, Category = "Grabbing")
 	void EndGrab();
 

@@ -24,21 +24,27 @@ void UChronoGameInstance::PushNewInteractionCommand(UInteractionComponent* NewIn
 	InteractionCommandStack.Add(NewInteraction);
 }
 
-UInteractionComponent* UChronoGameInstance::PopInteractionCommand()
+void UChronoGameInstance::PopInteractionCommand(UInteractionComponent* InteractionCommandToRemove)
 {
 	if (InteractionCommandStack.Num() > 0)
 	{
-		return InteractionCommandStack.Pop();
+		InteractionCommandStack.RemoveSingle(InteractionCommandToRemove); // TODO Vaggelis: change the signature to void!
 	}
 
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Attempted to pop from empty InteractionCommandStack!"))
-		return nullptr;
 	}
 }
 
 UInteractionComponent* UChronoGameInstance::GetLatestInteractionCommand()
 {
-	return InteractionCommandStack.Last();
+	if (InteractionCommandStack.Num() > 0)
+	{
+		return InteractionCommandStack.Last();
+	}
+	else
+	{
+		return nullptr;
+	}
 }

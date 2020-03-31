@@ -25,7 +25,7 @@ public:
 	float GetGrabDistance() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Grab configuration")
-	void GrabObject(AActor* ObjectToGrab);
+	void GrabObject(AActor* In_AActor);
 
 	UFUNCTION(BlueprintCallable, Category = "Grab configuration")
 	void DropObject();
@@ -70,7 +70,7 @@ private:
 	FName AttachableTag = "Attachable";
 
 	// Reference to grabable prop that can be grabbed and held in a socket
-	class AInteractablePropBase* AvailablePropToGrab;
+	class AInteractablePropBase* PropToGrab;
 
 	//Are we holding something already?
 	bool bIsAlreadyGrabbingSomething = false;
