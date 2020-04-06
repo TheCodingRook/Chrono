@@ -74,4 +74,7 @@ private:
 
 	//Are we holding something already?
 	bool bIsAlreadyGrabbingSomething = false;
+
+	// Use this variable to store the grabbed mesh's original collision settings for the pawn channel
+	ECollisionResponse OriginalPawnECR;
 };

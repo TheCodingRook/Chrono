@@ -36,14 +36,16 @@ void UGrabbingAbility::GrabObject(AActor* In_AActor)
 				}
 		}
 
+		// Save the Pawn channel's collision response setting
+		OriginalPawnECR = PropToGrab->GetMesh()->GetCollisionResponseToChannel(ECC_Pawn);
+
 		/** Pick up the prop, whether by physicshandle or attaching to a socket */
-		
 		if (PropToGrab->ActorHasTag(AttachableTag))
 		{
-			// This prop can be attached to a socket, but first stop simulating physics!
+			/** This prop can be attached to a socket, but first stop simulating physics! */
 			PropToGrab->GetMesh()->SetSimulatePhysics(false);
 			PropToGrab->GetMesh()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
-			PropToGrab->AttachToComponent(OwnerCharacter->GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, "GrabSocket");
+			PropToGrab->AttachToComponent(OwnerCharacter->GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), "GrabSocket");
 		}
 
 		else
@@ -66,8 +68,8 @@ void UGrabbingAbility::DropObject()
 {
 	//First check if we are using the physics handle; if so the pointer GrabbedComponent will be non-null
 	if (GrabbedComponent) {
-		// Reset the collision channel for pawn back to block
-		GrabbedComponent->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
+		// Reset the collision channel for pawn back to original
+		GrabbedComponent->SetCollisionResponseToChannel(ECC_Pawn, OriginalPawnECR);
 		ReleaseComponent();
 	}
 
@@ -77,7 +79,7 @@ void UGrabbingAbility::DropObject()
 		// Detach from socket, and re-enable physics
 		PropAlreadyHeld->GetRootComponent()->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
 		PropAlreadyHeld->GetMesh()->SetSimulatePhysics(true);
-		PropAlreadyHeld->GetMesh()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
+		PropAlreadyHeld->GetMesh()->SetCollisionResponseToChannel(ECC_Pawn, OriginalPawnECR);
 	}
 
 	else
