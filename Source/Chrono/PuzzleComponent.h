@@ -34,7 +34,7 @@ public:
 
 	// Check to see if all the triggers for the owning actor are satisfied
 	UFUNCTION(BlueprintPure, Category = "Puzzle Elements")
-	bool bAreAllPuzzleElementsActive();
+	bool AreAllPuzzleElementsActive();
 
 protected:
 	// Called when the game starts

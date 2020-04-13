@@ -54,8 +54,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Widget Setup", meta = (AllowPrivateAccess = "true"))
 	FText PropName;
 	
-	// Name this prop for text interface
-	UPROPERTY(VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
+	// Boolean flag to control whether this prop can be interacted with or not
+	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"))
 	bool bIsInteractedWith;
 
 	// Class that implements the interaction for this object

@@ -60,7 +60,7 @@ void UPuzzleComponent::AddToElementsList(UPuzzleElement* PuzzleElement)
 	PuzzleElementsList.Add(PuzzleElement);
 }
 
-bool UPuzzleComponent::bAreAllPuzzleElementsActive()
+bool UPuzzleComponent::AreAllPuzzleElementsActive()
 {
 	for (auto PuzzleElement : PuzzleElementsList)
 	{
