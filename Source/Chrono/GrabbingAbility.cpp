@@ -21,7 +21,7 @@ void UGrabbingAbility::GrabObject(AActor* In_AActor)
 	if (AInteractablePropBase* PropToGrab = Cast<AInteractablePropBase>(In_AActor))
 	{
 		// Check first to see that we are not already grabbing something 
-		if (bIsAlreadyGrabbingSomething)
+		if (bIsAlreadyHoldingSomething)
 		{
 			// Are we holding the same thing we are trying to grab?
 				if (PropToGrab == PropAlreadyHeld)
@@ -55,11 +55,8 @@ void UGrabbingAbility::GrabObject(AActor* In_AActor)
 			GrabComponentAtLocation(PropToGrab->GetMesh(), NAME_None, PropToGrab->GetMesh()->GetCenterOfMass());
 		}
 
-		// Notify listeners that the grabbing ability's owner has interacted with a prop/object (used for widget purposes)
-		OnPropInteraction.Broadcast();
-		
 		// We are now already holding something so set the necessary member fields
-		bIsAlreadyGrabbingSomething = true;
+		bIsAlreadyHoldingSomething = true;
 		PropAlreadyHeld = PropToGrab;
 	}
 }
@@ -88,13 +85,17 @@ void UGrabbingAbility::DropObject()
 		return;
 	}
 
-	// Notify listeners that the grabbing ability's owner has stoped interacting with a prop/object (used for widget purposes)
-	OnEndedPropInteraction.Broadcast();
-
 	/** Reset the necessary member fields*/
 	PropAlreadyHeld->SetIsInteractedWith(false);
-	bIsAlreadyGrabbingSomething = false;
+	bIsAlreadyHoldingSomething = false;
+	
+	PropAlreadyHeld->OnReEnableInteraction();
 	PropAlreadyHeld = nullptr;
+}
+
+bool UGrabbingAbility::IsAlreadyHoldingSomething()
+{
+	return bIsAlreadyHoldingSomething;
 }
 
 FName UGrabbingAbility::GetAttachableTag()

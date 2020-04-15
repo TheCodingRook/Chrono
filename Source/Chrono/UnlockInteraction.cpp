@@ -3,9 +3,16 @@
 
 #include "UnlockInteraction.h"
 
-void UUnlockInteraction::ExecuteInteraction(AActor* Instigator)
+UUnlockInteraction::UUnlockInteraction()
 {
-	Super::ExecuteInteraction(Instigator);
+	InteractionText = FText::FromString("Unlock").ToUpper();
+}
+
+void UUnlockInteraction::ExecuteInteraction(AChronoCharacter* Instigator)
+{
+	//Not calling Super here because if unlock interaction is unavailable (e.g. due to lack of a corresponding
+	// key) there is no point executing it
+	//Super::ExecuteInteraction(Instigator);
 	UnlockProp(Instigator);
 }
 

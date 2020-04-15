@@ -6,6 +6,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "InteractionComponent.h"
 
+
 // Sets default values
 AInteractablePropBase::AInteractablePropBase()
 {
@@ -34,10 +35,36 @@ UInteractionComponent* AInteractablePropBase::GetInteractionCommand()
 	return InteractionCommand;
 }
 
+void AInteractablePropBase::OnWasInteractedWith_Implementation()
+{
+	// To be extended in Blueprint
+}
+
+void AInteractablePropBase::OnReEnableInteraction_Implementation()
+{
+	// To be extended in Blueprint
+}
+
+
 // Called when the game starts or when spawned
 void AInteractablePropBase::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// Set up the interaction component
+	if (!InteractionClass)
+	{
+		UE_LOG(LogTemp, Error, TEXT("You have not specified an interaction component class for: %s"), *GetName())
+	}
+
+	else
+	{
+		InteractionCommand = NewObject<UInteractionComponent>(this, InteractionClass);
+		if (InteractionCommand)
+		{
+			InteractionCommand->RegisterComponent();
+		}
+	}
 	
 }
 

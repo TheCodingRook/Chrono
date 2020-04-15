@@ -16,8 +16,9 @@ class CHRONO_API ULightInteraction : public UInteractionComponent
 	
 public:
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "Interaction")
-	void LightFire(AActor* Instigator);
+	void LightFire(AChronoCharacter* Instigator);
 
 protected:
-	virtual void ExecuteInteraction(AActor* Instigator) override;
+	ULightInteraction();
+	virtual void ExecuteInteraction(AChronoCharacter* Instigator) override;
 };

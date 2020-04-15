@@ -37,8 +37,14 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetIsInteractedWith(bool InFlag);
 
-	UFUNCTION(BlueprintPure, Category = "Interactions")
+	UFUNCTION(BlueprintPure, Category = "Interaction Component")
 	class UInteractionComponent* GetInteractionCommand();
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Interaction")
+	void OnWasInteractedWith();
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Interaction")
+	void OnReEnableInteraction();
 
 protected:
 	// Called when the game starts or when spawned
@@ -59,10 +65,11 @@ protected:
 	bool bIsInteractedWith;
 
 	// Class that implements the interaction for this object
-	UPROPERTY(EditDefaultsOnly, Category = "Interaction", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, Category = "Interaction Component", meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<UInteractionComponent> InteractionClass;
 
 	// Interaction command for this object
-	UPROPERTY(BlueprintReadWrite, Category = "Interaction", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, Category = "Interaction Component", meta = (AllowPrivateAccess = "true"))
 	UInteractionComponent* InteractionCommand;
 };
+

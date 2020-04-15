@@ -4,6 +4,8 @@
 #include "InteractionComponent.h"
 #include "ChronoGameInstance.h"
 #include "Engine/World.h"
+#include "ChronoCharacter.h"
+#include "InteractablePropBase.h"
 
 // Sets default values for this component's properties
 UInteractionComponent::UInteractionComponent()
@@ -23,9 +25,23 @@ void UInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 	// ...
 }
 
-void UInteractionComponent::ExecuteInteraction(AActor* Instigator)
+void UInteractionComponent::ExecuteInteraction(AChronoCharacter* Instigator)
 {
-	// Do nothing for now, implement in specific derived classes
+	// As a minimum send notify that this interaction interacted on its owning prop actor
+	if (AInteractablePropBase* OwnerProp = Cast<AInteractablePropBase>(GetOwner()))
+	{
+		OwnerProp->OnWasInteractedWith();
+	}
+}
+
+FText UInteractionComponent::GetInteractionText()
+{
+	return InteractionText;
+}
+
+FText UInteractionComponent::GetAlternativeInteractionText()
+{
+	return AlternativeInteractionText;
 }
 
 // Called when the game starts

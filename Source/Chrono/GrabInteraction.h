@@ -15,5 +15,8 @@ class CHRONO_API UGrabInteraction : public UInteractionComponent
 	GENERATED_BODY()
 	
 protected:
-	virtual void ExecuteInteraction(AActor* Instigator) override;
+	
+	UGrabInteraction();
+
+	virtual void ExecuteInteraction(AChronoCharacter* Instigator) override;
 };

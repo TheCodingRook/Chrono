@@ -14,9 +14,10 @@ class CHRONO_API UUnlockInteraction : public UInteractionComponent
 
 public:
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "Interaction")
-	void UnlockProp(AActor* Instigator);
+	void UnlockProp(AChronoCharacter* Instigator);
 
 protected:
-	virtual void ExecuteInteraction(AActor* Instigator) override;
+	UUnlockInteraction();
+	virtual void ExecuteInteraction(AChronoCharacter* Instigator) override;
 		
 };

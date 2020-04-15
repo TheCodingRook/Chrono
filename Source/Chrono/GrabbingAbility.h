@@ -6,9 +6,6 @@
 #include "PhysicsEngine/PhysicsHandleComponent.h"
 #include "GrabbingAbility.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPropInteraction);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEndedPropInteraction);
-
 /**
  * Custom PhysicsHandleComponent to implement grabbing functionality
  */
@@ -30,16 +27,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Grab configuration")
 	void DropObject();
 
+	UFUNCTION(BlueprintPure, Category = "Grab configuration")
+	bool IsAlreadyHoldingSomething();
+
 	UFUNCTION(BlueprintCallable, Category = "Grab configuration")
 	FName GetAttachableTag();
-
-	// Delegate to notify that player has interacted with a prop/object for UMG purposes (so the text pop-up disappears)
-	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = "Event Dispatchers", meta = (AllowPrivateAccess = "true"))
-	FOnPropInteraction OnPropInteraction;
-
-	// Delegate to notify that player has stopped interacting with a prop/object for UMG purposes (so the text pop-up can appear again)
-	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = "Event Dispatchers", meta = (AllowPrivateAccess = "true"))
-	FOnEndedPropInteraction OnEndedPropInteraction;
 
 protected:
 	/** Set up some space and distance parameters for the grabbing ability. ALL IN CENTIMETERS (cm) !!!*/
@@ -73,7 +65,7 @@ private:
 	class AInteractablePropBase* PropAlreadyHeld;
 
 	//Are we holding something already?
-	bool bIsAlreadyGrabbingSomething = false;
+	bool bIsAlreadyHoldingSomething = false;
 
 	// Use this variable to store the grabbed mesh's original collision settings for the pawn channel
 	ECollisionResponse OriginalPawnECR;
