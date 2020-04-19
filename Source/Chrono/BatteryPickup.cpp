@@ -1,4 +1,4 @@
-// A prototype by Evangelos ("Vaggelis") Tsesmelidakis. All rights reserved. 2019
+// Copyright 2020. All rights reserved. A prototype by CodingRook.
 
 
 #include "BatteryPickup.h"

@@ -1,4 +1,4 @@
-// Copyright 2019. All rights reserved. A prototype by Evangelos ("Vaggelis") Tsesmelidakis.
+// Copyright 2020. All rights reserved. A prototype by CodingRook.
 
 #pragma once
 
